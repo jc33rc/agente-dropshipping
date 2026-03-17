@@ -157,4 +157,284 @@ def mostrar_paywall():
             <h3 style='color: white;'>Oferta Fundador</h3>
             <h1 style='color: #FFD700;'>$99 <span style='font-size: 1rem; color: #888;'>Único</span></h1>
             <p style='color: #ccc;'>Acceso Vitalicio. <b style='color:#FF4B4B;'>🔥 Solo 12 cupos / 12 spots left.</b></p>
-            <a href='#' target='_blank'><button style='width:1
+            <a href='#' target='_blank'><button style='width:100%; padding:10px; background:#FFD700; color:#000; font-weight:bold; border-radius:5px; border:none;'>Ser Fundador</button></a>
+        </div>
+        """, unsafe_allow_html=True)
+
+# ==========================================
+# 3. BARRA LATERAL (LOGIN Y REGISTRO)
+# ==========================================
+with st.sidebar:
+    st.image("https://img.icons8.com/fluency/96/000000/artificial-intelligence.png", width=60)
+    st.markdown("<h2 style='text-align: center; color: #00FF9C;'>Dropshippingent</h2>", unsafe_allow_html=True)
+    
+    st.session_state['idioma'] = st.selectbox("🌐 Idioma / Language:", ["Español", "English", "Português"])
+    st.markdown("---")
+    
+    if not st.session_state['logged_in']:
+        tab1, tab2 = st.tabs(["🔐 Iniciar Sesión", "🚀 Crear Cuenta"])
+        
+        with tab1:
+            email_input = st.text_input("Correo electrónico", key="login_email")
+            pass_input = st.text_input("Contraseña", type="password", key="login_pass")
+            
+            if st.button("Entrar", use_container_width=True):
+                if email_input == ADMIN_EMAIL and pass_input == ADMIN_PASS:
+                    st.session_state.update({'logged_in': True, 'user_role': 'admin', 'user_email': email_input})
+                    st.rerun()
+                elif email_input in USUARIOS_PRO and pass_input == "1234":
+                    st.session_state.update({'logged_in': True, 'user_role': 'pro', 'user_email': email_input})
+                    st.rerun()
+                elif email_input in USUARIOS_FREE and pass_input == "1234":
+                    st.session_state.update({'logged_in': True, 'user_role': 'free', 'user_email': email_input})
+                    st.rerun()
+                else:
+                    st.error("Credenciales incorrectas. (Prueba: free@prueba.com / 1234)")
+                    
+        with tab2:
+            st.markdown("<p style='font-size:0.9rem; color:#888;'>Obtén consultas gratuitas hoy.</p>", unsafe_allow_html=True)
+            reg_email = st.text_input("Tu mejor correo", key="reg_email")
+            reg_pass1 = st.text_input("Crea una contraseña", type="password", key="reg_pass1")
+            reg_pass2 = st.text_input("Repite la contraseña", type="password", key="reg_pass2")
+            
+            if st.button("Registrarme Gratis", use_container_width=True):
+                if reg_pass1 != reg_pass2:
+                    st.error("⚠️ Las contraseñas no coinciden.")
+                elif len(reg_pass1) < 6:
+                    st.warning("⚠️ La contraseña debe tener al menos 6 caracteres.")
+                elif "@" not in reg_email:
+                    st.warning("⚠️ Ingresa un correo electrónico válido.")
+                else:
+                    st.success("✅ ¡Registro exitoso! Por favor, ve a la pestaña 'Iniciar Sesión' y usa free@prueba.com / 1234 para probar la beta.")
+    else:
+        st.success(f"Nivel: {st.session_state['user_role'].upper()}")
+        if st.session_state['user_role'] == 'free':
+            st.caption(f"Consultas Free Básicas: {4 - st.session_state['uso_m1_m2']} restantes")
+            
+        if st.button("Cerrar Sesión", use_container_width=True):
+            st.session_state.update({'logged_in': False, 'user_role': 'invitado', 'user_email': ''})
+            st.rerun()
+            
+        st.markdown("---")
+        
+        modulo = st.radio("Arsenal Analítico:", [
+            "1. Investigar Productos (Free)",
+            "2. Monitor de Precios (Free)",
+            "3. Descripción Amazon A+ (Pro)",
+            "4. Contenido Redes (Pro)",
+            "5. Contactar Proveedor (Pro)",
+            "6. Análisis Rentabilidad (Pro)",
+            "7. Monitor Competencia (Pro)",
+            "8. Score Validación (Pro)"
+        ])
+
+# ==========================================
+# 4. PANTALLA PRINCIPAL: LANDING PAGE
+# ==========================================
+if not st.session_state['logged_in']:
+    t = traducciones[st.session_state['idioma']]
+    
+    st.markdown("<h1 class='main-title'>Dropshippingent</h1>", unsafe_allow_html=True)
+    st.markdown(f"<p class='subtitle'>{t['sub']}</p>", unsafe_allow_html=True)
+    
+    st.markdown(f"<h3 style='text-align: center; color: #E0E0E0; font-weight: normal; margin-bottom: 30px;'>{t['desc']}</h3>", unsafe_allow_html=True)
+    
+    st.info("ESPACIO VISUAL: [Aquí insertaremos el Video corto de 30s mostrando cómo la IA analiza un producto]")
+    
+    st.markdown("---")
+    st.header(t['t1'])
+    st.markdown(t['d1'])
+    
+    col_a, col_b, col_c = st.columns(3)
+    with col_a:
+        st.markdown(f"<h4 style='color: #00FF9C;'>{t['p1_t']}</h4>", unsafe_allow_html=True)
+        st.write(t['p1_d'])
+    with col_b:
+        st.markdown(f"<h4 style='color: #00FF9C;'>{t['p2_t']}</h4>", unsafe_allow_html=True)
+        st.write(t['p2_d'])
+    with col_c:
+        st.markdown(f"<h4 style='color: #00FF9C;'>{t['p3_t']}</h4>", unsafe_allow_html=True)
+        st.write(t['p3_d'])
+        
+    st.markdown("---")
+    st.header(t['t2'])
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.subheader(t['a1_t'])
+        st.write(t['a1_d'])
+    with col2:
+        st.subheader(t['a2_t'])
+        st.write(t['a2_d'])
+    with col3:
+        st.subheader(t['a3_t'])
+        st.write(t['a3_d'])
+        
+    st.info("ESPACIO VISUAL: [Aquí insertaremos Captura de pantalla de los gráficos de rentabilidad y Score]")
+
+    st.markdown("---")
+    st.header(t['faq_t'])
+    with st.expander(t['faq1_q']):
+        st.write(t['faq1_a'])
+    with st.expander(t['faq2_q']):
+        st.write(t['faq2_a'])
+
+    st.markdown("---")
+    st.markdown("<p style='text-align: center; color: #666;'>© 2026 Dropshippingent. Todos los derechos reservados.</p>", unsafe_allow_html=True)
+
+# ==========================================
+# 5. PANTALLA PRINCIPAL: EJECUCIÓN DE MÓDULOS
+# ==========================================
+else:
+    es_free = st.session_state['user_role'] == 'free'
+    
+    if "1. Investigar" in modulo:
+        st.header("🔍 Investigar Productos Ganadores")
+        if es_free and st.session_state['uso_m1_m2'] >= 4:
+            mostrar_paywall()
+        else:
+            col1, col2, col3 = st.columns(3)
+            with col1: nicho = st.text_input("Nicho", placeholder="belleza facial")
+            with col2: presupuesto = st.selectbox("Presupuesto", ["bajo", "medio", "alto"])
+            with col3: plataforma = st.selectbox("Plataforma", ["Amazon", "AliExpress", "Ambas"])
+            if st.button("Investigar ahora", type="primary"):
+                if es_free: st.session_state['uso_m1_m2'] += 1
+                with st.spinner("Analizando mercado..."):
+                    prompt = f"Analiza este nicho: NICHO: {nicho}, PRESUPUESTO: {presupuesto}, PLATAFORMA: {plataforma}. Dame: TOP 5 productos, margen y estrategia."
+                    st.markdown(consultar_agente("Analista de mercado dropshipping.", prompt))
+
+    elif "2. Monitor" in modulo:
+        st.header("📉 Monitor de Precios")
+        if es_free and st.session_state['uso_m1_m2'] >= 4:
+            mostrar_paywall()
+        else:
+            col1, col2, col3 = st.columns(3)
+            with col1: producto = st.text_input("Producto", placeholder="Mascarilla carbon activado")
+            with col2: precio_actual = st.text_input("Mi precio", placeholder="$12.99")
+            with col3: categoria = st.text_input("Categoria")
+            if st.button("Analizar rentabilidad", type="primary"):
+                if es_free: st.session_state['uso_m1_m2'] += 1
+                with st.spinner("Calculando..."):
+                    prompt = f"Analiza precios: PRODUCTO: {producto}, PRECIO: {precio_actual}, CATEGORIA: {categoria}. Dame rango precios, rentabilidad para $500/mes."
+                    st.markdown(consultar_agente("Experto en pricing eCommerce.", prompt))
+
+    elif "3. Descripción" in modulo:
+        st.header("✍️ Copywriting de Élite para Amazon A+")
+        if es_free and st.session_state['uso_m3'] >= 1:
+            mostrar_paywall()
+        else:
+            producto = st.text_input("Nombre del producto")
+            precio = st.text_input("Precio de venta")
+            caracteristicas = st.text_area("Características")
+            tono = st.selectbox("Tono", ["Persuasivo", "Profesional", "Storytelling"])
+            if st.button("Generar descripción", type="primary"):
+                if es_free: st.session_state['uso_m3'] += 1
+                with st.spinner("Generando contenido A+ ..."):
+                    prompt = f"Crea descripcion LARGA A+ (min 1500 chars). PRODUCTO: {producto}, PRECIO: {precio}, CARACT: {caracteristicas}, TONO: {tono}. Incluye Gancho, Problema/Solucion, 5 Bullet points, y 50 Keywords backend."
+                    st.markdown(consultar_agente(f"Copywriter experto en Amazon. Tono: {tono}.", prompt))
+
+    elif "4. Contenido" in modulo:
+        st.header("📱 Estrategia para Redes Sociales")
+        if es_free and st.session_state['uso_m4'] >= 1:
+            mostrar_paywall()
+        else:
+            col1, col2 = st.columns(2)
+            with col1:
+                producto = st.text_input("Producto")
+                nicho = st.text_input("Nicho")
+            with col2:
+                plataforma = st.multiselect("Plataformas", ["Instagram", "TikTok", "Facebook"], default=["TikTok", "Instagram"])
+            if st.button("Crear estrategia 5 Días", type="primary"):
+                if es_free: st.session_state['uso_m4'] += 1
+                with st.spinner("Creando calendario..."):
+                    prompt = f"Crea estrategia de contenido viral: PRODUCTO: {producto}, NICHO: {nicho}, PLATAFORMAS: {plataforma}. Dame un calendario detallado para 5 DÍAS CONSECUTIVOS. Por cada día incluye: formato (Video/Carrusel), gancho visual, y guion exacto o descripción con hashtags."
+                    st.markdown(consultar_agente("Experto en marketing digital viral.", prompt))
+
+    elif "5. Contactar" in modulo:
+        st.header("🤝 Contactar Proveedor")
+        if es_free and st.session_state['uso_m5'] >= 1:
+            mostrar_paywall()
+        else:
+            producto = st.text_input("Producto")
+            proveedor = st.selectbox("Proveedor", ["AliExpress", "CJdropshipping", "Zendrop"])
+            objetivo = st.selectbox("Objetivo", ["Pedir muestra", "Negociar precio", "Consultar envio"])
+            if st.button("Generar mensaje", type="primary"):
+                if es_free: st.session_state['uso_m5'] += 1
+                with st.spinner("Redactando..."):
+                    prompt = f"Redacta mensaje en INGLES para {proveedor}. PRODUCTO: {producto}. OBJETIVO: {objetivo}. Luego dame traducción y 3 consejos de negociación."
+                    st.markdown(consultar_agente("Experto en negociacion B2B.", prompt))
+
+    elif "6. Análisis" in modulo:
+        st.header("📊 Análisis Gráfico de Rentabilidad")
+        if es_free and st.session_state['uso_m6'] >= 1:
+            mostrar_paywall()
+        else:
+            col1, col2 = st.columns(2)
+            with col1:
+                precio_venta = st.number_input("Precio venta (USD)", value=15.99)
+                costo_producto = st.number_input("Costo producto (USD)", value=5.50)
+            with col2:
+                costo_envio = st.number_input("Costo envio (USD)", value=2.00)
+                comision = st.number_input("Comision plataforma %", value=15.0)
+
+            if st.button("Generar gráficos", type="primary"):
+                if es_free: st.session_state['uso_m6'] += 1
+                comision_usd = precio_venta * (comision / 100)
+                margen_neto = precio_venta - costo_producto - costo_envio - comision_usd
+                
+                col1, col2, col3 = st.columns(3)
+                col1.metric("Precio Venta", f"${precio_venta:.2f}")
+                col2.metric("Ganancia Neta", f"${margen_neto:.2f}")
+                col3.metric("Margen %", f"{(margen_neto/precio_venta)*100:.1f}%" if precio_venta > 0 else "0%")
+
+                # Gráfico 1: Pastel
+                fig_pie = px.pie(values=[costo_producto, costo_envio, comision_usd, max(0, margen_neto)], names=["Producto", "Envío", "Comisión", "Margen"], template="plotly_dark", title="Distribución de Costos")
+                st.plotly_chart(fig_pie, use_container_width=True)
+
+                # Gráfico 2: Punto de Equilibrio (Break-Even)
+                st.markdown("---")
+                st.subheader("📈 Proyección: Punto de Equilibrio")
+                unidades = list(range(1, 51))
+                ingresos = [u * precio_venta for u in unidades]
+                costos_totales = [u * (costo_producto + costo_envio + comision_usd) for u in unidades]
+                
+                fig_line = go.Figure()
+                fig_line.add_trace(go.Scatter(x=unidades, y=ingresos, name="Ingresos Brutos", line=dict(color="#00FF9C", width=3)))
+                fig_line.add_trace(go.Scatter(x=unidades, y=costos_totales, name="Costos Totales", line=dict(color="#FF4B4B", width=2, dash='dot')))
+                fig_line.update_layout(xaxis_title="Unidades Vendidas", yaxis_title="Dinero ($)", template="plotly_dark", plot_bgcolor="#1a1a2e", paper_bgcolor="#0e1117")
+                st.plotly_chart(fig_line, use_container_width=True)
+
+    elif "7. Monitor" in modulo:
+        st.header("🕵️ Monitor de Competencia")
+        if es_free and st.session_state['uso_m7'] >= 1:
+            mostrar_paywall()
+        else:
+            producto = st.text_input("Producto a analizar")
+            resenas = st.text_area("Pega reseñas negativas de competidores")
+            if st.button("Analizar brechas", type="primary"):
+                if es_free: st.session_state['uso_m7'] += 1
+                with st.spinner("Analizando..."):
+                    prompt = f"Analiza reseñas negativas: {resenas}. Identifica 3 brechas de mercado y crea una estrategia de diferenciacion agresiva para {producto}."
+                    st.markdown(consultar_agente("Estratega de mercado experto.", prompt))
+
+    elif "8. Score" in modulo:
+        st.header("🎯 Score de Validación IA")
+        if es_free and st.session_state['uso_m8'] >= 1:
+            mostrar_paywall()
+        else:
+            col1, col2 = st.columns(2)
+            with col1:
+                producto = st.text_input("Producto")
+                margen = st.slider("Margen neto %", 0, 100, 50)
+            with col2:
+                velocidad = st.slider("Velocidad envio", 1, 10, 5)
+                competencia = st.slider("Competencia", 1, 10, 5)
+                
+            if st.button("Calcular Score", type="primary"):
+                if es_free: st.session_state['uso_m8'] += 1
+                score = (margen*0.4) + (velocidad*2) + ((10-competencia)*2)
+                st.markdown(f"<h1 style='color:#00FF9C; text-align:center;'>SCORE: {score:.1f} / 100</h1>", unsafe_allow_html=True)
+                st.progress(int(min(score, 100)))
+                with st.spinner("Validando viabilidad..."):
+                    prompt = f"Score de producto {producto}: {score}/100. Margen {margen}%, Velocidad {velocidad}, Competencia {competencia}. Dame veredicto final: Invertir o Descartar."
+                    st.markdown(consultar_agente("Analista de riesgo Dropshipping.", prompt))
+
