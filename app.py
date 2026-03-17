@@ -329,29 +329,49 @@ elif modulo == "Score de Validacion":
             color = "#00FF9C"
 
         fig_gauge = go.Figure()
+        fig_gauge.add_trace(go.Indicator(
+            mode="gauge+number",
+            value=score_total,
+            title={"text": f"Score: {nivel}", "font": {"color": color, "size": 18}},
+            number={"font": {"color": color, "size": 40}},
+            gauge={
+                "axis": {"range": [0, 100]},
+                "bar": {"color": color, "thickness": 0.3},
+                "bgcolor": "#1a1a2e",
+                "bordercolor": "#333",
+                "steps": [
+                    {"range": [0, 40], "color": "#FF4B4B33"},
+                    {"range": [40, 70], "color": "#FFA50033"},
+                    {"range": [70, 100], "color": "#00FF9C33"}
+                ]
+            }
+        ))
+        fig_gauge.update_layout(
+            paper_bgcolor="#0e1117",
+            font_color="white",
+            height=350
+        )
+        st.plotly_chart(fig_gauge, use_container_width=True)
 
-fig_gauge.add_trace(go.Indicator(
-    mode="gauge+number",
-    value=score_total,
-    title={"text": f"Score: {nivel}", "font": {"color": color, "size": 18}},
-    number={"font": {"color": color, "size": 40}},
-    gauge={
-        "axis": {"range": [0, 100]},
-        "bar": {"color": color, "thickness": 0.3},
-        "bgcolor": "#1a1a2e",
-        "bordercolor": "#333",
-        "steps": [
-            {"range": [0, 40], "color": "#FF4B4B33"},
-            {"range": [40, 70], "color": "#FFA50033"},
-            {"range": [70, 100], "color": "#00FF9C33"}
-        ]
-    }
-))
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Margen (40%)", f"{score_margen:.1f}/40")
+        col2.metric("Envio (20%)", f"{score_envio:.1f}/20")
+        col3.metric("Saturacion (20%)", f"{score_saturacion:.1f}/20")
+        col4.metric("Competencia (20%)", f"{score_competencia:.1f}/20")
 
-fig_gauge.update_layout(
-    paper_bgcolor="#0e1117",
-    font_color="white",
-    height=350
-)
-
-st.plotly_chart(fig_gauge, use_container_wi
+        with st.spinner("Generando analisis detallado..."):
+            prompt = f"""
+            Analiza este producto para dropshipping:
+            PRODUCTO: {producto}
+            SCORE TOTAL: {score_total:.1f}/100
+            NIVEL: {nivel}
+            MARGEN: {margen}%
+            VELOCIDAD ENVIO: {velocidad_envio}/10
+            SATURACION: {saturacion}/10
+            COMPETENCIA: {competencia}/10
+            Dame: interpretacion del score, 2 factores criticos a mejorar,
+            recomendacion final y proximos pasos especificos.
+            """
+            analisis = consultar_agente("Eres experto en validacion de productos para dropshipping.", prompt)
+            with st.expander("Ver analisis detallado del score", expanded=True):
+                st.markdown(analisis)
