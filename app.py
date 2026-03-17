@@ -96,6 +96,10 @@ with st.sidebar:
     st.image("https://img.icons8.com/fluency/96/000000/artificial-intelligence.png", width=60)
     st.markdown("<h2 style='text-align: center; color: #00FF9C;'>Dropshippingent</h2>", unsafe_allow_html=True)
     
+    # --- SELECTOR DE IDIOMA SIEMPRE VISIBLE ---
+    st.session_state['idioma'] = st.selectbox("🌐 Idioma de Resultados:", ["Español", "English", "Português"])
+    st.markdown("---")
+    
     if not st.session_state['logged_in']:
         tab1, tab2 = st.tabs(["🔐 Iniciar Sesión", "🚀 Crear Cuenta"])
         
@@ -141,7 +145,6 @@ with st.sidebar:
             st.rerun()
             
         st.markdown("---")
-        st.session_state['idioma'] = st.selectbox("🌐 Idioma / Language:", ["Español", "English", "Português"])
         
         modulo = st.radio("Arsenal Analítico:", [
             "1. Investigar Productos (Free)",
@@ -284,7 +287,7 @@ else:
             if st.button("Generar mensaje", type="primary"):
                 if es_free: st.session_state['uso_m5'] += 1
                 with st.spinner("Redactando..."):
-                    prompt = f"Redacta mensaje en INGLES para {proveedor}. PRODUCTO: {producto}. OBJETIVO: {objetivo}. Luego dame traducción a mi idioma y 3 consejos de negociación."
+                    prompt = f"Redacta mensaje en INGLES para {proveedor}. PRODUCTO: {producto}. OBJETIVO: {objetivo}. Luego dame traducción y 3 consejos de negociación."
                     st.markdown(consultar_agente("Experto en negociacion B2B.", prompt))
 
     elif "6. Análisis" in modulo:
