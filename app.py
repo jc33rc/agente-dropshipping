@@ -13,11 +13,14 @@ st.markdown("""
 st.markdown("<h1 class='main-title'>Agente Dropshipping IA</h1>", unsafe_allow_html=True)
 st.markdown("<p class='subtitle'>Tu asistente inteligente para dropshipping sin inventario</p>", unsafe_allow_html=True)
 
-api_key = st.sidebar.text_input("API Key de Groq", type="password", placeholder="Pega tu API Key aqui")
-
-if not api_key:
-    st.warning("Pega tu API Key de Groq en el panel izquierdo para comenzar")
-    st.stop()
+# Lee la API Key automaticamente sin pedirla al usuario
+try:
+    api_key = st.secrets["GROQ_API_KEY"]
+except:
+    api_key = st.sidebar.text_input("API Key de Groq", type="password", placeholder="Pega tu API Key aqui")
+    if not api_key:
+        st.warning("Pega tu API Key de Groq en el panel izquierdo para comenzar")
+        st.stop()
 
 client = Groq(api_key=api_key)
 
