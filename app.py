@@ -329,29 +329,17 @@ elif modulo == "Score de Validacion":
             color = "#00FF9C"
 
         fig_gauge = go.Figure()
-        fig_gauge.add_trace(go.Indicator(
-            mode="gauge+number",
-            value=score_total,
-            title={"text": f"Score: {nivel}", "font": {"color": color, "size": 18}},
-            number={"font": {"color": color, "size": 40}},
-            gauge={
-                "axis": {"range": [0, 100]},
-                "bar": {"color": color, "thickness": 0.3},
-                "bgcolor": "#1a1a2e",
-                "bordercolor": "#333",
-                "steps": [
-                    {"range": [0, 40], "color": "#FF4B4B33"},
-                    {"range": [40, 70], "color": "#FFA50033"},
-                    {"range": [70, 100], "color": "#00FF9C33"}
-                ]
-            }
-        ))
-        fig_gauge.update_layout(
-            paper_bgcolor="#0e1117",
-            font_color="white",
-            height=350
-        )
-        st.plotly_chart(fig_gauge, use_container_width=True)
+        # Barra de progreso visual en lugar de gauge
+        st.markdown(f"""
+        <div style='text-align:center; padding: 20px;'>
+            <h1 style='color:{color}; font-size: 4rem; text-shadow: 0 0 20px {color};'>
+                {score_total:.0f}/100
+            </h1>
+            <h2 style='color:{color};'>{nivel}</h2>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.progress(int(score_total))
 
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Margen (40%)", f"{score_margen:.1f}/40")
@@ -372,6 +360,9 @@ elif modulo == "Score de Validacion":
             Dame: interpretacion del score, 2 factores criticos a mejorar,
             recomendacion final y proximos pasos especificos.
             """
-            analisis = consultar_agente("Eres experto en validacion de productos para dropshipping.", prompt)
-            with st.expander("Ver analisis detallado del score", expanded=True):
+            analisis = consultar_agente(
+                "Eres experto en validacion de productos para dropshipping.",
+                prompt
+            )
+            with st.expander("Ver analisis detallado", expanded=True):
                 st.markdown(analisis)
