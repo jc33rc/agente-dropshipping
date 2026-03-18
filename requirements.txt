@@ -2,3 +2,4 @@ groq
 streamlit
 plotly
 pandas
+supabase
