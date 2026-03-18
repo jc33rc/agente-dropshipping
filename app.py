@@ -685,6 +685,7 @@ with st.sidebar:
                         st.error(f"⚠️ {resultado}")
     else:
         resetear_uso_diario()
+        tr = t()
         st.success(f"✅ {st.session_state['user_email']}")
         st.caption(f"Plan: **{st.session_state['user_role'].upper()}**")
         if st.session_state['user_role'] == 'free':
@@ -705,7 +706,6 @@ with st.sidebar:
                 st.rerun()
 
         st.markdown("---")
-        tr = t()
         lista_modulos = tr['modulos_simple'] if st.session_state['modo'] == 'simple' else tr['modulos_pro']
         idx_actual = st.session_state.get('idx_modulo', 0)
         if idx_actual >= len(lista_modulos): idx_actual = 0
