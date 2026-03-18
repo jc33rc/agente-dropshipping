@@ -27,12 +27,12 @@ body { background-color: #0e1117; }
 .stButton>button:hover { background: linear-gradient(135deg, #0066FF, #00FF9C); transform: scale(1.02); }
 section[data-testid="stSidebar"] { background-color: #1a1a2e; }
 .stExpander { border: 1px solid #00FF9C33; border-radius: 8px; }
-.paywall-box { background-color: #1a1a2e; padding: 25px; border-radius: 12px; border: 2px solid; text-align: center; }
+.paywall-box { background-color: #1a1a2e; padding: 25px; border-radius: 12px; border: 2px solid; text-align: center; margin-top: 15px; }
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. CREDENCIALES Y PROTECCIÓN (BÓVEDA)
+# 2. CREDENCIALES Y PROTECCIÓN
 # ==========================================
 try:
     api_key = st.secrets["GROQ_API_KEY"]
@@ -47,7 +47,7 @@ client = Groq(api_key=api_key)
 USUARIOS_PRO = ["pro@dropshippingent.com"]
 USUARIOS_FREE = ["free@prueba.com"]
 
-# --- DICCIONARIO MULTILINGÜE PARA LA LANDING PAGE ---
+# --- DICCIONARIO MULTILINGÜE ---
 traducciones = {
     "Español": {
         "sub": "Análisis de Mercado y Dropshipping Potenciado por Inteligencia Artificial.",
@@ -71,7 +71,17 @@ traducciones = {
         "faq1_q": "¿Cómo funcionan las consultas gratuitas?",
         "faq1_a": "Al registrarte tienes 4 usos completos para investigar productos del mercado, y 1 uso de degustación para cada herramienta Pro (Copywriting, Redes, Análisis Gráfico, etc).",
         "faq2_q": "¿Para qué plataformas de eCommerce sirve?",
-        "faq2_a": "Nuestra IA domina Amazon FBA/FBM, tiendas en Shopify (DSers) e integraciones locales."
+        "faq2_a": "Nuestra IA domina Amazon FBA/FBM, tiendas en Shopify (DSers) e integraciones locales.",
+        "pw_limit": "🔒 Has alcanzado el límite de tu cuenta Freemium.",
+        "pw_unlock": "### 🚀 Desbloquea el Ecosistema Analítico Completo",
+        "pw_plan_t": "Plan Emprendedor",
+        "pw_plan_p": "$19 <span style='font-size: 1rem; color: #888;'>/ mes</span>",
+        "pw_plan_d": "Acceso ilimitado a todos los módulos IA.",
+        "pw_plan_b": "Suscribirse",
+        "pw_found_t": "Oferta Fundador",
+        "pw_found_p": "$99 <span style='font-size: 1rem; color: #888;'>Único</span>",
+        "pw_found_d": "Acceso Vitalicio. <b style='color:#FF4B4B;'>🔥 Solo 12 cupos disponibles.</b>",
+        "pw_found_b": "Ser Fundador"
     },
     "English": {
         "sub": "Market Analysis and Dropshipping Powered by Artificial Intelligence.",
@@ -95,7 +105,17 @@ traducciones = {
         "faq1_q": "How do free queries work?",
         "faq1_a": "Upon registration, you get 4 full uses to research market products, and 1 trial use for each Pro tool (Copywriting, Social Media, Graphical Analysis, etc.).",
         "faq2_q": "Which eCommerce platforms is it for?",
-        "faq2_a": "Our AI masters Amazon FBA/FBM, Shopify stores (DSers), and local integrations."
+        "faq2_a": "Our AI masters Amazon FBA/FBM, Shopify stores (DSers), and local integrations.",
+        "pw_limit": "🔒 Freemium limit reached.",
+        "pw_unlock": "### 🚀 Unlock the Complete Analytical Ecosystem",
+        "pw_plan_t": "Entrepreneur Plan",
+        "pw_plan_p": "$19 <span style='font-size: 1rem; color: #888;'>/ month</span>",
+        "pw_plan_d": "Unlimited access to all AI modules.",
+        "pw_plan_b": "Subscribe Now",
+        "pw_found_t": "Founder Offer",
+        "pw_found_p": "$99 <span style='font-size: 1rem; color: #888;'>One-time</span>",
+        "pw_found_d": "Lifetime Access. <b style='color:#FF4B4B;'>🔥 Only 12 spots left.</b>",
+        "pw_found_b": "Become a Founder"
     },
     "Português": {
         "sub": "Análise de Mercado e Dropshipping Potencializado por Inteligência Artificial.",
@@ -117,9 +137,19 @@ traducciones = {
         "a3_d": "Obtenha uma pontuação de risco de 0 a 100 avaliando saturação, margens e velocidade de envio antes de importar para sua loja.",
         "faq_t": "❓ Perguntas Frequentes",
         "faq1_q": "Como funcionam as consultas gratuitas?",
-        "faq1_a": "Ao se registrar, você tem 4 usos completos para pesquisar produtos no mercado, e 1 uso de teste para cada ferramenta Pro (Copywriting, Redes Sociais, Análise Gráfica, etc.).",
+        "faq1_a": "Ao se registrar, você tem 4 usos completos para pesquisar produtos no mercado, e 1 uso de teste para cada ferramenta Pro.",
         "faq2_q": "Para quais plataformas de eCommerce serve?",
-        "faq2_a": "Nossa IA domina Amazon FBA/FBM, lojas no Shopify (DSers) e integrações locais."
+        "faq2_a": "Nossa IA domina Amazon FBA/FBM, lojas no Shopify (DSers) e integrações locais.",
+        "pw_limit": "🔒 Limite Freemium atingido.",
+        "pw_unlock": "### 🚀 Desbloqueie o Ecossistema Analítico Completo",
+        "pw_plan_t": "Plano Empreendedor",
+        "pw_plan_p": "$19 <span style='font-size: 1rem; color: #888;'>/ mês</span>",
+        "pw_plan_d": "Acesso ilimitado a todos os módulos de IA.",
+        "pw_plan_b": "Assinar",
+        "pw_found_t": "Oferta Fundador",
+        "pw_found_p": "$99 <span style='font-size: 1rem; color: #888;'>Único</span>",
+        "pw_found_d": "Acesso Vitalício. <b style='color:#FF4B4B;'>🔥 Apenas 12 vagas restantes.</b>",
+        "pw_found_b": "Ser Fundador"
     }
 }
 
@@ -138,26 +168,28 @@ def consultar_agente(sistema, prompt):
     return response.choices[0].message.content
 
 def mostrar_paywall():
-    st.error("🔒 Límite Freemium alcanzado / Freemium limit reached.")
+    t = traducciones[st.session_state['idioma']]
+    st.error(t['pw_limit'])
+    st.markdown(t['pw_unlock'])
     
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("""
+        st.markdown(f"""
         <div class='paywall-box' style='border-color: #00FF9C;'>
-            <h3 style='color: white;'>Plan Emprendedor</h3>
-            <h1 style='color: #00FF9C;'>$19 <span style='font-size: 1rem; color: #888;'>/ mes</span></h1>
-            <p style='color: #ccc;'>Acceso ilimitado a todos los módulos IA.</p>
-            <a href='#' target='_blank'><button style='width:100%; padding:10px; background:#00FF9C; color:#000; font-weight:bold; border-radius:5px; border:none;'>Suscribirse</button></a>
+            <h3 style='color: white;'>{t['pw_plan_t']}</h3>
+            <h1 style='color: #00FF9C;'>{t['pw_plan_p']}</h1>
+            <p style='color: #ccc;'>{t['pw_plan_d']}</p>
+            <a href='#' target='_blank'><button style='width:100%; padding:10px; background:#00FF9C; color:#000; font-weight:bold; border-radius:5px; border:none;'>{t['pw_plan_b']}</button></a>
         </div>
         """, unsafe_allow_html=True)
         
     with col2:
-        st.markdown("""
+        st.markdown(f"""
         <div class='paywall-box' style='border-color: #FFD700;'>
-            <h3 style='color: white;'>Oferta Fundador</h3>
-            <h1 style='color: #FFD700;'>$99 <span style='font-size: 1rem; color: #888;'>Único</span></h1>
-            <p style='color: #ccc;'>Acceso Vitalicio. <b style='color:#FF4B4B;'>🔥 Solo 12 cupos / 12 spots left.</b></p>
-            <a href='#' target='_blank'><button style='width:100%; padding:10px; background:#FFD700; color:#000; font-weight:bold; border-radius:5px; border:none;'>Ser Fundador</button></a>
+            <h3 style='color: white;'>{t['pw_found_t']}</h3>
+            <h1 style='color: #FFD700;'>{t['pw_found_p']}</h1>
+            <p style='color: #ccc;'>{t['pw_found_d']}</p>
+            <a href='#' target='_blank'><button style='width:100%; padding:10px; background:#FFD700; color:#000; font-weight:bold; border-radius:5px; border:none;'>{t['pw_found_b']}</button></a>
         </div>
         """, unsafe_allow_html=True)
 
@@ -209,7 +241,7 @@ with st.sidebar:
     else:
         st.success(f"Nivel: {st.session_state['user_role'].upper()}")
         if st.session_state['user_role'] == 'free':
-            st.caption(f"Consultas Free Básicas: {4 - st.session_state['uso_m1_m2']} restantes")
+            st.caption(f"Consultas Free Básicas: {max(0, 4 - st.session_state['uso_m1_m2'])} restantes")
             
         if st.button("Cerrar Sesión", use_container_width=True):
             st.session_state.update({'logged_in': False, 'user_role': 'invitado', 'user_email': ''})
@@ -289,95 +321,106 @@ else:
     
     if "1. Investigar" in modulo:
         st.header("🔍 Investigar Productos Ganadores")
+        col1, col2, col3 = st.columns(3)
+        with col1: nicho = st.text_input("Nicho", placeholder="belleza facial")
+        with col2: presupuesto = st.selectbox("Presupuesto", ["bajo", "medio", "alto"])
+        with col3: plataforma = st.selectbox("Plataforma", ["Amazon", "AliExpress", "Ambas"])
+        
         if es_free and st.session_state['uso_m1_m2'] >= 4:
+            st.markdown("---")
             mostrar_paywall()
         else:
-            col1, col2, col3 = st.columns(3)
-            with col1: nicho = st.text_input("Nicho", placeholder="belleza facial")
-            with col2: presupuesto = st.selectbox("Presupuesto", ["bajo", "medio", "alto"])
-            with col3: plataforma = st.selectbox("Plataforma", ["Amazon", "AliExpress", "Ambas"])
             if st.button("Investigar ahora", type="primary"):
-                if es_free: st.session_state['uso_m1_m2'] += 1
+                st.session_state['uso_m1_m2'] += 1
                 with st.spinner("Analizando mercado..."):
                     prompt = f"Analiza este nicho: NICHO: {nicho}, PRESUPUESTO: {presupuesto}, PLATAFORMA: {plataforma}. Dame: TOP 5 productos, margen y estrategia."
                     st.markdown(consultar_agente("Analista de mercado dropshipping.", prompt))
 
     elif "2. Monitor" in modulo:
         st.header("📉 Monitor de Precios")
+        col1, col2, col3 = st.columns(3)
+        with col1: producto = st.text_input("Producto", placeholder="Mascarilla carbon activado")
+        with col2: precio_actual = st.text_input("Mi precio", placeholder="$12.99")
+        with col3: categoria = st.text_input("Categoria")
+        
         if es_free and st.session_state['uso_m1_m2'] >= 4:
+            st.markdown("---")
             mostrar_paywall()
         else:
-            col1, col2, col3 = st.columns(3)
-            with col1: producto = st.text_input("Producto", placeholder="Mascarilla carbon activado")
-            with col2: precio_actual = st.text_input("Mi precio", placeholder="$12.99")
-            with col3: categoria = st.text_input("Categoria")
             if st.button("Analizar rentabilidad", type="primary"):
-                if es_free: st.session_state['uso_m1_m2'] += 1
+                st.session_state['uso_m1_m2'] += 1
                 with st.spinner("Calculando..."):
                     prompt = f"Analiza precios: PRODUCTO: {producto}, PRECIO: {precio_actual}, CATEGORIA: {categoria}. Dame rango precios, rentabilidad para $500/mes."
                     st.markdown(consultar_agente("Experto en pricing eCommerce.", prompt))
 
     elif "3. Descripción" in modulo:
         st.header("✍️ Copywriting de Élite para Amazon A+")
+        producto = st.text_input("Nombre del producto")
+        precio = st.text_input("Precio de venta")
+        caracteristicas = st.text_area("Características")
+        tono = st.selectbox("Tono", ["Persuasivo", "Profesional", "Storytelling"])
+        
         if es_free and st.session_state['uso_m3'] >= 1:
+            st.markdown("---")
             mostrar_paywall()
         else:
-            producto = st.text_input("Nombre del producto")
-            precio = st.text_input("Precio de venta")
-            caracteristicas = st.text_area("Características")
-            tono = st.selectbox("Tono", ["Persuasivo", "Profesional", "Storytelling"])
             if st.button("Generar descripción", type="primary"):
-                if es_free: st.session_state['uso_m3'] += 1
+                st.session_state['uso_m3'] += 1
                 with st.spinner("Generando contenido A+ ..."):
                     prompt = f"Crea descripcion LARGA A+ (min 1500 chars). PRODUCTO: {producto}, PRECIO: {precio}, CARACT: {caracteristicas}, TONO: {tono}. Incluye Gancho, Problema/Solucion, 5 Bullet points, y 50 Keywords backend."
                     st.markdown(consultar_agente(f"Copywriter experto en Amazon. Tono: {tono}.", prompt))
 
     elif "4. Contenido" in modulo:
         st.header("📱 Estrategia para Redes Sociales")
+        col1, col2 = st.columns(2)
+        with col1:
+            producto = st.text_input("Producto")
+            nicho = st.text_input("Nicho")
+        with col2:
+            plataforma = st.multiselect("Plataformas", ["Instagram", "TikTok", "Facebook"], default=["TikTok", "Instagram"])
+            
         if es_free and st.session_state['uso_m4'] >= 1:
+            st.markdown("---")
             mostrar_paywall()
         else:
-            col1, col2 = st.columns(2)
-            with col1:
-                producto = st.text_input("Producto")
-                nicho = st.text_input("Nicho")
-            with col2:
-                plataforma = st.multiselect("Plataformas", ["Instagram", "TikTok", "Facebook"], default=["TikTok", "Instagram"])
             if st.button("Crear estrategia 5 Días", type="primary"):
-                if es_free: st.session_state['uso_m4'] += 1
+                st.session_state['uso_m4'] += 1
                 with st.spinner("Creando calendario..."):
                     prompt = f"Crea estrategia de contenido viral: PRODUCTO: {producto}, NICHO: {nicho}, PLATAFORMAS: {plataforma}. Dame un calendario detallado para 5 DÍAS CONSECUTIVOS. Por cada día incluye: formato (Video/Carrusel), gancho visual, y guion exacto o descripción con hashtags."
                     st.markdown(consultar_agente("Experto en marketing digital viral.", prompt))
 
     elif "5. Contactar" in modulo:
         st.header("🤝 Contactar Proveedor")
+        producto = st.text_input("Producto")
+        proveedor = st.selectbox("Proveedor", ["AliExpress", "CJdropshipping", "Zendrop"])
+        objetivo = st.selectbox("Objetivo", ["Pedir muestra", "Negociar precio", "Consultar envio"])
+        
         if es_free and st.session_state['uso_m5'] >= 1:
+            st.markdown("---")
             mostrar_paywall()
         else:
-            producto = st.text_input("Producto")
-            proveedor = st.selectbox("Proveedor", ["AliExpress", "CJdropshipping", "Zendrop"])
-            objetivo = st.selectbox("Objetivo", ["Pedir muestra", "Negociar precio", "Consultar envio"])
             if st.button("Generar mensaje", type="primary"):
-                if es_free: st.session_state['uso_m5'] += 1
+                st.session_state['uso_m5'] += 1
                 with st.spinner("Redactando..."):
                     prompt = f"Redacta mensaje en INGLES para {proveedor}. PRODUCTO: {producto}. OBJETIVO: {objetivo}. Luego dame traducción y 3 consejos de negociación."
                     st.markdown(consultar_agente("Experto en negociacion B2B.", prompt))
 
     elif "6. Análisis" in modulo:
         st.header("📊 Análisis Gráfico de Rentabilidad")
+        col1, col2 = st.columns(2)
+        with col1:
+            precio_venta = st.number_input("Precio venta (USD)", value=15.99)
+            costo_producto = st.number_input("Costo producto (USD)", value=5.50)
+        with col2:
+            costo_envio = st.number_input("Costo envio (USD)", value=2.00)
+            comision = st.number_input("Comision plataforma %", value=15.0)
+
         if es_free and st.session_state['uso_m6'] >= 1:
+            st.markdown("---")
             mostrar_paywall()
         else:
-            col1, col2 = st.columns(2)
-            with col1:
-                precio_venta = st.number_input("Precio venta (USD)", value=15.99)
-                costo_producto = st.number_input("Costo producto (USD)", value=5.50)
-            with col2:
-                costo_envio = st.number_input("Costo envio (USD)", value=2.00)
-                comision = st.number_input("Comision plataforma %", value=15.0)
-
             if st.button("Generar gráficos", type="primary"):
-                if es_free: st.session_state['uso_m6'] += 1
+                st.session_state['uso_m6'] += 1
                 comision_usd = precio_venta * (comision / 100)
                 margen_neto = precio_venta - costo_producto - costo_envio - comision_usd
                 
@@ -386,11 +429,9 @@ else:
                 col2.metric("Ganancia Neta", f"${margen_neto:.2f}")
                 col3.metric("Margen %", f"{(margen_neto/precio_venta)*100:.1f}%" if precio_venta > 0 else "0%")
 
-                # Gráfico 1: Pastel
                 fig_pie = px.pie(values=[costo_producto, costo_envio, comision_usd, max(0, margen_neto)], names=["Producto", "Envío", "Comisión", "Margen"], template="plotly_dark", title="Distribución de Costos")
                 st.plotly_chart(fig_pie, use_container_width=True)
 
-                # Gráfico 2: Punto de Equilibrio (Break-Even)
                 st.markdown("---")
                 st.subheader("📈 Proyección: Punto de Equilibrio")
                 unidades = list(range(1, 51))
@@ -405,32 +446,35 @@ else:
 
     elif "7. Monitor" in modulo:
         st.header("🕵️ Monitor de Competencia")
+        producto = st.text_input("Producto a analizar")
+        resenas = st.text_area("Pega reseñas negativas de competidores")
+        
         if es_free and st.session_state['uso_m7'] >= 1:
+            st.markdown("---")
             mostrar_paywall()
         else:
-            producto = st.text_input("Producto a analizar")
-            resenas = st.text_area("Pega reseñas negativas de competidores")
             if st.button("Analizar brechas", type="primary"):
-                if es_free: st.session_state['uso_m7'] += 1
+                st.session_state['uso_m7'] += 1
                 with st.spinner("Analizando..."):
                     prompt = f"Analiza reseñas negativas: {resenas}. Identifica 3 brechas de mercado y crea una estrategia de diferenciacion agresiva para {producto}."
                     st.markdown(consultar_agente("Estratega de mercado experto.", prompt))
 
     elif "8. Score" in modulo:
         st.header("🎯 Score de Validación IA")
+        col1, col2 = st.columns(2)
+        with col1:
+            producto = st.text_input("Producto")
+            margen = st.slider("Margen neto %", 0, 100, 50)
+        with col2:
+            velocidad = st.slider("Velocidad envio", 1, 10, 5)
+            competencia = st.slider("Competencia", 1, 10, 5)
+            
         if es_free and st.session_state['uso_m8'] >= 1:
+            st.markdown("---")
             mostrar_paywall()
         else:
-            col1, col2 = st.columns(2)
-            with col1:
-                producto = st.text_input("Producto")
-                margen = st.slider("Margen neto %", 0, 100, 50)
-            with col2:
-                velocidad = st.slider("Velocidad envio", 1, 10, 5)
-                competencia = st.slider("Competencia", 1, 10, 5)
-                
             if st.button("Calcular Score", type="primary"):
-                if es_free: st.session_state['uso_m8'] += 1
+                st.session_state['uso_m8'] += 1
                 score = (margen*0.4) + (velocidad*2) + ((10-competencia)*2)
                 st.markdown(f"<h1 style='color:#00FF9C; text-align:center;'>SCORE: {score:.1f} / 100</h1>", unsafe_allow_html=True)
                 st.progress(int(min(score, 100)))
