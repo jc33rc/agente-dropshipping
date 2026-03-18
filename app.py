@@ -5,6 +5,8 @@ import plotly.express as px
 import pandas as pd
 from supabase import create_client, Client
 from datetime import date
+import requests
+import json
 
 # ==========================================
 # 1. CONFIGURACIÓN INICIAL Y ESTADOS
@@ -18,6 +20,7 @@ if 'user_id' not in st.session_state: st.session_state['user_id'] = None
 if 'idioma' not in st.session_state: st.session_state['idioma'] = 'Español'
 if 'modo' not in st.session_state: st.session_state['modo'] = 'simple'
 if 'fecha_uso' not in st.session_state: st.session_state['fecha_uso'] = str(date.today())
+if 'vista' not in st.session_state: st.session_state['vista'] = 'modulos'
 
 if 'uso_m1_m2' not in st.session_state: st.session_state['uso_m1_m2'] = 0
 for i in range(3, 9):
@@ -33,8 +36,7 @@ body { background-color: #0e1117; }
 section[data-testid="stSidebar"] { background-color: #1a1a2e; }
 .stExpander { border: 1px solid #00FF9C33; border-radius: 8px; }
 .paywall-box { background-color: #1a1a2e; padding: 25px; border-radius: 12px; border: 2px solid; text-align: center; margin-top: 15px; }
-.registro-cta { background: linear-gradient(135deg, #00FF9C22, #0066FF22); border: 2px solid #00FF9C; border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0; }
-.modo-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+.campana-card { background-color: #1a1a2e; padding: 15px; border-radius: 12px; border: 1px solid #00FF9C44; margin-bottom: 15px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -47,18 +49,153 @@ try:
     ADMIN_PASS = st.secrets.get("ADMIN_PASS", "admin123")
     SUPABASE_URL = st.secrets["SUPABASE_URL"]
     SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+    RESEND_API_KEY = st.secrets.get("RESEND_API_KEY", "")
 except:
-    st.error("⚠️ Configura tus variables st.secrets en Streamlit Cloud (GROQ_API_KEY, ADMIN_EMAIL, ADMIN_PASS, SUPABASE_URL, SUPABASE_KEY)")
+    st.error("⚠️ Configura tus variables st.secrets en Streamlit Cloud")
     st.stop()
 
 client = Groq(api_key=api_key)
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+FROM_EMAIL = "onboarding@resend.dev"
+APP_URL = "https://dropshippingent.streamlit.app"
+
+# ==========================================
+# FUNCIONES EMAIL CON RESEND
+# ==========================================
+def enviar_email(to_email: str, subject: str, html_content: str):
+    """Envía email usando Resend API"""
+    if not RESEND_API_KEY:
+        return False
+    try:
+        response = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "from": FROM_EMAIL,
+                "to": [to_email],
+                "subject": subject,
+                "html": html_content
+            }
+        )
+        return response.status_code == 200
+    except:
+        return False
+
+def email_bienvenida(to_email: str):
+    """Email de bienvenida al registrarse"""
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="background:#0e1117; color:white; font-family:Arial,sans-serif; padding:20px;">
+        <div style="max-width:600px; margin:0 auto;">
+            <h1 style="color:#00FF9C; text-align:center; text-shadow:0 0 10px #00FF9C;">
+                Dropshippingent
+            </h1>
+            <p style="text-align:center; color:#888;">IA Analítica para eCommerce</p>
+            <hr style="border-color:#00FF9C33;">
+
+            <h2 style="color:white;">¡Bienvenido! 🎉</h2>
+            <p style="color:#ccc;">Tu cuenta está lista. Aquí tienes todo lo que necesitas saber para empezar:</p>
+
+            <div style="background:#1a1a2e; padding:20px; border-radius:12px; border:1px solid #00FF9C44; margin:20px 0;">
+                <h3 style="color:#00FF9C;">🎁 Tu plan gratuito incluye:</h3>
+                <ul style="color:#ccc;">
+                    <li>✅ 1 análisis de productos por día</li>
+                    <li>✅ 1 análisis de rentabilidad por día</li>
+                    <li>✅ Vista previa de todas las herramientas Pro</li>
+                    <li>✅ Acceso ilimitado a la plataforma</li>
+                </ul>
+            </div>
+
+            <div style="background:#1a1a2e; padding:20px; border-radius:12px; border:1px solid #00FF9C44; margin:20px 0;">
+                <h3 style="color:#00FF9C;">🚀 ¿Por dónde empezar?</h3>
+                <p style="color:#ccc;"><b style="color:white;">PASO 1:</b> ¿Qué puedo vender? — Escribe un nicho y te decimos los 5 mejores productos con márgenes.</p>
+                <p style="color:#ccc;"><b style="color:white;">PASO 2:</b> ¿Gano dinero? — Calcula tu rentabilidad antes de invertir un dólar.</p>
+                <p style="color:#ccc;"><b style="color:white;">PASO 3:</b> Escríbelo por mí — Genera descripciones profesionales para Amazon en segundos.</p>
+            </div>
+
+            <div style="text-align:center; margin:30px 0;">
+                <a href="{APP_URL}" style="background:linear-gradient(135deg,#00FF9C,#0066FF); color:#000; padding:15px 30px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:1.1rem;">
+                    Entrar a Dropshippingent →
+                </a>
+            </div>
+
+            <div style="background:#1a1a2e; padding:20px; border-radius:12px; border:2px solid #FFD700; margin:20px 0; text-align:center;">
+                <h3 style="color:#FFD700;">🔥 Oferta Fundador</h3>
+                <p style="color:#ccc;">Solo 12 cupos disponibles.</p>
+                <p style="color:white; font-size:1.5rem; font-weight:bold;">Acceso de por vida por <span style="color:#FFD700;">$99</span></p>
+                <a href="{APP_URL}" style="background:#FFD700; color:#000; padding:10px 20px; border-radius:8px; text-decoration:none; font-weight:bold;">
+                    Quiero ser Fundador
+                </a>
+            </div>
+
+            <div style="background:#1a1a2e; padding:15px; border-radius:8px; margin:20px 0;">
+                <h3 style="color:#00FF9C;">💡 ¿Sabías que...?</h3>
+                <p style="color:#ccc;">El dropshipping sin inventario te permite vender sin comprar productos anticipadamente. El proveedor envía directo a tu cliente. Tú solo te encargas de conseguir clientes y cobrar la diferencia.</p>
+            </div>
+
+            <hr style="border-color:#00FF9C33;">
+            <p style="text-align:center; color:#666; font-size:0.85rem;">
+                © 2026 Dropshippingent. Todos los derechos reservados.<br>
+                <a href="{APP_URL}" style="color:#00FF9C;">dropshippingent.streamlit.app</a>
+            </p>
+        </div>
+    </body>
+    </html>
+    """
+    return enviar_email(to_email, "¡Bienvenido a Dropshippingent! 🚀 Tu primer análisis te espera", html)
+
+def email_alerta_publicacion(to_email: str, campana_nombre: str, producto: str, dia: int, contenido_preview: str):
+    """Email de alerta de publicación diaria"""
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="background:#0e1117; color:white; font-family:Arial,sans-serif; padding:20px;">
+        <div style="max-width:600px; margin:0 auto;">
+            <h1 style="color:#00FF9C; text-align:center;">Dropshippingent</h1>
+            <hr style="border-color:#00FF9C33;">
+
+            <div style="background:#1a1a2e; padding:20px; border-radius:12px; border:1px solid #00FF9C44; margin:20px 0;">
+                <h2 style="color:#00FF9C;">🔔 Tu post de hoy está listo</h2>
+                <p style="color:#ccc;">Campaña: <b style="color:white;">{campana_nombre}</b></p>
+                <p style="color:#ccc;">Producto: <b style="color:white;">{producto}</b></p>
+                <p style="color:#ccc;">Día: <b style="color:white;">{dia} de 5</b></p>
+            </div>
+
+            <div style="background:#1a1a2e; padding:20px; border-radius:12px; border:1px solid #00FF9C44; margin:20px 0;">
+                <h3 style="color:#00FF9C;">📝 Vista previa del contenido:</h3>
+                <p style="color:#ccc; font-style:italic;">{contenido_preview[:300]}...</p>
+            </div>
+
+            <div style="text-align:center; margin:30px 0;">
+                <a href="{APP_URL}" style="background:linear-gradient(135deg,#00FF9C,#0066FF); color:#000; padding:15px 30px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:1.1rem;">
+                    Ver contenido completo y publicar →
+                </a>
+            </div>
+
+            <p style="text-align:center; color:#888; font-size:0.85rem;">
+                Solo te toma 30 segundos copiar y publicar. ¡Tu audiencia te espera!
+            </p>
+
+            <hr style="border-color:#00FF9C33;">
+            <p style="text-align:center; color:#666; font-size:0.85rem;">
+                © 2026 Dropshippingent — 
+                <a href="{APP_URL}" style="color:#00FF9C;">Gestionar mis campañas</a>
+            </p>
+        </div>
+    </body>
+    </html>
+    """
+    return enviar_email(to_email, f"🔔 Tu post de hoy está listo — {campana_nombre}", html)
+
 # ==========================================
 # FUNCIONES SUPABASE
 # ==========================================
 def resetear_uso_diario():
-    """Resetea los contadores diarios si es un nuevo día"""
     hoy = str(date.today())
     if st.session_state.get('fecha_uso') != hoy:
         st.session_state['uso_m1_m2'] = 0
@@ -69,21 +206,6 @@ def resetear_uso_diario():
                 supabase.table("usuarios").update({"uso_m1_m2": 0}).eq("id", user_id).execute()
             except:
                 pass
-
-def cargar_usuario_desde_db(email: str):
-    try:
-        res = supabase.table("usuarios").select("*").eq("email", email).single().execute()
-        if res.data:
-            u = res.data
-            st.session_state['user_id'] = u['id']
-            st.session_state['user_role'] = u['role']
-            st.session_state['uso_m1_m2'] = u.get('uso_m1_m2', 0)
-            for i in range(3, 9):
-                st.session_state[f'uso_m{i}'] = u.get(f'uso_m{i}', 0)
-            return True
-        return False
-    except:
-        return False
 
 def incrementar_uso_db(campo: str):
     try:
@@ -120,6 +242,44 @@ def login_usuario_db(email: str, password: str):
     except:
         return False, None
 
+def guardar_campana(user_id: str, nombre: str, producto: str, estrategia: str, canal: str, contacto: str, horario: str):
+    try:
+        res = supabase.table("campanas").insert({
+            "user_id": user_id,
+            "nombre": nombre,
+            "producto": producto,
+            "estrategia": estrategia,
+            "canal": canal,
+            "contacto": contacto,
+            "horario": horario,
+            "activa": True,
+            "dia_actual": 1
+        }).execute()
+        return True if res.data else False
+    except:
+        return False
+
+def obtener_campanas(user_id: str):
+    try:
+        res = supabase.table("campanas").select("*").eq("user_id", user_id).order("created_at", desc=True).execute()
+        return res.data if res.data else []
+    except:
+        return []
+
+def pausar_campana(campana_id: str, activa: bool):
+    try:
+        supabase.table("campanas").update({"activa": activa}).eq("id", campana_id).execute()
+        return True
+    except:
+        return False
+
+def eliminar_campana(campana_id: str):
+    try:
+        supabase.table("campanas").delete().eq("id", campana_id).execute()
+        return True
+    except:
+        return False
+
 # ==========================================
 # NOMBRES DE MÓDULOS POR MODO
 # ==========================================
@@ -153,9 +313,7 @@ traducciones = {
         "sub": "Análisis de Mercado y Dropshipping Potenciado por Inteligencia Artificial.",
         "hero_simple": "¿Quieres vender por internet sin tener productos en casa?",
         "hero_desc": "Dropshippingent es tu asistente inteligente. Te dice qué vender, cuánto ganarás y crea el contenido por ti. Sin experiencia previa.",
-        "cta_register": "🚀 Empieza Gratis Ahora",
-        "cta_login": "Ya tengo cuenta",
-        "desc": "El ecosistema analítico definitivo para emprendedores. Encuentra productos ganadores, calcula tu rentabilidad exacta y domina tu nicho sin tocar inventario.",
+        "cta_info": "👈 Toca **Crear Cuenta** en el panel izquierdo para empezar gratis ahora",
         "t1": "🎯 ¿Para quién está diseñado Dropshippingent?",
         "d1": "Nuestros algoritmos están entrenados específicamente para resolver los problemas de 3 perfiles clave:",
         "p1_t": "🛒 Emprendedores que están empezando",
@@ -194,9 +352,7 @@ traducciones = {
         "sub": "Market Analysis and Dropshipping Powered by Artificial Intelligence.",
         "hero_simple": "Want to sell online without keeping products at home?",
         "hero_desc": "Dropshippingent is your smart assistant. It tells you what to sell, how much you'll earn, and creates content for you. No prior experience needed.",
-        "cta_register": "🚀 Start Free Now",
-        "cta_login": "I already have an account",
-        "desc": "The ultimate analytical ecosystem for entrepreneurs. Find winning products, calculate exact profitability, and dominate your niche without touching inventory.",
+        "cta_info": "👈 Tap **Create Account** on the left panel to start free now",
         "t1": "🎯 Who is Dropshippingent designed for?",
         "d1": "Our algorithms are specifically trained to solve the problems of 3 key profiles:",
         "p1_t": "🛒 Entrepreneurs just starting out",
@@ -235,9 +391,7 @@ traducciones = {
         "sub": "Análise de Mercado e Dropshipping Potencializado por Inteligência Artificial.",
         "hero_simple": "Quer vender pela internet sem ter produtos em casa?",
         "hero_desc": "Dropshippingent é seu assistente inteligente. Te diz o que vender, quanto vai ganhar e cria o conteúdo por você. Sem experiência prévia.",
-        "cta_register": "🚀 Comece Grátis Agora",
-        "cta_login": "Já tenho conta",
-        "desc": "O ecossistema analítico definitivo para empreendedores. Encontre produtos vencedores, calcule sua rentabilidade exata e domine seu nicho sem tocar no estoque.",
+        "cta_info": "👈 Toque em **Criar Conta** no painel esquerdo para começar grátis agora",
         "t1": "🎯 Para quem o Dropshippingent foi desenhado?",
         "d1": "Nossos algoritmos são treinados especificamente para resolver os problemas de 3 perfis principais:",
         "p1_t": "🛒 Empreendedores que estão começando",
@@ -312,27 +466,32 @@ def mostrar_paywall():
         """, unsafe_allow_html=True)
 
 def mostrar_preview_paywall(resultado_parcial):
-    """Muestra resultado parcial y luego paywall para usuarios free"""
     t = traducciones[st.session_state['idioma']]
     lineas = resultado_parcial.split('\n')
     preview = '\n'.join(lineas[:8])
     st.markdown(preview)
     st.markdown(f"""
-    <div style='background: linear-gradient(to bottom, transparent, #0e1117); 
-    padding: 40px 20px 20px; text-align: center; margin-top: -20px;
-    border: 1px solid #00FF9C44; border-radius: 8px;'>
-        <p style='color: #00FF9C; font-size: 1.1rem; font-weight: bold;'>{t['pw_preview']}</p>
+    <div style='background:linear-gradient(to bottom, transparent, #0e1117);
+    padding:40px 20px 20px; text-align:center; margin-top:-20px;
+    border:1px solid #00FF9C44; border-radius:8px;'>
+        <p style='color:#00FF9C; font-size:1.1rem; font-weight:bold;'>{t['pw_preview']}</p>
     </div>
     """, unsafe_allow_html=True)
     mostrar_paywall()
 
 # ==========================================
-# 3. BARRA LATERAL (LOGIN Y REGISTRO)
+# 3. BARRA LATERAL
 # ==========================================
 with st.sidebar:
     st.image("https://img.icons8.com/fluency/96/000000/artificial-intelligence.png", width=60)
-    st.markdown("<h2 style='text-align: center; color: #00FF9C;'>Dropshippingent</h2>", unsafe_allow_html=True)
-    st.session_state['idioma'] = st.selectbox("🌐 Idioma / Language:", ["Español", "English", "Português"])
+    st.markdown("<h2 style='text-align:center; color:#00FF9C;'>Dropshippingent</h2>", unsafe_allow_html=True)
+
+    idioma_anterior = st.session_state['idioma']
+    nuevo_idioma = st.selectbox("🌐 Idioma / Language:", ["Español", "English", "Português"])
+    if nuevo_idioma != idioma_anterior:
+        st.session_state['idioma'] = nuevo_idioma
+        st.rerun()
+
     st.markdown("---")
 
     if not st.session_state['logged_in']:
@@ -341,7 +500,6 @@ with st.sidebar:
         with tab1:
             email_input = st.text_input("Correo electrónico", key="login_email")
             pass_input = st.text_input("Contraseña", type="password", key="login_pass")
-
             if st.button("Entrar", use_container_width=True):
                 if email_input == ADMIN_EMAIL and pass_input == ADMIN_PASS:
                     st.session_state.update({
@@ -376,7 +534,7 @@ with st.sidebar:
             reg_pass1 = st.text_input("Crea una contraseña", type="password", key="reg_pass1")
             reg_pass2 = st.text_input("Repite la contraseña", type="password", key="reg_pass2")
 
-            if st.button("Registrarme Gratis", use_container_width=True):
+            if st.button("🚀 Registrarme Gratis", use_container_width=True):
                 if reg_pass1 != reg_pass2:
                     st.error("⚠️ Las contraseñas no coinciden.")
                 elif len(reg_pass1) < 6:
@@ -386,7 +544,6 @@ with st.sidebar:
                 else:
                     exito, resultado = registrar_usuario_db(reg_email, reg_pass1)
                     if exito:
-                        # AUTO-LOGIN al registrarse
                         st.session_state.update({
                             'logged_in': True,
                             'user_role': 'free',
@@ -397,7 +554,8 @@ with st.sidebar:
                             'uso_m6': 0, 'uso_m7': 0, 'uso_m8': 0,
                             'fecha_uso': str(date.today())
                         })
-                        st.success("✅ ¡Bienvenido a Dropshippingent!")
+                        email_bienvenida(reg_email)
+                        st.success("✅ ¡Bienvenido! Revisa tu correo.")
                         st.rerun()
                     else:
                         st.error(f"⚠️ {resultado}")
@@ -408,40 +566,49 @@ with st.sidebar:
 
         if st.session_state['user_role'] == 'free':
             restantes = max(0, 1 - st.session_state['uso_m1_m2'])
-            st.caption(f"Análisis gratuitos hoy: {'✅ 1 disponible' if restantes > 0 else '⛔ Agotado — se renueva mañana'}")
+            st.caption(f"Análisis hoy: {'✅ Disponible' if restantes > 0 else '⛔ Se renueva mañana'}")
 
         st.markdown("---")
 
-        # TOGGLE MODO SIMPLE / PRO
         col_m1, col_m2 = st.columns(2)
         with col_m1:
             if st.button("😊 Simple", use_container_width=True,
                 type="primary" if st.session_state['modo'] == 'simple' else "secondary"):
                 st.session_state['modo'] = 'simple'
+                st.session_state['vista'] = 'modulos'
                 st.rerun()
         with col_m2:
             if st.button("⚡ Pro", use_container_width=True,
                 type="primary" if st.session_state['modo'] == 'pro' else "secondary"):
                 st.session_state['modo'] = 'pro'
+                st.session_state['vista'] = 'modulos'
                 st.rerun()
 
         st.markdown("---")
 
         lista_modulos = MODULOS_SIMPLE if st.session_state['modo'] == 'simple' else MODULOS_PRO
-        modulo = st.radio("", lista_modulos)
+        modulo_sel = st.radio("", lista_modulos,
+            key="modulo_radio",
+            on_change=lambda: st.session_state.update({'vista': 'modulos'}))
 
         st.markdown("---")
+
+        if st.button("📋 Mis Campañas", use_container_width=True):
+            st.session_state['vista'] = 'campanas'
+            st.rerun()
+
         if st.button("Cerrar Sesión", use_container_width=True):
             st.session_state.update({
                 'logged_in': False, 'user_role': 'invitado',
                 'user_email': '', 'user_id': None,
                 'uso_m1_m2': 0, 'uso_m3': 0, 'uso_m4': 0,
-                'uso_m5': 0, 'uso_m6': 0, 'uso_m7': 0, 'uso_m8': 0
+                'uso_m5': 0, 'uso_m6': 0, 'uso_m7': 0, 'uso_m8': 0,
+                'vista': 'modulos'
             })
             st.rerun()
 
 # ==========================================
-# 4. PANTALLA PRINCIPAL: LANDING PAGE
+# 4. LANDING PAGE
 # ==========================================
 if not st.session_state['logged_in']:
     t = traducciones[st.session_state['idioma']]
@@ -449,25 +616,22 @@ if not st.session_state['logged_in']:
     st.markdown("<h1 class='main-title'>Dropshippingent</h1>", unsafe_allow_html=True)
     st.markdown(f"<p class='subtitle'>{t['sub']}</p>", unsafe_allow_html=True)
 
-    # HERO SECTION con CTA prominente
     st.markdown(f"""
-    <div style='text-align:center; padding: 30px; background: linear-gradient(135deg, #00FF9C11, #0066FF11);
-    border-radius: 16px; border: 1px solid #00FF9C44; margin-bottom: 30px;'>
-        <h2 style='color: white; font-size: 1.8rem;'>{t['hero_simple']}</h2>
-        <p style='color: #aaa; font-size: 1.1rem; margin-bottom: 20px;'>{t['hero_desc']}</p>
+    <div style='text-align:center; padding:30px; background:linear-gradient(135deg,#00FF9C11,#0066FF11);
+    border-radius:16px; border:1px solid #00FF9C44; margin-bottom:30px;'>
+        <h2 style='color:white; font-size:1.8rem;'>{t['hero_simple']}</h2>
+        <p style='color:#aaa; font-size:1.1rem; margin-bottom:20px;'>{t['hero_desc']}</p>
     </div>
     """, unsafe_allow_html=True)
 
-    # BOTONES CTA PROMINENTES
-    col_cta1, col_cta2, col_cta3 = st.columns([1, 2, 1])
-    with col_cta2:
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
         st.markdown(f"""
-        <div style='text-align:center;'>
-            <p style='color:#888; font-size:0.9rem; margin-top:10px;'>
-            ✅ Gratis para siempre &nbsp;|&nbsp; ⚡ Listo en 30 segundos &nbsp;|&nbsp; 🔒 Sin tarjeta de crédito</p>
-        </div>
+        <p style='text-align:center; color:#888; font-size:0.9rem;'>
+        ✅ Gratis para siempre &nbsp;|&nbsp; ⚡ Listo en 30 segundos &nbsp;|&nbsp; 🔒 Sin tarjeta de crédito
+        </p>
         """, unsafe_allow_html=True)
-        st.info("👈 Toca **Crear Cuenta** en el panel izquierdo para empezar gratis ahora")
+        st.info(t['cta_info'])
 
     st.markdown("---")
     st.header(t['t1'])
@@ -475,13 +639,13 @@ if not st.session_state['logged_in']:
 
     col_a, col_b, col_c = st.columns(3)
     with col_a:
-        st.markdown(f"<h4 style='color: #00FF9C;'>{t['p1_t']}</h4>", unsafe_allow_html=True)
+        st.markdown(f"<h4 style='color:#00FF9C;'>{t['p1_t']}</h4>", unsafe_allow_html=True)
         st.write(t['p1_d'])
     with col_b:
-        st.markdown(f"<h4 style='color: #00FF9C;'>{t['p2_t']}</h4>", unsafe_allow_html=True)
+        st.markdown(f"<h4 style='color:#00FF9C;'>{t['p2_t']}</h4>", unsafe_allow_html=True)
         st.write(t['p2_d'])
     with col_c:
-        st.markdown(f"<h4 style='color: #00FF9C;'>{t['p3_t']}</h4>", unsafe_allow_html=True)
+        st.markdown(f"<h4 style='color:#00FF9C;'>{t['p3_t']}</h4>", unsafe_allow_html=True)
         st.write(t['p3_d'])
 
     st.markdown("---")
@@ -502,28 +666,93 @@ if not st.session_state['logged_in']:
     st.header(t['faq_t'])
     with st.expander(t['faq1_q']):
         st.write(t['faq1_a'])
-    with st.expander(t.get('faq2_q', '¿Cuánto cuesta?')):
-        st.write(t.get('faq2_a', ''))
-    with st.expander(t.get('faq3_q', '¿Para qué plataformas sirve?')):
-        st.write(t.get('faq3_a', ''))
+    with st.expander(t['faq2_q']):
+        st.write(t['faq2_a'])
+    with st.expander(t['faq3_q']):
+        st.write(t['faq3_a'])
     st.markdown("---")
-    st.markdown("<p style='text-align: center; color: #666;'>© 2026 Dropshippingent. Todos los derechos reservados.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#666;'>© 2026 Dropshippingent. Todos los derechos reservados.</p>", unsafe_allow_html=True)
 
 # ==========================================
-# 5. PANTALLA PRINCIPAL: EJECUCIÓN DE MÓDULOS
+# 5. PANEL MIS CAMPAÑAS
+# ==========================================
+elif st.session_state.get('vista') == 'campanas':
+    st.header("📋 Mis Campañas Activas")
+    st.caption("Gestiona tus estrategias de contenido para redes sociales.")
+
+    user_id = st.session_state.get('user_id')
+    if not user_id:
+        st.warning("Solo usuarios registrados pueden gestionar campañas.")
+    else:
+        campanas = obtener_campanas(user_id)
+
+        if not campanas:
+            st.info("No tienes campañas activas. Ve al módulo **Posts para mis redes** y activa una campaña.")
+        else:
+            for c in campanas:
+                estado = "🟢 Activa" if c['activa'] else "⏸️ Pausada"
+                color_borde = "#00FF9C" if c['activa'] else "#888"
+
+                st.markdown(f"""
+                <div class='campana-card' style='border-color:{color_borde};'>
+                    <h3 style='color:#00FF9C; margin:0;'>{c['nombre']}</h3>
+                    <p style='color:#888; margin:5px 0;'>Producto: {c['producto']} | {estado}</p>
+                    <p style='color:#888; margin:5px 0;'>Canal: {c['canal']} | Horario: {c['horario']} | Día actual: {c['dia_actual']}/5</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    if c['activa']:
+                        if st.button("⏸️ Pausar", key=f"pausar_{c['id']}"):
+                            pausar_campana(c['id'], False)
+                            st.success("Campaña pausada")
+                            st.rerun()
+                    else:
+                        if st.button("▶️ Reactivar", key=f"reactivar_{c['id']}"):
+                            pausar_campana(c['id'], True)
+                            st.success("Campaña reactivada")
+                            st.rerun()
+                with col2:
+                    if st.button("🗑️ Eliminar", key=f"eliminar_{c['id']}"):
+                        eliminar_campana(c['id'])
+                        st.success("Campaña eliminada")
+                        st.rerun()
+                with col3:
+                    if st.button("📧 Enviar alerta ahora", key=f"alerta_{c['id']}"):
+                        preview = c['estrategia'][:300] if c['estrategia'] else "Contenido de tu campaña"
+                        enviado = email_alerta_publicacion(
+                            st.session_state['user_email'],
+                            c['nombre'], c['producto'],
+                            c['dia_actual'], preview
+                        )
+                        if enviado:
+                            st.success("✅ Alerta enviada a tu correo")
+                        else:
+                            st.warning("⚠️ No se pudo enviar. Verifica tu email.")
+
+# ==========================================
+# 6. MÓDULOS
 # ==========================================
 else:
     es_free = st.session_state['user_role'] == 'free'
+    es_pro = st.session_state['user_role'] in ['pro', 'admin']
     modo_simple = st.session_state['modo'] == 'simple'
+    lista_modulos = MODULOS_SIMPLE if modo_simple else MODULOS_PRO
+    modulo = st.session_state.get('modulo_radio', lista_modulos[0])
 
-    # Detectar módulo por índice (compatible con ambos modos)
-    idx_modulo = (MODULOS_SIMPLE if modo_simple else MODULOS_PRO).index(modulo)
+    try:
+        idx_modulo = lista_modulos.index(modulo)
+    except:
+        idx_modulo = 0
 
-    if idx_modulo == 0:  # Investigar Productos
+    dias_estrategia = 15 if es_pro else 5
+
+    if idx_modulo == 0:
         if modo_simple:
             st.header("🔍 ¿Qué puedo vender hoy?")
             st.caption("Cuéntanos un poco y te decimos los mejores productos para vender.")
-            nicho = st.text_input("¿En qué tipo de productos piensas? (ej: mascotas, belleza, cocina)", placeholder="mascotas")
+            nicho = st.text_input("¿En qué tipo de productos piensas?", placeholder="mascotas, belleza, cocina...")
             presupuesto = st.selectbox("¿Cuánto quieres invertir para empezar?", ["Poco dinero (menos de $100)", "Algo de dinero ($100-$500)", "Tengo buen presupuesto (más de $500)"])
             plataforma = st.selectbox("¿Dónde quieres vender?", ["Amazon (el más grande)", "AliExpress (más económico)", "Ambas plataformas"])
         else:
@@ -536,17 +765,16 @@ else:
         btn_label = "¡Dime qué vender! 🚀" if modo_simple else "Investigar ahora"
 
         if es_free and st.session_state['uso_m1_m2'] >= 1:
-            st.markdown("---")
             mostrar_paywall()
         else:
             if st.button(btn_label, type="primary"):
                 st.session_state['uso_m1_m2'] += 1
                 incrementar_uso_db('uso_m1_m2')
                 with st.spinner("Analizando mercado..." if not modo_simple else "Buscando los mejores productos para ti..."):
-                    prompt = f"Analiza este nicho: NICHO: {nicho}, PRESUPUESTO: {presupuesto}, PLATAFORMA: {plataforma}. Dame: TOP 5 productos, margen y estrategia."
+                    prompt = f"Analiza este nicho para dropshipping: NICHO: {nicho}, PRESUPUESTO: {presupuesto}, PLATAFORMA: {plataforma}. Dame: TOP 5 productos con precio venta, precio compra AliExpress, margen % y competencia. Análisis del nicho y estrategia recomendada."
                     st.markdown(consultar_agente("Analista de mercado dropshipping.", prompt))
 
-    elif idx_modulo == 1:  # Monitor de Precios
+    elif idx_modulo == 1:
         if modo_simple:
             st.header("💰 ¿Gano dinero con esto?")
             st.caption("Ingresa el producto que quieres vender y te decimos si es rentable.")
@@ -563,17 +791,16 @@ else:
         btn_label = "¿Es rentable? Calcular 💵" if modo_simple else "Analizar rentabilidad"
 
         if es_free and st.session_state['uso_m1_m2'] >= 1:
-            st.markdown("---")
             mostrar_paywall()
         else:
             if st.button(btn_label, type="primary"):
                 st.session_state['uso_m1_m2'] += 1
                 incrementar_uso_db('uso_m1_m2')
-                with st.spinner("Calculando tu ganancia..." if modo_simple else "Calculando..."):
+                with st.spinner("Calculando tu ganancia..."):
                     prompt = f"Analiza precios: PRODUCTO: {producto}, PRECIO: {precio_actual}, CATEGORIA: {categoria}. Dame rango precios, rentabilidad para $500/mes."
                     st.markdown(consultar_agente("Experto en pricing eCommerce.", prompt))
 
-    elif idx_modulo == 2:  # Descripción Amazon
+    elif idx_modulo == 2:
         if modo_simple:
             st.header("✍️ Escríbelo por mí")
             st.caption("Te creamos la descripción perfecta para que tu producto se vea profesional y venda más.")
@@ -583,17 +810,15 @@ else:
         producto = st.text_input("¿Cómo se llama el producto?" if modo_simple else "Nombre del producto")
         precio = st.text_input("¿A qué precio lo vas a vender?" if modo_simple else "Precio de venta")
         caracteristicas = st.text_area("¿Qué hace este producto? ¿Por qué es bueno?" if modo_simple else "Características")
-        tono = st.selectbox("Estilo de escritura:" if modo_simple else "Tono",
-            ["Persuasivo", "Profesional", "Storytelling"])
+        tono = st.selectbox("Estilo de escritura:" if modo_simple else "Tono", ["Persuasivo", "Profesional", "Storytelling"])
 
         btn_label = "¡Crear mi descripción! ✨" if modo_simple else "Generar descripción"
 
         if es_free and st.session_state['uso_m3'] >= 1:
-            st.markdown("---")
             mostrar_paywall()
         elif es_free and st.session_state['uso_m3'] == 0:
             if st.button(btn_label, type="primary"):
-                with st.spinner("Escribiendo por ti..." if modo_simple else "Generando contenido A+ ..."):
+                with st.spinner("Escribiendo por ti..."):
                     prompt = f"Crea descripcion LARGA A+ (min 1500 chars). PRODUCTO: {producto}, PRECIO: {precio}, CARACT: {caracteristicas}, TONO: {tono}. Incluye Gancho, Problema/Solucion, 5 Bullet points, y 50 Keywords backend."
                     resultado = consultar_agente(f"Copywriter experto en Amazon. Tono: {tono}.", prompt)
                     st.session_state['uso_m3'] += 1
@@ -603,14 +828,14 @@ else:
             if st.button(btn_label, type="primary"):
                 st.session_state['uso_m3'] += 1
                 incrementar_uso_db('uso_m3')
-                with st.spinner("Escribiendo por ti..." if modo_simple else "Generando contenido A+ ..."):
+                with st.spinner("Escribiendo por ti..."):
                     prompt = f"Crea descripcion LARGA A+ (min 1500 chars). PRODUCTO: {producto}, PRECIO: {precio}, CARACT: {caracteristicas}, TONO: {tono}. Incluye Gancho, Problema/Solucion, 5 Bullet points, y 50 Keywords backend."
                     st.markdown(consultar_agente(f"Copywriter experto en Amazon. Tono: {tono}.", prompt))
 
-    elif idx_modulo == 3:  # Contenido Redes
+    elif idx_modulo == 3:
         if modo_simple:
             st.header("📱 Posts para mis redes sociales")
-            st.caption("Te damos el contenido listo para publicar en Instagram y TikTok.")
+            st.caption(f"Te damos {dias_estrategia} días de contenido listo para publicar en Instagram y TikTok.")
         else:
             st.header("📱 Estrategia para Redes Sociales")
 
@@ -622,28 +847,76 @@ else:
             plataforma = st.multiselect("¿En qué redes?" if modo_simple else "Plataformas",
                 ["Instagram", "TikTok", "Facebook"], default=["TikTok", "Instagram"])
 
-        btn_label = "¡Crear mis posts! 📲" if modo_simple else "Crear estrategia 5 Días"
+        btn_label = f"¡Crear mis {dias_estrategia} posts! 📲" if modo_simple else f"Crear estrategia {dias_estrategia} días"
 
         if es_free and st.session_state['uso_m4'] >= 1:
-            st.markdown("---")
             mostrar_paywall()
-        elif es_free and st.session_state['uso_m4'] == 0:
-            if st.button(btn_label, type="primary"):
-                with st.spinner("Creando tus posts..." if modo_simple else "Creando calendario..."):
-                    prompt = f"Crea estrategia de contenido viral: PRODUCTO: {producto}, NICHO: {nicho}, PLATAFORMAS: {plataforma}. Dame un calendario detallado para 5 DÍAS CONSECUTIVOS. Por cada día incluye: formato (Video/Carrusel), gancho visual, y guion exacto o descripción con hashtags."
-                    resultado = consultar_agente("Experto en marketing digital viral.", prompt)
-                    st.session_state['uso_m4'] += 1
-                    incrementar_uso_db('uso_m4')
-                    mostrar_preview_paywall(resultado)
         else:
             if st.button(btn_label, type="primary"):
-                st.session_state['uso_m4'] += 1
-                incrementar_uso_db('uso_m4')
-                with st.spinner("Creando tus posts..." if modo_simple else "Creando calendario..."):
-                    prompt = f"Crea estrategia de contenido viral: PRODUCTO: {producto}, NICHO: {nicho}, PLATAFORMAS: {plataforma}. Dame un calendario detallado para 5 DÍAS CONSECUTIVOS. Por cada día incluye: formato (Video/Carrusel), gancho visual, y guion exacto o descripción con hashtags."
-                    st.markdown(consultar_agente("Experto en marketing digital viral.", prompt))
+                with st.spinner(f"Creando {dias_estrategia} días de contenido..."):
+                    prompt = f"Crea estrategia de contenido viral: PRODUCTO: {producto}, NICHO: {nicho}, PLATAFORMAS: {plataforma}. Dame un calendario detallado para {dias_estrategia} DÍAS CONSECUTIVOS. Por cada día incluye: formato (Video/Carrusel), gancho visual, y guion exacto o descripción con hashtags."
+                    resultado = consultar_agente("Experto en marketing digital viral.", prompt)
 
-    elif idx_modulo == 4:  # Contactar Proveedor
+                    if es_free:
+                        st.session_state['uso_m4'] += 1
+                        incrementar_uso_db('uso_m4')
+                        mostrar_preview_paywall(resultado)
+                    else:
+                        st.session_state['uso_m4'] += 1
+                        incrementar_uso_db('uso_m4')
+                        st.markdown(resultado)
+
+                        # SECCIÓN DE ALERTAS
+                        st.markdown("---")
+                        st.subheader("🔔 ¿Activar recordatorios para este producto?")
+                        st.caption("Te enviaremos una alerta diaria con el post del día listo para copiar y publicar.")
+
+                        with st.expander("⚙️ Configurar campaña de alertas", expanded=True):
+                            col_a, col_b = st.columns(2)
+                            with col_a:
+                                nombre_campana = st.text_input("Nombre de la campaña", value=f"Campaña {producto[:20]}")
+                                canal_alerta = st.selectbox("¿Por dónde quieres recibir la alerta?", ["Email", "WhatsApp"])
+                            with col_b:
+                                if canal_alerta == "Email":
+                                    contacto_alerta = st.text_input("Tu email", value=st.session_state['user_email'])
+                                else:
+                                    contacto_alerta = st.text_input("Tu WhatsApp (con código país)", placeholder="+573001234567")
+                                horario_alerta = st.selectbox("¿Cuándo quieres la alerta?", [
+                                    "Mañana (8:00 AM)",
+                                    "Mediodía (12:00 PM)",
+                                    "Tarde (6:00 PM)",
+                                    "Noche (8:00 PM)"
+                                ])
+
+                            if st.button("✅ Activar campaña y alertas", type="primary"):
+                                user_id = st.session_state.get('user_id')
+                                if user_id:
+                                    guardado = guardar_campana(
+                                        user_id=user_id,
+                                        nombre=nombre_campana,
+                                        producto=producto,
+                                        estrategia=resultado,
+                                        canal=canal_alerta,
+                                        contacto=contacto_alerta,
+                                        horario=horario_alerta
+                                    )
+                                    if guardado:
+                                        if canal_alerta == "Email":
+                                            email_alerta_publicacion(
+                                                contacto_alerta,
+                                                nombre_campana,
+                                                producto,
+                                                1,
+                                                resultado
+                                            )
+                                        st.success(f"✅ ¡Campaña activada! Recibirás alertas {horario_alerta.lower()} en tu {canal_alerta}.")
+                                        st.info("Puedes gestionar tus campañas desde **Mis Campañas** en el menú lateral.")
+                                    else:
+                                        st.error("No se pudo guardar la campaña. Intenta de nuevo.")
+                                else:
+                                    st.warning("Debes iniciar sesión para activar campañas.")
+
+    elif idx_modulo == 4:
         if modo_simple:
             st.header("🤝 Hablar con el proveedor")
             st.caption("Te escribimos el mensaje perfecto en inglés para contactar a quien te vende el producto.")
@@ -651,19 +924,16 @@ else:
             st.header("🤝 Contactar Proveedor")
 
         producto = st.text_input("¿Qué producto necesitas?" if modo_simple else "Producto")
-        proveedor = st.selectbox("¿Dónde lo comprarás?" if modo_simple else "Proveedor",
-            ["AliExpress", "CJdropshipping", "Zendrop"])
-        objetivo = st.selectbox("¿Para qué lo contactas?" if modo_simple else "Objetivo",
-            ["Pedir muestra", "Negociar precio", "Consultar envio"])
+        proveedor = st.selectbox("¿Dónde lo comprarás?" if modo_simple else "Proveedor", ["AliExpress", "CJdropshipping", "Zendrop"])
+        objetivo = st.selectbox("¿Para qué lo contactas?" if modo_simple else "Objetivo", ["Pedir muestra", "Negociar precio", "Consultar envio"])
 
         btn_label = "¡Crear mi mensaje! 💬" if modo_simple else "Generar mensaje"
 
         if es_free and st.session_state['uso_m5'] >= 1:
-            st.markdown("---")
             mostrar_paywall()
         elif es_free and st.session_state['uso_m5'] == 0:
             if st.button(btn_label, type="primary"):
-                with st.spinner("Escribiendo tu mensaje..." if modo_simple else "Redactando..."):
+                with st.spinner("Escribiendo tu mensaje..."):
                     prompt = f"Redacta mensaje en INGLES para {proveedor}. PRODUCTO: {producto}. OBJETIVO: {objetivo}. Luego dame traducción y 3 consejos de negociación."
                     resultado = consultar_agente("Experto en negociacion B2B.", prompt)
                     st.session_state['uso_m5'] += 1
@@ -673,11 +943,11 @@ else:
             if st.button(btn_label, type="primary"):
                 st.session_state['uso_m5'] += 1
                 incrementar_uso_db('uso_m5')
-                with st.spinner("Escribiendo tu mensaje..." if modo_simple else "Redactando..."):
+                with st.spinner("Escribiendo tu mensaje..."):
                     prompt = f"Redacta mensaje en INGLES para {proveedor}. PRODUCTO: {producto}. OBJETIVO: {objetivo}. Luego dame traducción y 3 consejos de negociación."
                     st.markdown(consultar_agente("Experto en negociacion B2B.", prompt))
 
-    elif idx_modulo == 5:  # Análisis Rentabilidad
+    elif idx_modulo == 5:
         if modo_simple:
             st.header("📊 ¿Es negocio esto?")
             st.caption("Ingresa los costos y te mostramos gráficamente si vale la pena venderlo.")
@@ -690,12 +960,11 @@ else:
             costo_producto = st.number_input("¿Cuánto te cuesta comprarlo? (USD)" if modo_simple else "Costo producto (USD)", value=5.50)
         with col2:
             costo_envio = st.number_input("¿Cuánto cuesta enviarlo? (USD)" if modo_simple else "Costo envio (USD)", value=2.00)
-            comision = st.number_input("Comision de la plataforma %" if modo_simple else "Comision plataforma %", value=15.0)
+            comision = st.number_input("Comisión de la plataforma %" if modo_simple else "Comision plataforma %", value=15.0)
 
         btn_label = "¡Ver si es negocio! 📈" if modo_simple else "Generar gráficos"
 
         if es_free and st.session_state['uso_m6'] >= 1:
-            st.markdown("---")
             mostrar_paywall()
         elif es_free and st.session_state['uso_m6'] == 0:
             if st.button(btn_label, type="primary"):
@@ -735,7 +1004,7 @@ else:
                 fig_line.update_layout(xaxis_title="Unidades Vendidas", yaxis_title="Dinero ($)", template="plotly_dark", plot_bgcolor="#1a1a2e", paper_bgcolor="#0e1117")
                 st.plotly_chart(fig_line, use_container_width=True)
 
-    elif idx_modulo == 6:  # Monitor Competencia
+    elif idx_modulo == 6:
         if modo_simple:
             st.header("🕵️ Espiar a la competencia")
             st.caption("Pega comentarios negativos de productos similares y te decimos cómo ganarles.")
@@ -745,17 +1014,16 @@ else:
         producto = st.text_input("¿Qué producto analizamos?" if modo_simple else "Producto a analizar")
         resenas = st.text_area(
             "Pega aquí comentarios negativos que encontraste sobre productos similares" if modo_simple else "Pega reseñas negativas de competidores",
-            placeholder="Ej: El producto llegó sin instrucciones... La calidad es mala... El empaque estaba dañado..."
+            placeholder="Ej: El producto llegó sin instrucciones... La calidad es mala..."
         )
 
         btn_label = "¡Encontrar mi ventaja! 🏆" if modo_simple else "Analizar brechas"
 
         if es_free and st.session_state['uso_m7'] >= 1:
-            st.markdown("---")
             mostrar_paywall()
         elif es_free and st.session_state['uso_m7'] == 0:
             if st.button(btn_label, type="primary"):
-                with st.spinner("Buscando tu ventaja..." if modo_simple else "Analizando..."):
+                with st.spinner("Buscando tu ventaja..."):
                     prompt = f"Analiza reseñas negativas: {resenas}. Identifica 3 brechas de mercado y crea una estrategia de diferenciacion agresiva para {producto}."
                     resultado = consultar_agente("Estratega de mercado experto.", prompt)
                     st.session_state['uso_m7'] += 1
@@ -765,11 +1033,11 @@ else:
             if st.button(btn_label, type="primary"):
                 st.session_state['uso_m7'] += 1
                 incrementar_uso_db('uso_m7')
-                with st.spinner("Buscando tu ventaja..." if modo_simple else "Analizando..."):
+                with st.spinner("Buscando tu ventaja..."):
                     prompt = f"Analiza reseñas negativas: {resenas}. Identifica 3 brechas de mercado y crea una estrategia de diferenciacion agresiva para {producto}."
                     st.markdown(consultar_agente("Estratega de mercado experto.", prompt))
 
-    elif idx_modulo == 7:  # Score Validación
+    elif idx_modulo == 7:
         if modo_simple:
             st.header("🎯 ¿Vale la pena venderlo?")
             st.caption("Mueve los controles y te decimos si este producto tiene futuro.")
@@ -782,28 +1050,51 @@ else:
             margen = st.slider("¿Qué % de ganancia tendrías?" if modo_simple else "Margen neto %", 0, 100, 50)
         with col2:
             velocidad = st.slider("¿Qué tan rápido llega al cliente? (1=muy lento, 10=muy rápido)" if modo_simple else "Velocidad envio", 1, 10, 5)
-            competencia = st.slider("¿Cuánta competencia hay? (1=muchísima, 10=poca)" if modo_simple else "Competencia", 1, 10, 5)
+            competencia = st.slider("¿Cuánta competencia hay? (1=muchísima, 10=poca)" if modo_simple else "Competencia (1=mucha, 10=poca)", 1, 10, 5)
 
         btn_label = "¡Dime si vale la pena! 🎯" if modo_simple else "Calcular Score"
 
         if es_free and st.session_state['uso_m8'] >= 1:
-            st.markdown("---")
             mostrar_paywall()
-        elif es_free and st.session_state['uso_m8'] == 0:
-            if st.button(btn_label, type="primary"):
-                score = (margen*0.4) + (velocidad*2) + ((10-competencia)*2)
-                st.markdown(f"<h1 style='color:#00FF9C; text-align:center;'>SCORE: {score:.1f} / 100</h1>", unsafe_allow_html=True)
-                st.progress(int(min(score, 100)))
-                st.session_state['uso_m8'] += 1
-                incrementar_uso_db('uso_m8')
-                mostrar_paywall()
         else:
             if st.button(btn_label, type="primary"):
-                st.session_state['uso_m8'] += 1
-                incrementar_uso_db('uso_m8')
-                score = (margen*0.4) + (velocidad*2) + ((10-competencia)*2)
-                st.markdown(f"<h1 style='color:#00FF9C; text-align:center;'>SCORE: {score:.1f} / 100</h1>", unsafe_allow_html=True)
-                st.progress(int(min(score, 100)))
-                with st.spinner("Validando viabilidad..." if not modo_simple else "Analizando el producto..."):
-                    prompt = f"Score de producto {producto}: {score}/100. Margen {margen}%, Velocidad {velocidad}, Competencia {competencia}. Dame veredicto final: Invertir o Descartar."
-                    st.markdown(consultar_agente("Analista de riesgo Dropshipping.", prompt))
+                # FÓRMULA CORREGIDA
+                score = (margen * 0.4) + (velocidad * 2) + (competencia * 2)
+                score = min(score, 100)
+
+                if score >= 70:
+                    color = "#00FF9C"
+                    nivel = "🏆 Ganador Probable"
+                elif score >= 40:
+                    color = "#FFA500"
+                    nivel = "⚡ Potencial Medio"
+                else:
+                    color = "#FF4B4B"
+                    nivel = "⚠️ Alto Riesgo"
+
+                st.markdown(f"""
+                <div style='text-align:center; padding:20px;'>
+                    <h1 style='color:{color}; font-size:4rem; text-shadow:0 0 20px {color};'>
+                        {score:.1f}/100
+                    </h1>
+                    <h2 style='color:{color};'>{nivel}</h2>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.progress(int(score))
+
+                col1, col2, col3 = st.columns(3)
+                col1.metric("Margen (40%)", f"{margen*0.4:.1f}/40")
+                col2.metric("Velocidad (20%)", f"{velocidad*2:.1f}/20")
+                col3.metric("Competencia (20%)", f"{competencia*2:.1f}/20")
+
+                if es_free:
+                    st.session_state['uso_m8'] += 1
+                    incrementar_uso_db('uso_m8')
+                    mostrar_paywall()
+                else:
+                    st.session_state['uso_m8'] += 1
+                    incrementar_uso_db('uso_m8')
+                    with st.spinner("Validando viabilidad..."):
+                        prompt = f"Score de producto {producto}: {score}/100. Nivel: {nivel}. Margen {margen}%, Velocidad {velocidad}, Competencia {competencia}. Dame veredicto final detallado: Invertir o Descartar y por qué."
+                        st.markdown(consultar_agente("Analista de riesgo Dropshipping.", prompt))
