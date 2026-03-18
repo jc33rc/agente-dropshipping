@@ -1,4 +1,4 @@
- import streamlit as st
+import streamlit as st
 from groq import Groq
 import plotly.graph_objects as go
 import plotly.express as px
@@ -1113,4 +1113,3 @@ else:
                     with st.spinner("..."):
                         st.markdown(consultar_agente("Analista de riesgo Dropshipping.",
                             f"Score producto {producto}: {score}/100. Nivel: {nivel}. Margen {margen}%, Velocidad {velocidad}/10, Competencia {competencia}/10. Veredicto: Invertir o Descartar."))
-   
