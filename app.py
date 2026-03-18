@@ -1,4 +1,4 @@
-import streamlit as st
+ import streamlit as st
 from groq import Groq
 import plotly.graph_objects as go
 import plotly.express as px
@@ -297,7 +297,68 @@ traducciones = {
         "alerta_email_label": "Tu email", "alerta_wp_label": "Tu WhatsApp (con código país)",
         "alerta_hora": "¿Cuándo quieres la alerta?", "alerta_btn": "✅ Activar campaña y alertas",
         "alerta_ok": "✅ ¡Campaña activada! Recibirás alertas en tu",
-        "mis_campanas": "📋 Mis Campañas", "cerrar_sesion": "Cerrar Sesión"
+        "mis_campanas": "📋 Mis Campañas", "cerrar_sesion": "Cerrar Sesión",
+        "login_email": "Correo electrónico", "login_pass": "Contraseña", "login_btn": "Entrar",
+        "login_err": "❌ Credenciales incorrectas.",
+        "sesion_disponible": "✅ Disponible", "sesion_agotada": "⛔ Se renueva mañana",
+        "analisis_hoy": "Análisis hoy:",
+        "m1_h_s": "🔍 ¿Qué puedo vender hoy?", "m1_c_s": "Cuéntanos un poco y te decimos los mejores productos para vender.",
+        "m1_h_p": "🔍 Investigar Productos Ganadores",
+        "m1_nicho_s": "¿En qué tipo de productos piensas?", "m1_nicho_p": "Nicho",
+        "m1_pres_s": "¿Cuánto quieres invertir?", "m1_pres_p": "Presupuesto",
+        "m1_pres_ops_s": ["Poco dinero (menos de $100)", "Algo de dinero ($100-$500)", "Tengo buen presupuesto (más de $500)"],
+        "m1_pres_ops_p": ["bajo", "medio", "alto"],
+        "m1_plat_s": "¿Dónde quieres vender?", "m1_plat_p": "Plataforma",
+        "m1_plat_ops_s": ["Amazon (el más grande)", "AliExpress (más económico)", "Ambas plataformas"],
+        "m1_plat_ops_p": ["Amazon", "AliExpress", "Ambas"],
+        "m1_btn_s": "¡Dime qué vender! 🚀", "m1_btn_p": "Investigar ahora",
+        "m1_spin_s": "Buscando los mejores productos...", "m1_spin_p": "Analizando mercado...",
+        "m2_h_s": "💰 ¿Gano dinero con esto?", "m2_c_s": "Ingresa el producto y te decimos si es rentable.",
+        "m2_h_p": "📉 Monitor de Precios",
+        "m2_prod_s": "¿Qué producto quieres vender?", "m2_prod_p": "Producto",
+        "m2_precio_s": "¿A qué precio lo venderías?", "m2_precio_p": "Mi precio",
+        "m2_cat_s": "¿En qué categoría entraría?", "m2_cat_p": "Categoria",
+        "m2_btn_s": "¿Es rentable? 💵", "m2_btn_p": "Analizar rentabilidad",
+        "m3_h_s": "✍️ Escríbelo por mí", "m3_c_s": "Te creamos la descripción perfecta para que tu producto venda más.",
+        "m3_h_p": "✍️ Copywriting de Élite para Amazon A+",
+        "m3_prod_s": "¿Cómo se llama el producto?", "m3_prod_p": "Nombre del producto",
+        "m3_precio_s": "¿A qué precio lo vas a vender?", "m3_precio_p": "Precio de venta",
+        "m3_caract_s": "¿Qué hace este producto? ¿Por qué es bueno?", "m3_caract_p": "Características",
+        "m3_tono_s": "Estilo de escritura:", "m3_tono_p": "Tono",
+        "m3_btn_s": "¡Crear mi descripción! ✨", "m3_btn_p": "Generar descripción",
+        "m4_h_s": "📱 Posts para mis redes sociales", "m4_h_p": "📱 Estrategia para Redes Sociales",
+        "m4_prod_s": "¿Qué producto vas a promocionar?", "m4_prod_p": "Producto",
+        "m4_nicho_s": "¿A quién va dirigido?", "m4_nicho_p": "Nicho",
+        "m4_plat_s": "¿En qué redes?", "m4_plat_p": "Plataformas",
+        "m4_horarios": "⏰ Horarios óptimos sugeridos:",
+        "m5_h_s": "🤝 Hablar con el proveedor", "m5_c_s": "Te escribimos el mensaje perfecto para contactar a tu proveedor.",
+        "m5_h_p": "🤝 Contactar Proveedor",
+        "m5_prod_s": "¿Qué producto necesitas?", "m5_prod_p": "Producto",
+        "m5_prov_s": "¿Dónde lo comprarás?", "m5_prov_p": "Proveedor",
+        "m5_obj_s": "¿Para qué lo contactas?", "m5_obj_p": "Objetivo",
+        "m5_obj_ops": ["Pedir muestra", "Negociar precio", "Consultar envio"],
+        "m5_btn_s": "¡Crear mi mensaje! 💬", "m5_btn_p": "Generar mensaje",
+        "m6_h_s": "📊 ¿Es negocio esto?", "m6_h_p": "📊 Análisis Gráfico de Rentabilidad",
+        "m6_pventa_s": "¿A qué precio lo venderás? (USD)", "m6_pventa_p": "Precio venta (USD)",
+        "m6_pcosto_s": "¿Cuánto te cuesta comprarlo? (USD)", "m6_pcosto_p": "Costo producto (USD)",
+        "m6_envio_s": "¿Cuánto cuesta enviarlo? (USD)", "m6_envio_p": "Costo envio (USD)",
+        "m6_com_s": "Comisión de la plataforma %", "m6_com_p": "Comision plataforma %",
+        "m6_btn_s": "¡Ver si es negocio! 📈", "m6_btn_p": "Generar gráficos",
+        "m7_h_s": "🕵️ Espiar a la competencia", "m7_c_s": "Pega comentarios negativos y te decimos cómo ganarles.",
+        "m7_h_p": "🕵️ Monitor de Competencia",
+        "m7_prod_s": "¿Qué producto analizamos?", "m7_prod_p": "Producto a analizar",
+        "m7_res_s": "Pega aquí comentarios negativos de productos similares", "m7_res_p": "Pega reseñas negativas",
+        "m7_btn_s": "¡Encontrar mi ventaja! 🏆", "m7_btn_p": "Analizar brechas",
+        "m8_h_s": "🎯 ¿Vale la pena venderlo?", "m8_c_s": "Mueve los controles y te decimos si este producto tiene futuro.",
+        "m8_h_p": "🎯 Score de Validación IA",
+        "m8_prod_s": "¿Qué producto evalúas?", "m8_prod_p": "Producto",
+        "m8_margen_s": "¿Qué % de ganancia tendrías?", "m8_margen_p": "Margen neto %",
+        "m8_vel_s": "¿Qué tan rápido llega al cliente? (1=lento, 10=rápido)", "m8_vel_p": "Velocidad envio",
+        "m8_comp_s": "¿Cuánta competencia hay? (1=muchísima, 10=poca)", "m8_comp_p": "Competencia (1=mucha, 10=poca)",
+        "m8_btn_s": "¡Dime si vale la pena! 🎯", "m8_btn_p": "Calcular Score",
+        "score_ganador": "🏆 Ganador Probable", "score_medio": "⚡ Potencial Medio", "score_riesgo": "⚠️ Alto Riesgo",
+        "refresco_titulo": "👋 Tu sesión ha expirado", "refresco_msg": "La sesión no persiste al refrescar la página. Por favor inicia sesión de nuevo.",
+        "campana_config": "⚙️ Configurar campaña de alertas"
     },
     "English": {
         "sub": "Market Analysis and Dropshipping Powered by Artificial Intelligence.",
@@ -346,7 +407,68 @@ traducciones = {
         "alerta_email_label": "Your email", "alerta_wp_label": "Your WhatsApp (with country code)",
         "alerta_hora": "When do you want the alert?", "alerta_btn": "✅ Activate campaign and alerts",
         "alerta_ok": "✅ Campaign activated! You'll receive alerts on your",
-        "mis_campanas": "📋 My Campaigns", "cerrar_sesion": "Log Out"
+        "mis_campanas": "📋 My Campaigns", "cerrar_sesion": "Log Out",
+        "login_email": "Email", "login_pass": "Password", "login_btn": "Sign In",
+        "login_err": "❌ Incorrect credentials.",
+        "sesion_disponible": "✅ Available", "sesion_agotada": "⛔ Renews tomorrow",
+        "analisis_hoy": "Today's analyses:",
+        "m1_h_s": "🔍 What can I sell today?", "m1_c_s": "Tell us a bit and we'll show you the best products to sell.",
+        "m1_h_p": "🔍 Research Winning Products",
+        "m1_nicho_s": "What type of products are you thinking?", "m1_nicho_p": "Niche",
+        "m1_pres_s": "How much do you want to invest?", "m1_pres_p": "Budget",
+        "m1_pres_ops_s": ["Little money (under $100)", "Some money ($100-$500)", "Good budget (over $500)"],
+        "m1_pres_ops_p": ["low", "medium", "high"],
+        "m1_plat_s": "Where do you want to sell?", "m1_plat_p": "Platform",
+        "m1_plat_ops_s": ["Amazon (the biggest)", "AliExpress (more affordable)", "Both platforms"],
+        "m1_plat_ops_p": ["Amazon", "AliExpress", "Both"],
+        "m1_btn_s": "Tell me what to sell! 🚀", "m1_btn_p": "Research now",
+        "m1_spin_s": "Finding the best products...", "m1_spin_p": "Analyzing market...",
+        "m2_h_s": "💰 Will I make money?", "m2_c_s": "Enter the product and we'll tell you if it's profitable.",
+        "m2_h_p": "📉 Price Monitor",
+        "m2_prod_s": "What product do you want to sell?", "m2_prod_p": "Product",
+        "m2_precio_s": "At what price would you sell it?", "m2_precio_p": "My price",
+        "m2_cat_s": "What category would it be in?", "m2_cat_p": "Category",
+        "m2_btn_s": "Is it profitable? 💵", "m2_btn_p": "Analyze profitability",
+        "m3_h_s": "✍️ Write it for me", "m3_c_s": "We create the perfect description so your product sells more.",
+        "m3_h_p": "✍️ Elite Copywriting for Amazon A+",
+        "m3_prod_s": "What is the product called?", "m3_prod_p": "Product name",
+        "m3_precio_s": "At what price will you sell it?", "m3_precio_p": "Sale price",
+        "m3_caract_s": "What does this product do? Why is it good?", "m3_caract_p": "Features",
+        "m3_tono_s": "Writing style:", "m3_tono_p": "Tone",
+        "m3_btn_s": "Create my description! ✨", "m3_btn_p": "Generate description",
+        "m4_h_s": "📱 Posts for my social media", "m4_h_p": "📱 Social Media Strategy",
+        "m4_prod_s": "What product will you promote?", "m4_prod_p": "Product",
+        "m4_nicho_s": "Who is it aimed at?", "m4_nicho_p": "Niche",
+        "m4_plat_s": "Which networks?", "m4_plat_p": "Platforms",
+        "m4_horarios": "⏰ Suggested optimal times:",
+        "m5_h_s": "🤝 Talk to the supplier", "m5_c_s": "We write the perfect message to contact your supplier.",
+        "m5_h_p": "🤝 Contact Supplier",
+        "m5_prod_s": "What product do you need?", "m5_prod_p": "Product",
+        "m5_prov_s": "Where will you buy it?", "m5_prov_p": "Supplier",
+        "m5_obj_s": "Why are you contacting them?", "m5_obj_p": "Objective",
+        "m5_obj_ops": ["Request sample", "Negotiate price", "Ask about shipping"],
+        "m5_btn_s": "Create my message! 💬", "m5_btn_p": "Generate message",
+        "m6_h_s": "📊 Is this a business?", "m6_h_p": "📊 Profitability Analysis",
+        "m6_pventa_s": "At what price will you sell? (USD)", "m6_pventa_p": "Sale price (USD)",
+        "m6_pcosto_s": "How much does it cost you? (USD)", "m6_pcosto_p": "Product cost (USD)",
+        "m6_envio_s": "How much does shipping cost? (USD)", "m6_envio_p": "Shipping cost (USD)",
+        "m6_com_s": "Platform commission %", "m6_com_p": "Platform commission %",
+        "m6_btn_s": "See if it's a business! 📈", "m6_btn_p": "Generate charts",
+        "m7_h_s": "🕵️ Spy on competition", "m7_c_s": "Paste negative comments and we'll tell you how to beat them.",
+        "m7_h_p": "🕵️ Competition Monitor",
+        "m7_prod_s": "What product are we analyzing?", "m7_prod_p": "Product to analyze",
+        "m7_res_s": "Paste negative comments about similar products here", "m7_res_p": "Paste negative reviews",
+        "m7_btn_s": "Find my advantage! 🏆", "m7_btn_p": "Analyze gaps",
+        "m8_h_s": "🎯 Is it worth selling?", "m8_c_s": "Move the controls and we'll tell you if this product has a future.",
+        "m8_h_p": "🎯 AI Validation Score",
+        "m8_prod_s": "What product are you evaluating?", "m8_prod_p": "Product",
+        "m8_margen_s": "What % profit would you have?", "m8_margen_p": "Net margin %",
+        "m8_vel_s": "How fast does it reach the customer? (1=slow, 10=fast)", "m8_vel_p": "Shipping speed",
+        "m8_comp_s": "How much competition is there? (1=a lot, 10=little)", "m8_comp_p": "Competition (1=high, 10=low)",
+        "m8_btn_s": "Tell me if it's worth it! 🎯", "m8_btn_p": "Calculate Score",
+        "score_ganador": "🏆 Likely Winner", "score_medio": "⚡ Medium Potential", "score_riesgo": "⚠️ High Risk",
+        "refresco_titulo": "👋 Your session has expired", "refresco_msg": "Sessions don't persist on page refresh. Please log in again.",
+        "campana_config": "⚙️ Configure alert campaign"
     },
     "Português": {
         "sub": "Análise de Mercado e Dropshipping Potencializado por Inteligência Artificial.",
@@ -395,7 +517,68 @@ traducciones = {
         "alerta_email_label": "Seu email", "alerta_wp_label": "Seu WhatsApp (com código do país)",
         "alerta_hora": "Quando quer o alerta?", "alerta_btn": "✅ Ativar campanha e alertas",
         "alerta_ok": "✅ Campanha ativada! Você receberá alertas no seu",
-        "mis_campanas": "📋 Minhas Campanhas", "cerrar_sesion": "Sair"
+        "mis_campanas": "📋 Minhas Campanhas", "cerrar_sesion": "Sair",
+        "login_email": "Email", "login_pass": "Senha", "login_btn": "Entrar",
+        "login_err": "❌ Credenciais incorretas.",
+        "sesion_disponible": "✅ Disponível", "sesion_agotada": "⛔ Renova amanhã",
+        "analisis_hoy": "Análises hoje:",
+        "m1_h_s": "🔍 O que posso vender hoje?", "m1_c_s": "Nos conte um pouco e te dizemos os melhores produtos para vender.",
+        "m1_h_p": "🔍 Pesquisar Produtos Vencedores",
+        "m1_nicho_s": "Em que tipo de produtos você pensa?", "m1_nicho_p": "Nicho",
+        "m1_pres_s": "Quanto quer investir?", "m1_pres_p": "Orçamento",
+        "m1_pres_ops_s": ["Pouco dinheiro (menos de $100)", "Algum dinheiro ($100-$500)", "Bom orçamento (mais de $500)"],
+        "m1_pres_ops_p": ["baixo", "médio", "alto"],
+        "m1_plat_s": "Onde quer vender?", "m1_plat_p": "Plataforma",
+        "m1_plat_ops_s": ["Amazon (o maior)", "AliExpress (mais barato)", "Ambas plataformas"],
+        "m1_plat_ops_p": ["Amazon", "AliExpress", "Ambos"],
+        "m1_btn_s": "Me diga o que vender! 🚀", "m1_btn_p": "Pesquisar agora",
+        "m1_spin_s": "Encontrando os melhores produtos...", "m1_spin_p": "Analisando mercado...",
+        "m2_h_s": "💰 Vou ganhar dinheiro?", "m2_c_s": "Insira o produto e te dizemos se é rentável.",
+        "m2_h_p": "📉 Monitor de Preços",
+        "m2_prod_s": "Que produto quer vender?", "m2_prod_p": "Produto",
+        "m2_precio_s": "A que preço venderia?", "m2_precio_p": "Meu preço",
+        "m2_cat_s": "Em que categoria estaria?", "m2_cat_p": "Categoria",
+        "m2_btn_s": "É rentável? 💵", "m2_btn_p": "Analisar rentabilidade",
+        "m3_h_s": "✍️ Escreva por mim", "m3_c_s": "Criamos a descrição perfeita para seu produto vender mais.",
+        "m3_h_p": "✍️ Copywriting de Elite para Amazon A+",
+        "m3_prod_s": "Como se chama o produto?", "m3_prod_p": "Nome do produto",
+        "m3_precio_s": "A que preço vai vender?", "m3_precio_p": "Preço de venda",
+        "m3_caract_s": "O que este produto faz? Por que é bom?", "m3_caract_p": "Características",
+        "m3_tono_s": "Estilo de escrita:", "m3_tono_p": "Tom",
+        "m3_btn_s": "Criar minha descrição! ✨", "m3_btn_p": "Gerar descrição",
+        "m4_h_s": "📱 Posts para minhas redes sociais", "m4_h_p": "📱 Estratégia para Redes Sociais",
+        "m4_prod_s": "Que produto vai promover?", "m4_prod_p": "Produto",
+        "m4_nicho_s": "Para quem é direcionado?", "m4_nicho_p": "Nicho",
+        "m4_plat_s": "Em quais redes?", "m4_plat_p": "Plataformas",
+        "m4_horarios": "⏰ Horários ótimos sugeridos:",
+        "m5_h_s": "🤝 Falar com o fornecedor", "m5_c_s": "Escrevemos a mensagem perfeita para contatar seu fornecedor.",
+        "m5_h_p": "🤝 Contatar Fornecedor",
+        "m5_prod_s": "Que produto precisa?", "m5_prod_p": "Produto",
+        "m5_prov_s": "Onde vai comprar?", "m5_prov_p": "Fornecedor",
+        "m5_obj_s": "Por que está contatando?", "m5_obj_p": "Objetivo",
+        "m5_obj_ops": ["Solicitar amostra", "Negociar preço", "Consultar envio"],
+        "m5_btn_s": "Criar minha mensagem! 💬", "m5_btn_p": "Gerar mensagem",
+        "m6_h_s": "📊 É negócio isso?", "m6_h_p": "📊 Análise Gráfica de Rentabilidade",
+        "m6_pventa_s": "A que preço vai vender? (USD)", "m6_pventa_p": "Preço de venda (USD)",
+        "m6_pcosto_s": "Quanto custa para você? (USD)", "m6_pcosto_p": "Custo do produto (USD)",
+        "m6_envio_s": "Quanto custa o envio? (USD)", "m6_envio_p": "Custo envio (USD)",
+        "m6_com_s": "Comissão da plataforma %", "m6_com_p": "Comissão plataforma %",
+        "m6_btn_s": "Ver se é negócio! 📈", "m6_btn_p": "Gerar gráficos",
+        "m7_h_s": "🕵️ Espionar a concorrência", "m7_c_s": "Cole comentários negativos e te dizemos como ganhar deles.",
+        "m7_h_p": "🕵️ Monitor de Concorrência",
+        "m7_prod_s": "Que produto analisamos?", "m7_prod_p": "Produto para analisar",
+        "m7_res_s": "Cole aqui comentários negativos de produtos similares", "m7_res_p": "Cole avaliações negativas",
+        "m7_btn_s": "Encontrar minha vantagem! 🏆", "m7_btn_p": "Analisar lacunas",
+        "m8_h_s": "🎯 Vale a pena vender?", "m8_c_s": "Mova os controles e te dizemos se este produto tem futuro.",
+        "m8_h_p": "🎯 Score de Validação IA",
+        "m8_prod_s": "Que produto está avaliando?", "m8_prod_p": "Produto",
+        "m8_margen_s": "Que % de lucro teria?", "m8_margen_p": "Margem líquida %",
+        "m8_vel_s": "Quão rápido chega ao cliente? (1=lento, 10=rápido)", "m8_vel_p": "Velocidade envio",
+        "m8_comp_s": "Quanta concorrência há? (1=muita, 10=pouca)", "m8_comp_p": "Concorrência (1=alta, 10=baixa)",
+        "m8_btn_s": "Me diga se vale a pena! 🎯", "m8_btn_p": "Calcular Score",
+        "score_ganador": "🏆 Vencedor Provável", "score_medio": "⚡ Potencial Médio", "score_riesgo": "⚠️ Alto Risco",
+        "refresco_titulo": "👋 Sua sessão expirou", "refresco_msg": "As sessões não persistem ao atualizar a página. Por favor faça login novamente.",
+        "campana_config": "⚙️ Configurar campanha de alertas"
     }
 }
 
@@ -455,9 +638,10 @@ with st.sidebar:
     if not st.session_state['logged_in']:
         tab1, tab2 = st.tabs(["🔐 Login", "🚀 Registro"])
         with tab1:
-            email_input = st.text_input("Email", key="login_email")
-            pass_input = st.text_input("Contraseña", type="password", key="login_pass")
-            if st.button("Entrar", use_container_width=True):
+            tr_sb = traducciones[st.session_state['idioma']]
+            email_input = st.text_input(tr_sb['login_email'], key="login_email")
+            pass_input = st.text_input(tr_sb['login_pass'], type="password", key="login_pass")
+            if st.button(tr_sb['login_btn'], use_container_width=True):
                 if email_input == ADMIN_EMAIL and pass_input == ADMIN_PASS:
                     st.session_state.update({'logged_in': True, 'user_role': 'admin', 'user_email': email_input, 'user_id': None, 'vista': 'modulos'})
                     st.rerun()
@@ -476,7 +660,7 @@ with st.sidebar:
                         resetear_uso_diario()
                         st.rerun()
                     else:
-                        st.error("❌ Credenciales incorrectas.")
+                        st.error(tr_sb['login_err'])
         with tab2:
             reg_email = st.text_input(t()['reg_email'], key="reg_email")
             reg_pass1 = st.text_input(t()['reg_pass'], type="password", key="reg_pass1")
@@ -505,7 +689,7 @@ with st.sidebar:
         st.caption(f"Plan: **{st.session_state['user_role'].upper()}**")
         if st.session_state['user_role'] == 'free':
             restantes = max(0, 1 - st.session_state['uso_m1_m2'])
-            st.caption(f"Análisis hoy: {'✅ Disponible' if restantes > 0 else '⛔ Se renueva mañana'}")
+            st.caption(f"{tr['analisis_hoy']} {'✅ Disponible' if restantes > 0 else '⛔ Se renueva mañana'}")
 
         st.markdown("---")
         col_m1, col_m2 = st.columns(2)
@@ -683,95 +867,97 @@ else:
 
     # ── Módulo 1 ──
     if idx_modulo == 0:
-        st.header("🔍 ¿Qué puedo vender hoy?" if modo_simple else "🔍 Investigar Productos Ganadores")
-        if modo_simple: st.caption("Cuéntanos un poco y te decimos los mejores productos para vender.")
+        st.header(tr['m1_h_s'] if modo_simple else tr['m1_h_p'])
+        if modo_simple: st.caption(tr['m1_c_s'])
         if modo_simple:
-            nicho = st.text_input("¿En qué tipo de productos piensas?", placeholder="mascotas, belleza, cocina...")
-            presupuesto = st.selectbox("¿Cuánto quieres invertir?", ["Poco dinero (menos de $100)", "Algo de dinero ($100-$500)", "Tengo buen presupuesto (más de $500)"])
-            plataforma = st.selectbox("¿Dónde quieres vender?", ["Amazon (el más grande)", "AliExpress (más económico)", "Ambas plataformas"])
+            nicho = st.text_input(tr['m1_nicho_s'], placeholder="mascotas, belleza, cocina...")
+            presupuesto = st.selectbox(tr['m1_pres_s'], tr['m1_pres_ops_s'])
+            plataforma = st.selectbox(tr['m1_plat_s'], tr['m1_plat_ops_s'])
         else:
             col1, col2, col3 = st.columns(3)
-            with col1: nicho = st.text_input("Nicho", placeholder="belleza facial")
-            with col2: presupuesto = st.selectbox("Presupuesto", ["bajo", "medio", "alto"])
-            with col3: plataforma = st.selectbox("Plataforma", ["Amazon", "AliExpress", "Ambas"])
+            with col1: nicho = st.text_input(tr['m1_nicho_p'], placeholder="belleza facial")
+            with col2: presupuesto = st.selectbox(tr['m1_pres_p'], tr['m1_pres_ops_p'])
+            with col3: plataforma = st.selectbox(tr['m1_plat_p'], tr['m1_plat_ops_p'])
         if es_free and st.session_state['uso_m1_m2'] >= 1:
             mostrar_paywall()
         else:
-            if st.button("¡Dime qué vender! 🚀" if modo_simple else "Investigar ahora", type="primary"):
+            if st.button(tr['m1_btn_s'] if modo_simple else tr['m1_btn_p'], type="primary"):
                 st.session_state['uso_m1_m2'] += 1; incrementar_uso_db('uso_m1_m2')
-                with st.spinner("Buscando los mejores productos..." if modo_simple else "Analizando mercado..."):
+                with st.spinner(tr['m1_spin_s'] if modo_simple else tr['m1_spin_p']):
                     st.markdown(consultar_agente("Analista de mercado dropshipping.",
                         f"Analiza nicho: {nicho}, presupuesto: {presupuesto}, plataforma: {plataforma}. Dame TOP 5 productos con precio venta, precio compra AliExpress, margen % y estrategia."))
 
     # ── Módulo 2 ──
     elif idx_modulo == 1:
-        st.header("💰 ¿Gano dinero con esto?" if modo_simple else "📉 Monitor de Precios")
+        st.header(tr['m2_h_s'] if modo_simple else tr['m2_h_p'])
+        if modo_simple: st.caption(tr['m2_c_s'])
         if modo_simple:
-            producto = st.text_input("¿Qué producto quieres vender?", placeholder="Mascarilla de carbón activado")
-            precio_actual = st.text_input("¿A qué precio lo venderías?", placeholder="$12.99")
-            categoria = st.text_input("¿En qué categoría entraría?", placeholder="belleza y cuidado personal")
+            producto = st.text_input(tr['m2_prod_s'], placeholder="Mascarilla de carbón activado")
+            precio_actual = st.text_input(tr['m2_precio_s'], placeholder="$12.99")
+            categoria = st.text_input(tr['m2_cat_s'], placeholder="belleza y cuidado personal")
         else:
             col1, col2, col3 = st.columns(3)
-            with col1: producto = st.text_input("Producto", placeholder="Mascarilla carbon activado")
-            with col2: precio_actual = st.text_input("Mi precio", placeholder="$12.99")
-            with col3: categoria = st.text_input("Categoria")
+            with col1: producto = st.text_input(tr['m2_prod_p'], placeholder="Mascarilla carbon activado")
+            with col2: precio_actual = st.text_input(tr['m2_precio_p'], placeholder="$12.99")
+            with col3: categoria = st.text_input(tr['m2_cat_p'])
         if es_free and st.session_state['uso_m1_m2'] >= 1:
             mostrar_paywall()
         else:
-            if st.button("¿Es rentable? 💵" if modo_simple else "Analizar rentabilidad", type="primary"):
+            if st.button(tr['m2_btn_s'] if modo_simple else tr['m2_btn_p'], type="primary"):
                 st.session_state['uso_m1_m2'] += 1; incrementar_uso_db('uso_m1_m2')
-                with st.spinner("Calculando tu ganancia..."):
+                with st.spinner("..."):
                     st.markdown(consultar_agente("Experto en pricing eCommerce.",
                         f"Analiza: PRODUCTO: {producto}, PRECIO: {precio_actual}, CATEGORIA: {categoria}. Dame rango precios y rentabilidad para $500/mes."))
 
     # ── Módulo 3 ──
     elif idx_modulo == 2:
-        st.header("✍️ Escríbelo por mí" if modo_simple else "✍️ Copywriting de Élite para Amazon A+")
-        if modo_simple: st.caption("Te creamos la descripción perfecta para que tu producto venda más.")
-        producto = st.text_input("¿Cómo se llama el producto?" if modo_simple else "Nombre del producto")
-        precio = st.text_input("¿A qué precio lo vas a vender?" if modo_simple else "Precio de venta")
-        caracteristicas = st.text_area("¿Qué hace este producto? ¿Por qué es bueno?" if modo_simple else "Características")
-        tono = st.selectbox("Estilo de escritura:" if modo_simple else "Tono", ["Persuasivo", "Profesional", "Storytelling"])
+        st.header(tr['m3_h_s'] if modo_simple else tr['m3_h_p'])
+        if modo_simple: st.caption(tr['m3_c_s'])
+        producto = st.text_input(tr['m3_prod_s'] if modo_simple else tr['m3_prod_p'])
+        precio = st.text_input(tr['m3_precio_s'] if modo_simple else tr['m3_precio_p'])
+        caracteristicas = st.text_area(tr['m3_caract_s'] if modo_simple else tr['m3_caract_p'])
+        tono = st.selectbox(tr['m3_tono_s'] if modo_simple else tr['m3_tono_p'], ["Persuasivo", "Profesional", "Storytelling"])
         if es_free and st.session_state['uso_m3'] >= 1:
             mostrar_paywall()
         elif es_free and st.session_state['uso_m3'] == 0:
-            if st.button("¡Crear mi descripción! ✨" if modo_simple else "Generar descripción", type="primary"):
-                with st.spinner("Escribiendo por ti..."):
+            if st.button(tr['m3_btn_s'] if modo_simple else tr['m3_btn_p'], type="primary"):
+                with st.spinner("..."):
                     resultado = consultar_agente(f"Copywriter experto en Amazon. Tono: {tono}.",
                         f"Crea descripcion A+ (min 1500 chars). PRODUCTO: {producto}, PRECIO: {precio}, CARACT: {caracteristicas}, TONO: {tono}. Incluye Gancho, Problema/Solucion, 5 Bullets, 50 Keywords.")
                     st.session_state['uso_m3'] += 1; incrementar_uso_db('uso_m3')
                     mostrar_preview_paywall(resultado)
         else:
-            if st.button("¡Crear mi descripción! ✨" if modo_simple else "Generar descripción", type="primary"):
+            if st.button(tr['m3_btn_s'] if modo_simple else tr['m3_btn_p'], type="primary"):
                 st.session_state['uso_m3'] += 1; incrementar_uso_db('uso_m3')
-                with st.spinner("Escribiendo por ti..."):
+                with st.spinner("..."):
                     st.markdown(consultar_agente(f"Copywriter experto en Amazon. Tono: {tono}.",
                         f"Crea descripcion A+ (min 1500 chars). PRODUCTO: {producto}, PRECIO: {precio}, CARACT: {caracteristicas}, TONO: {tono}. Incluye Gancho, Problema/Solucion, 5 Bullets, 50 Keywords."))
 
     # ── Módulo 4 ──
     elif idx_modulo == 3:
-        st.header("📱 Posts para mis redes sociales" if modo_simple else "📱 Estrategia para Redes Sociales")
-        if modo_simple: st.caption(f"Te damos {dias_estrategia} días de contenido listo para publicar.")
+        st.header(tr['m4_h_s'] if modo_simple else tr['m4_h_p'])
+        if modo_simple: st.caption(f"{tr['m4_h_s']} — {dias_estrategia} días")
         col1, col2 = st.columns(2)
         with col1:
-            producto = st.text_input("¿Qué producto vas a promocionar?" if modo_simple else "Producto", key="m4_producto")
-            nicho = st.text_input("¿A quién va dirigido?" if modo_simple else "Nicho", key="m4_nicho")
+            producto = st.text_input(tr['m4_prod_s'] if modo_simple else tr['m4_prod_p'], key="m4_producto")
+            nicho = st.text_input(tr['m4_nicho_s'] if modo_simple else tr['m4_nicho_p'], key="m4_nicho")
         with col2:
-            plataformas = st.multiselect("¿En qué redes?" if modo_simple else "Plataformas",
+            plataformas = st.multiselect(tr['m4_plat_s'] if modo_simple else tr['m4_plat_p'],
                 ["Instagram", "TikTok", "Facebook"], default=["TikTok", "Instagram"], key="m4_plataformas")
 
         if plataformas:
             horarios_txt = obtener_horarios_sugeridos(plataformas)
             st.markdown(f"""<div style='background:#1a1a2e;padding:12px;border-radius:8px;border:1px solid #FFD70044;margin-bottom:10px;'>
-                <p style='color:#FFD700;font-weight:bold;margin:0 0 5px 0;'>⏰ Horarios óptimos sugeridos:</p>
+                <p style='color:#FFD700;font-weight:bold;margin:0 0 5px 0;'>{tr['m4_horarios']}</p>
                 <p style='color:#ccc;margin:0;font-size:0.9rem;white-space:pre-line;'>{horarios_txt}</p></div>""", unsafe_allow_html=True)
 
         if es_free and st.session_state['uso_m4'] >= 1:
             mostrar_paywall()
         else:
-            if st.button(f"¡Crear mis {dias_estrategia} posts! 📲" if modo_simple else f"Crear estrategia {dias_estrategia} días", type="primary", key="btn_m4"):
+            btn_m4 = f"¡Crear mis {dias_estrategia} posts! 📲" if modo_simple else f"Crear estrategia {dias_estrategia} días"
+            if st.button(btn_m4, type="primary", key="btn_m4"):
                 horarios_str = obtener_horarios_sugeridos(plataformas)
-                with st.spinner(f"Creando {dias_estrategia} días de contenido..."):
+                with st.spinner("..."):
                     resultado = consultar_agente("Experto en marketing digital viral.",
                         f"Crea estrategia viral: PRODUCTO: {producto}, NICHO: {nicho}, PLATAFORMAS: {plataformas}. Dame {dias_estrategia} DÍAS CONSECUTIVOS. Por día: formato, gancho visual, guion con hashtags. Horarios óptimos: {horarios_str}")
                 if es_free:
@@ -787,76 +973,77 @@ else:
                 st.markdown(st.session_state['resultado_m4'])
                 if not st.session_state.get('campana_guardada'):
                     st.markdown("---")
-                    tr2 = t()
-                    st.subheader(tr2['alerta_titulo'])
-                    st.caption(tr2['alerta_desc'])
+                    # FIX 3: Emojis restaurados en sección campaña
+                    st.subheader(tr['alerta_titulo'])
+                    st.caption(tr['alerta_desc'])
+                    st.markdown(f"""<div style='background:#1a1a2e;padding:15px;border-radius:10px;border:1px solid #00FF9C44;margin-bottom:15px;'>
+                        <p style='color:#00FF9C;font-weight:bold;margin:0;'>⚙️ {tr['campana_config']}</p></div>""", unsafe_allow_html=True)
 
-                    # FORMULARIO que no se contrae
-                    nombre_c = st.text_input(tr2['alerta_nombre'], value=f"Campaña {producto[:20]}", key="camp_nombre")
-                    canal_c = st.selectbox(tr2['alerta_canal'], ["Email", "WhatsApp"], key="camp_canal")
+                    nombre_c = st.text_input(f"📋 {tr['alerta_nombre']}", value=f"Campaña {producto[:20]}", key="camp_nombre")
+                    canal_c = st.selectbox(f"📣 {tr['alerta_canal']}", ["Email", "WhatsApp"], key="camp_canal")
                     if canal_c == "Email":
-                        contacto_c = st.text_input(tr2['alerta_email_label'], value=st.session_state['user_email'], key="camp_contacto")
+                        contacto_c = st.text_input(f"📧 {tr['alerta_email_label']}", value=st.session_state['user_email'], key="camp_email")
                     else:
-                        contacto_c = st.text_input(tr2['alerta_wp_label'], placeholder="+573001234567", key="camp_contacto_wp")
-                    horario_c = st.selectbox(tr2['alerta_hora'], ["Mañana (8:00 AM)", "Mediodía (12:00 PM)", "Tarde (6:00 PM)", "Noche (8:00 PM)"], key="camp_horario")
+                        contacto_c = st.text_input(f"💬 {tr['alerta_wp_label']}", placeholder="+573001234567", key="camp_wp")
+                    horario_c = st.selectbox(f"⏰ {tr['alerta_hora']}", ["Mañana (8:00 AM)", "Mediodía (12:00 PM)", "Tarde (6:00 PM)", "Noche (8:00 PM)"], key="camp_horario")
                     st.caption(f"💡 Horario óptimo sugerido: {horario_principal(plataformas)}")
 
-                    if st.button(tr2['alerta_btn'], type="primary", key="btn_activar_campana"):
+                    if st.button(tr['alerta_btn'], type="primary", key="btn_activar_campana"):
                         user_id = st.session_state.get('user_id')
                         if user_id:
-                            contacto_val = st.session_state.get('camp_contacto') or st.session_state.get('camp_contacto_wp', '')
+                            contacto_val = st.session_state.get('camp_email') or st.session_state.get('camp_wp', '')
                             guardado = guardar_campana(user_id, nombre_c, producto, st.session_state['resultado_m4'], canal_c, contacto_val, horario_c)
                             if guardado:
                                 if canal_c == "Email":
                                     email_alerta_publicacion(contacto_val, nombre_c, producto, 1, st.session_state['resultado_m4'], plataformas)
                                 st.session_state['campana_guardada'] = True
-                                st.success(f"{tr2['alerta_ok']} {canal_c}.")
-                                st.info("Gestiona tus campañas desde **Mis Campañas** en el menú lateral.")
+                                st.success(f"🎉 {tr['alerta_ok']} {canal_c}.")
+                                st.info(f"📋 {tr['mis_campanas']}")
                             else:
-                                st.error("No se pudo guardar. Intenta de nuevo.")
+                                st.error("⚠️ No se pudo guardar. Intenta de nuevo.")
 
     # ── Módulo 5 ──
     elif idx_modulo == 4:
-        st.header("🤝 Hablar con el proveedor" if modo_simple else "🤝 Contactar Proveedor")
-        if modo_simple: st.caption("Te escribimos el mensaje perfecto para contactar a tu proveedor.")
-        producto = st.text_input("¿Qué producto necesitas?" if modo_simple else "Producto")
-        proveedor = st.selectbox("¿Dónde lo comprarás?" if modo_simple else "Proveedor", ["AliExpress", "CJdropshipping", "Zendrop"])
-        objetivo = st.selectbox("¿Para qué lo contactas?" if modo_simple else "Objetivo", ["Pedir muestra", "Negociar precio", "Consultar envio"])
+        st.header(tr['m5_h_s'] if modo_simple else tr['m5_h_p'])
+        if modo_simple: st.caption(tr['m5_c_s'])
+        producto = st.text_input(tr['m5_prod_s'] if modo_simple else tr['m5_prod_p'])
+        proveedor = st.selectbox(tr['m5_prov_s'] if modo_simple else tr['m5_prov_p'], ["AliExpress", "CJdropshipping", "Zendrop"])
+        objetivo = st.selectbox(tr['m5_obj_s'] if modo_simple else tr['m5_obj_p'], tr['m5_obj_ops'])
         if es_free and st.session_state['uso_m5'] >= 1: mostrar_paywall()
         elif es_free and st.session_state['uso_m5'] == 0:
-            if st.button("¡Crear mi mensaje! 💬" if modo_simple else "Generar mensaje", type="primary"):
-                with st.spinner("Escribiendo tu mensaje..."):
+            if st.button(tr['m5_btn_s'] if modo_simple else tr['m5_btn_p'], type="primary"):
+                with st.spinner("..."):
                     resultado = consultar_agente("Experto en negociacion B2B.",
                         f"Redacta mensaje INGLES para {proveedor}. PRODUCTO: {producto}. OBJETIVO: {objetivo}. Dame traducción y 3 consejos.")
                     st.session_state['uso_m5'] += 1; incrementar_uso_db('uso_m5')
                     mostrar_preview_paywall(resultado)
         else:
-            if st.button("¡Crear mi mensaje! 💬" if modo_simple else "Generar mensaje", type="primary"):
+            if st.button(tr['m5_btn_s'] if modo_simple else tr['m5_btn_p'], type="primary"):
                 st.session_state['uso_m5'] += 1; incrementar_uso_db('uso_m5')
-                with st.spinner("Escribiendo tu mensaje..."):
+                with st.spinner("..."):
                     st.markdown(consultar_agente("Experto en negociacion B2B.",
                         f"Redacta mensaje INGLES para {proveedor}. PRODUCTO: {producto}. OBJETIVO: {objetivo}. Dame traducción y 3 consejos."))
 
     # ── Módulo 6 ──
     elif idx_modulo == 5:
-        st.header("📊 ¿Es negocio esto?" if modo_simple else "📊 Análisis Gráfico de Rentabilidad")
+        st.header(tr['m6_h_s'] if modo_simple else tr['m6_h_p'])
         col1, col2 = st.columns(2)
         with col1:
-            precio_venta = st.number_input("¿A qué precio lo venderás? (USD)" if modo_simple else "Precio venta (USD)", value=15.99)
-            costo_producto = st.number_input("¿Cuánto te cuesta comprarlo? (USD)" if modo_simple else "Costo producto (USD)", value=5.50)
+            precio_venta = st.number_input(tr['m6_pventa_s'] if modo_simple else tr['m6_pventa_p'], value=15.99)
+            costo_producto = st.number_input(tr['m6_pcosto_s'] if modo_simple else tr['m6_pcosto_p'], value=5.50)
         with col2:
-            costo_envio = st.number_input("¿Cuánto cuesta enviarlo? (USD)" if modo_simple else "Costo envio (USD)", value=2.00)
-            comision = st.number_input("Comisión de la plataforma %" if modo_simple else "Comision plataforma %", value=15.0)
+            costo_envio = st.number_input(tr['m6_envio_s'] if modo_simple else tr['m6_envio_p'], value=2.00)
+            comision = st.number_input(tr['m6_com_s'] if modo_simple else tr['m6_com_p'], value=15.0)
         if es_free and st.session_state['uso_m6'] >= 1: mostrar_paywall()
         elif es_free and st.session_state['uso_m6'] == 0:
-            if st.button("¡Ver si es negocio! 📈" if modo_simple else "Generar gráficos", type="primary"):
+            if st.button(tr['m6_btn_s'] if modo_simple else tr['m6_btn_p'], type="primary"):
                 comision_usd = precio_venta*(comision/100); margen_neto = precio_venta-costo_producto-costo_envio-comision_usd
                 col1, col2, col3 = st.columns(3)
                 col1.metric("Precio Venta", f"${precio_venta:.2f}"); col2.metric("Ganancia Neta", f"${margen_neto:.2f}")
                 col3.metric("Margen %", f"{(margen_neto/precio_venta)*100:.1f}%" if precio_venta > 0 else "0%")
                 st.session_state['uso_m6'] += 1; incrementar_uso_db('uso_m6'); mostrar_paywall()
         else:
-            if st.button("¡Ver si es negocio! 📈" if modo_simple else "Generar gráficos", type="primary"):
+            if st.button(tr['m6_btn_s'] if modo_simple else tr['m6_btn_p'], type="primary"):
                 st.session_state['uso_m6'] += 1; incrementar_uso_db('uso_m6')
                 comision_usd = precio_venta*(comision/100); margen_neto = precio_venta-costo_producto-costo_envio-comision_usd
                 col1, col2, col3 = st.columns(3)
@@ -875,41 +1062,42 @@ else:
 
     # ── Módulo 7 ──
     elif idx_modulo == 6:
-        st.header("🕵️ Espiar a la competencia" if modo_simple else "🕵️ Monitor de Competencia")
-        producto = st.text_input("¿Qué producto analizamos?" if modo_simple else "Producto a analizar")
-        resenas = st.text_area("Pega aquí comentarios negativos de productos similares" if modo_simple else "Pega reseñas negativas",
+        st.header(tr['m7_h_s'] if modo_simple else tr['m7_h_p'])
+        if modo_simple: st.caption(tr['m7_c_s'])
+        producto = st.text_input(tr['m7_prod_s'] if modo_simple else tr['m7_prod_p'])
+        resenas = st.text_area(tr['m7_res_s'] if modo_simple else tr['m7_res_p'],
             placeholder="Ej: El producto llegó sin instrucciones... La calidad es mala...")
         if es_free and st.session_state['uso_m7'] >= 1: mostrar_paywall()
         elif es_free and st.session_state['uso_m7'] == 0:
-            if st.button("¡Encontrar mi ventaja! 🏆" if modo_simple else "Analizar brechas", type="primary"):
-                with st.spinner("Buscando tu ventaja..."):
+            if st.button(tr['m7_btn_s'] if modo_simple else tr['m7_btn_p'], type="primary"):
+                with st.spinner("..."):
                     resultado = consultar_agente("Estratega de mercado experto.",
-                        f"Analiza reseñas negativas: {resenas}. Identifica 3 brechas de mercado y estrategia de diferenciacion para {producto}.")
+                        f"Analiza reseñas negativas: {resenas}. Identifica 3 brechas y estrategia para {producto}.")
                     st.session_state['uso_m7'] += 1; incrementar_uso_db('uso_m7'); mostrar_preview_paywall(resultado)
         else:
-            if st.button("¡Encontrar mi ventaja! 🏆" if modo_simple else "Analizar brechas", type="primary"):
+            if st.button(tr['m7_btn_s'] if modo_simple else tr['m7_btn_p'], type="primary"):
                 st.session_state['uso_m7'] += 1; incrementar_uso_db('uso_m7')
-                with st.spinner("Buscando tu ventaja..."):
+                with st.spinner("..."):
                     st.markdown(consultar_agente("Estratega de mercado experto.",
-                        f"Analiza reseñas negativas: {resenas}. Identifica 3 brechas de mercado y estrategia de diferenciacion para {producto}."))
+                        f"Analiza reseñas negativas: {resenas}. Identifica 3 brechas y estrategia para {producto}."))
 
     # ── Módulo 8 ──
     elif idx_modulo == 7:
-        st.header("🎯 ¿Vale la pena venderlo?" if modo_simple else "🎯 Score de Validación IA")
-        if modo_simple: st.caption("Mueve los controles y te decimos si este producto tiene futuro.")
+        st.header(tr['m8_h_s'] if modo_simple else tr['m8_h_p'])
+        if modo_simple: st.caption(tr['m8_c_s'])
         col1, col2 = st.columns(2)
         with col1:
-            producto = st.text_input("¿Qué producto evalúas?" if modo_simple else "Producto")
-            margen = st.slider("¿Qué % de ganancia tendrías?" if modo_simple else "Margen neto %", 0, 100, 50)
+            producto = st.text_input(tr['m8_prod_s'] if modo_simple else tr['m8_prod_p'])
+            margen = st.slider(tr['m8_margen_s'] if modo_simple else tr['m8_margen_p'], 0, 100, 50)
         with col2:
-            velocidad = st.slider("¿Qué tan rápido llega al cliente? (1=lento, 10=rápido)" if modo_simple else "Velocidad envio", 1, 10, 5)
-            competencia = st.slider("¿Cuánta competencia hay? (1=muchísima, 10=poca)" if modo_simple else "Competencia (1=mucha, 10=poca)", 1, 10, 5)
+            velocidad = st.slider(tr['m8_vel_s'] if modo_simple else tr['m8_vel_p'], 1, 10, 5)
+            competencia = st.slider(tr['m8_comp_s'] if modo_simple else tr['m8_comp_p'], 1, 10, 5)
         if es_free and st.session_state['uso_m8'] >= 1: mostrar_paywall()
         else:
-            if st.button("¡Dime si vale la pena! 🎯" if modo_simple else "Calcular Score", type="primary"):
+            if st.button(tr['m8_btn_s'] if modo_simple else tr['m8_btn_p'], type="primary"):
                 score = min((margen*0.4)+(velocidad*2)+(competencia*2), 100)
                 color = "#00FF9C" if score >= 70 else "#FFA500" if score >= 40 else "#FF4B4B"
-                nivel = "🏆 Ganador Probable" if score >= 70 else "⚡ Potencial Medio" if score >= 40 else "⚠️ Alto Riesgo"
+                nivel = tr['score_ganador'] if score >= 70 else tr['score_medio'] if score >= 40 else tr['score_riesgo']
                 st.markdown(f"""<div style='text-align:center;padding:20px;'>
                     <h1 style='color:{color};font-size:4rem;text-shadow:0 0 20px {color};'>{score:.1f}/100</h1>
                     <h2 style='color:{color};'>{nivel}</h2></div>""", unsafe_allow_html=True)
@@ -922,6 +1110,7 @@ else:
                     st.session_state['uso_m8'] += 1; incrementar_uso_db('uso_m8'); mostrar_paywall()
                 else:
                     st.session_state['uso_m8'] += 1; incrementar_uso_db('uso_m8')
-                    with st.spinner("Validando viabilidad..."):
+                    with st.spinner("..."):
                         st.markdown(consultar_agente("Analista de riesgo Dropshipping.",
                             f"Score producto {producto}: {score}/100. Nivel: {nivel}. Margen {margen}%, Velocidad {velocidad}/10, Competencia {competencia}/10. Veredicto: Invertir o Descartar."))
+   
