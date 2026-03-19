@@ -24,6 +24,7 @@ if 'idx_modulo' not in st.session_state: st.session_state['idx_modulo'] = 0
 if 'resultado_m4' not in st.session_state: st.session_state['resultado_m4'] = None
 if 'campana_guardada' not in st.session_state: st.session_state['campana_guardada'] = False
 if 'mentor_mode' not in st.session_state: st.session_state['mentor_mode'] = True
+if 'mentor_init' not in st.session_state: st.session_state['mentor_init'] = True
 if 'ultimo_res_m1' not in st.session_state: st.session_state['ultimo_res_m1'] = None
 if 'ultimo_res_m2' not in st.session_state: st.session_state['ultimo_res_m2'] = None
 if 'ultimo_res_m7' not in st.session_state: st.session_state['ultimo_res_m7'] = None
@@ -870,8 +871,11 @@ with st.sidebar:
             st.session_state['vista'] = 'productos'
             st.rerun()
         st.markdown("---")
-        mentor_val = st.checkbox(tr['mentor_toggle'], value=True, key="mentor_mode")
-        if mentor_val:
+        nuevo_mentor = st.checkbox(tr['mentor_toggle'], value=st.session_state['mentor_mode'], key="chk_mentor")
+        if nuevo_mentor != st.session_state['mentor_mode']:
+            st.session_state['mentor_mode'] = nuevo_mentor
+            st.rerun()
+        if st.session_state['mentor_mode']:
             st.caption(tr['mentor_on'])
         st.markdown("---")
         if st.button(tr['cerrar_sesion'], use_container_width=True):
