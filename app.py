@@ -786,7 +786,7 @@ with st.sidebar:
             pass_input = st.text_input(tr_sb['login_pass'], type="password", key="login_pass")
             if st.button(tr_sb['login_btn'], use_container_width=True):
                 if email_input == ADMIN_EMAIL and pass_input == ADMIN_PASS:
-                    st.session_state.update({'logged_in': True, 'user_role': 'admin', 'user_email': email_input, 'user_id': None, 'vista': 'modulos'})
+                    st.session_state.update({'logged_in': True, 'user_role': 'admin', 'user_email': email_input, 'user_id': None, 'vista': 'modulos', 'mentor_mode': True})
                     st.rerun()
                 else:
                     ok, datos = login_usuario_db(email_input, pass_input)
@@ -798,7 +798,7 @@ with st.sidebar:
                             'uso_m3': datos.get('uso_m3', 0), 'uso_m4': datos.get('uso_m4', 0),
                             'uso_m5': datos.get('uso_m5', 0), 'uso_m6': datos.get('uso_m6', 0),
                             'uso_m7': datos.get('uso_m7', 0), 'uso_m8': datos.get('uso_m8', 0),
-                            'vista': 'modulos'
+                            'vista': 'modulos', 'mentor_mode': True
                         })
                         resetear_uso_diario()
                         st.rerun()
@@ -883,6 +883,7 @@ with st.sidebar:
                 st.session_state[k] = False if k == 'logged_in' else None if k == 'user_id' else 'invitado' if k == 'user_role' else '' if k == 'user_email' else 0
             st.session_state['vista'] = 'modulos'
             st.session_state['resultado_m4'] = None
+            st.session_state['mentor_mode'] = True
             st.rerun()
 
 # ==========================================
