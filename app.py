@@ -871,7 +871,8 @@ with st.sidebar:
             st.session_state['vista'] = 'productos'
             st.rerun()
         st.markdown("---")
-        st.checkbox(tr['mentor_toggle'], key='mentor_mode')
+        mentor_val = st.checkbox(tr['mentor_toggle'], value=st.session_state['mentor_mode'])
+        st.session_state['mentor_mode'] = mentor_val
         if st.session_state['mentor_mode']:
             st.caption(tr['mentor_on'])
         st.markdown("---")
