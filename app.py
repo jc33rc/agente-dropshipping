@@ -1099,8 +1099,9 @@ else:
     dias_estrategia = 15 if es_pro else 5
 
     if st.session_state.get('mentor_mode'):
+        _tr = t()
         st.markdown(f"""<div style='background:linear-gradient(135deg,#0066FF22,#00FF9C22);padding:10px 15px;border-radius:8px;border:1px solid #00FF9C66;margin-bottom:15px;'>
-            <p style='color:#00FF9C;margin:0;font-size:0.9rem;'>{tr['mentor_banner']}</p>
+            <p style='color:#00FF9C;margin:0;font-size:0.9rem;'>{_tr['mentor_banner']}</p>
         </div>""", unsafe_allow_html=True)
 
     # ── Módulo 1 ──
