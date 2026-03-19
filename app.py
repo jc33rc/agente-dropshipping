@@ -820,7 +820,7 @@ with st.sidebar:
                             'user_email': reg_email, 'user_id': resultado['id'],
                             'uso_m1_m2': 0, 'uso_m3': 0, 'uso_m4': 0,
                             'uso_m5': 0, 'uso_m6': 0, 'uso_m7': 0, 'uso_m8': 0,
-                            'fecha_uso': str(date.today()), 'vista': 'modulos'
+                            'fecha_uso': str(date.today()), 'vista': 'modulos', 'mentor_mode': True
                         })
                         email_bienvenida(reg_email)
                         st.rerun()
@@ -930,7 +930,7 @@ if not st.session_state['logged_in']:
                                 'uso_m1_m2': 0, 'uso_m3': 0, 'uso_m4': 0,
                                 'uso_m5': 0, 'uso_m6': 0, 'uso_m7': 0, 'uso_m8': 0,
                                 'fecha_uso': str(date.today()), 'vista': 'modulos',
-                                'mostrar_reg_landing': False
+                                'mostrar_reg_landing': False, 'mentor_mode': True
                             })
                             email_bienvenida(lr_email)
                             st.rerun()
