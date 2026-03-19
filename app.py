@@ -23,7 +23,7 @@ if 'vista' not in st.session_state: st.session_state['vista'] = 'modulos'
 if 'idx_modulo' not in st.session_state: st.session_state['idx_modulo'] = 0
 if 'resultado_m4' not in st.session_state: st.session_state['resultado_m4'] = None
 if 'campana_guardada' not in st.session_state: st.session_state['campana_guardada'] = False
-if 'mentor_mode' not in st.session_state: st.session_state['mentor_mode'] = False
+if 'mentor_mode' not in st.session_state: st.session_state['mentor_mode'] = True
 if 'ultimo_res_m1' not in st.session_state: st.session_state['ultimo_res_m1'] = None
 if 'ultimo_res_m2' not in st.session_state: st.session_state['ultimo_res_m2'] = None
 if 'ultimo_res_m7' not in st.session_state: st.session_state['ultimo_res_m7'] = None
@@ -350,6 +350,14 @@ traducciones = {
         "analisis_hoy": "Análisis hoy:",
         "mentor_toggle": "🧠 Modo Mentor",
         "mentor_on": "💡 Mentor activo — la IA explica el porqué",
+        "mentor_banner": "🧠 Modo Mentor activo — La IA explicará el porqué de cada recomendación con 💡, consejos con 🎯 y próximos pasos con ➡️",
+        "nuevas_funciones_titulo": "🆕 Nuevas funciones disponibles",
+        "card1_t": "🧠 Modo Mentor", "card1_d": "La IA no solo responde — te explica el porqué, te da consejos prácticos y te dice cuál es el próximo paso.",
+        "card2_t": "📦 Guardar Investigaciones", "card2_d": "Guarda tus productos investigados, asigna estados (Evaluando / Activo / Descartado) y añade notas personales.",
+        "card3_t": "🛒 Amazon + Shopify", "card3_d": "Soporte completo para Shopify — descripciones SEO, estrategias y análisis adaptados a tu tienda propia.",
+        "card4_t": "📅 Calendario de Temporadas", "card4_d": "Detecta automáticamente qué productos vender según el mes actual. Incluye gráfico de tendencias anual por nicho.",
+        "card5_t": "🚦 Detector de Saturación", "card5_d": "Semáforo visual que te dice si un mercado está BAJO, MEDIO, ALTO o CRÍTICO antes de invertir.",
+        "card6_t": "📢 Calculadora de Publicidad", "card6_d": "Calcula si TikTok Ads, Meta Ads o Google Ads es rentable con tu producto. Proyección real a 30 días.",
         "mis_productos": "📦 Mis Productos",
         "guardar_producto": "💾 Guardar este producto",
         "producto_guardado_ok": "✅ Guardado en Mis Productos",
@@ -482,6 +490,14 @@ traducciones = {
         "analisis_hoy": "Today's analyses:",
         "mentor_toggle": "🧠 Mentor Mode",
         "mentor_on": "💡 Mentor active — AI explains the why",
+        "mentor_banner": "🧠 Mentor Mode active — The AI will explain the why behind each recommendation with 💡, practical tips with 🎯 and next steps with ➡️",
+        "nuevas_funciones_titulo": "🆕 New features available",
+        "card1_t": "🧠 Mentor Mode", "card1_d": "The AI doesn't just answer — it explains the why, gives practical tips and tells you the next step.",
+        "card2_t": "📦 Save Research", "card2_d": "Save your researched products, assign statuses (Evaluating / Active / Discarded) and add personal notes.",
+        "card3_t": "🛒 Amazon + Shopify", "card3_d": "Full Shopify support — SEO descriptions, strategies and analysis adapted to your own store.",
+        "card4_t": "📅 Seasonal Calendar", "card4_d": "Automatically detects what products to sell based on the current month. Includes annual trend chart by niche.",
+        "card5_t": "🚦 Saturation Detector", "card5_d": "Visual traffic light that tells you if a market is LOW, MEDIUM, HIGH or CRITICAL before you invest.",
+        "card6_t": "📢 Advertising Calculator", "card6_d": "Calculate if TikTok Ads, Meta Ads or Google Ads is profitable for your product. Real 30-day projection.",
         "mis_productos": "📦 My Products",
         "guardar_producto": "💾 Save this product",
         "producto_guardado_ok": "✅ Saved to My Products",
@@ -614,6 +630,14 @@ traducciones = {
         "analisis_hoy": "Análises hoje:",
         "mentor_toggle": "🧠 Modo Mentor",
         "mentor_on": "💡 Mentor ativo — a IA explica o porquê",
+        "mentor_banner": "🧠 Modo Mentor ativo — A IA explicará o porquê de cada recomendação com 💡, conselhos com 🎯 e próximos passos com ➡️",
+        "nuevas_funciones_titulo": "🆕 Novas funcionalidades disponíveis",
+        "card1_t": "🧠 Modo Mentor", "card1_d": "A IA não apenas responde — explica o porquê, dá conselhos práticos e diz qual é o próximo passo.",
+        "card2_t": "📦 Salvar Pesquisas", "card2_d": "Salve seus produtos pesquisados, atribua status (Avaliando / Ativo / Descartado) e adicione notas pessoais.",
+        "card3_t": "🛒 Amazon + Shopify", "card3_d": "Suporte completo para Shopify — descrições SEO, estratégias e análises adaptadas à sua própria loja.",
+        "card4_t": "📅 Calendário de Temporadas", "card4_d": "Detecta automaticamente quais produtos vender com base no mês atual. Inclui gráfico de tendências anual.",
+        "card5_t": "🚦 Detector de Saturação", "card5_d": "Semáforo visual que diz se um mercado está BAIXO, MÉDIO, ALTO ou CRÍTICO antes de investir.",
+        "card6_t": "📢 Calculadora de Publicidade", "card6_d": "Calcule se TikTok Ads, Meta Ads ou Google Ads é rentável para seu produto. Projeção real de 30 dias.",
         "mis_productos": "📦 Meus Produtos",
         "guardar_producto": "💾 Salvar este produto",
         "producto_guardado_ok": "✅ Salvo em Meus Produtos",
@@ -805,8 +829,8 @@ with st.sidebar:
         st.success(f"✅ {st.session_state['user_email']}")
         st.caption(f"Plan: **{st.session_state['user_role'].upper()}**")
         if st.session_state['user_role'] == 'free':
-            restantes = max(0, 1 - st.session_state['uso_m1_m2'])
-            st.caption(f"{tr['analisis_hoy']} {'✅ Disponible' if restantes > 0 else '⛔ Se renueva mañana'}")
+            restantes = max(0, 3 - st.session_state['uso_m1_m2'])
+            st.caption(f"{tr['analisis_hoy']} {restantes}/3 {'✅' if restantes > 0 else '⛔'}")
 
         st.markdown("---")
         col_m1, col_m2 = st.columns(2)
@@ -935,40 +959,39 @@ if not st.session_state['logged_in']:
     st.markdown("---")
 
     # NUEVAS FUNCIONES
-    st.markdown(f"<h2 style='color:#00FF9C;text-align:center;'>🆕 Nuevas funciones disponibles</h2>", unsafe_allow_html=True)
+    st.markdown(f"<h2 style='color:#00FF9C;text-align:center;'>{tr['nuevas_funciones_titulo']}</h2>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown("""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #00FF9C44;height:180px;'>
-            <h4 style='color:#00FF9C;margin:0 0 8px 0;'>🧠 Modo Mentor</h4>
-            <p style='color:#ccc;font-size:0.9rem;margin:0;'>La IA no solo responde — te explica el porqué, te da consejos prácticos y te dice cuál es el próximo paso.</p>
+        st.markdown(f"""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #00FF9C44;height:180px;'>
+            <h4 style='color:#00FF9C;margin:0 0 8px 0;'>{tr['card1_t']}</h4>
+            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['card1_d']}</p>
         </div>""", unsafe_allow_html=True)
     with col2:
-        st.markdown("""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #FFD70044;height:180px;'>
-            <h4 style='color:#FFD700;margin:0 0 8px 0;'>📦 Guardar Investigaciones</h4>
-            <p style='color:#ccc;font-size:0.9rem;margin:0;'>Guarda tus productos investigados, asigna estados (Evaluando / Activo / Descartado) y añade notas personales.</p>
+        st.markdown(f"""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #FFD70044;height:180px;'>
+            <h4 style='color:#FFD700;margin:0 0 8px 0;'>{tr['card2_t']}</h4>
+            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['card2_d']}</p>
         </div>""", unsafe_allow_html=True)
     with col3:
-        st.markdown("""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #0066FF44;height:180px;'>
-            <h4 style='color:#0066FF;margin:0 0 8px 0;'>🛒 Amazon + Shopify</h4>
-            <p style='color:#ccc;font-size:0.9rem;margin:0;'>Ahora con soporte completo para Shopify — descripciones SEO, estrategias y análisis adaptados a tu tienda propia.</p>
+        st.markdown(f"""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #0066FF44;height:180px;'>
+            <h4 style='color:#0066FF;margin:0 0 8px 0;'>{tr['card3_t']}</h4>
+            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['card3_d']}</p>
         </div>""", unsafe_allow_html=True)
-
     st.markdown("<br>", unsafe_allow_html=True)
     col4, col5, col6 = st.columns(3)
     with col4:
-        st.markdown("""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #FF6B9D44;height:180px;'>
-            <h4 style='color:#FF6B9D;margin:0 0 8px 0;'>📅 Calendario de Temporadas</h4>
-            <p style='color:#ccc;font-size:0.9rem;margin:0;'>Detecta automáticamente qué productos vender según el mes actual. Incluye gráfico de tendencias anual por nicho.</p>
+        st.markdown(f"""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #FF6B9D44;height:180px;'>
+            <h4 style='color:#FF6B9D;margin:0 0 8px 0;'>{tr['card4_t']}</h4>
+            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['card4_d']}</p>
         </div>""", unsafe_allow_html=True)
     with col5:
-        st.markdown("""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #FF4B4B44;height:180px;'>
-            <h4 style='color:#FF4B4B;margin:0 0 8px 0;'>🚦 Detector de Saturación</h4>
-            <p style='color:#ccc;font-size:0.9rem;margin:0;'>Semáforo visual que te dice si un mercado está BAJO, MEDIO, ALTO o CRÍTICO antes de que inviertas tiempo y dinero.</p>
+        st.markdown(f"""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #FF4B4B44;height:180px;'>
+            <h4 style='color:#FF4B4B;margin:0 0 8px 0;'>{tr['card5_t']}</h4>
+            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['card5_d']}</p>
         </div>""", unsafe_allow_html=True)
     with col6:
-        st.markdown("""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #FFA50044;height:180px;'>
-            <h4 style='color:#FFA500;margin:0 0 8px 0;'>📢 Calculadora de Publicidad</h4>
-            <p style='color:#ccc;font-size:0.9rem;margin:0;'>Calcula si pagar TikTok Ads, Meta Ads o Google Ads es rentable con tu producto. Proyección real a 30 días.</p>
+        st.markdown(f"""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #FFA50044;height:180px;'>
+            <h4 style='color:#FFA500;margin:0 0 8px 0;'>{tr['card6_t']}</h4>
+            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['card6_d']}</p>
         </div>""", unsafe_allow_html=True)
 
     st.markdown("---")
@@ -1072,8 +1095,8 @@ else:
     dias_estrategia = 15 if es_pro else 5
 
     if st.session_state.get('mentor_mode'):
-        st.markdown("""<div style='background:linear-gradient(135deg,#0066FF22,#00FF9C22);padding:10px 15px;border-radius:8px;border:1px solid #00FF9C66;margin-bottom:15px;'>
-            <p style='color:#00FF9C;margin:0;font-size:0.9rem;'>🧠 <b>Modo Mentor activo</b> — La IA explicará el porqué de cada recomendación con 💡, consejos con 🎯 y próximos pasos con ➡️</p>
+        st.markdown(f"""<div style='background:linear-gradient(135deg,#0066FF22,#00FF9C22);padding:10px 15px;border-radius:8px;border:1px solid #00FF9C66;margin-bottom:15px;'>
+            <p style='color:#00FF9C;margin:0;font-size:0.9rem;'>{tr['mentor_banner']}</p>
         </div>""", unsafe_allow_html=True)
 
     # ── Módulo 1 ──
@@ -1089,8 +1112,8 @@ else:
             with col1: nicho = st.text_input(tr['m1_nicho_p'], placeholder="belleza facial")
             with col2: presupuesto = st.selectbox(tr['m1_pres_p'], tr['m1_pres_ops_p'])
             with col3: plataforma = st.selectbox(tr['m1_plat_p'], tr['m1_plat_ops_p'])
-        if es_free and st.session_state['uso_m1_m2'] >= 1:
-            mostrar_paywall()
+        if es_free and st.session_state['uso_m1_m2'] >= 3:
+            mostrar_preview_paywall(st.session_state.get('ultimo_res_m1', {}).get('res', ''))
         else:
             if st.button(tr['m1_btn_s'] if modo_simple else tr['m1_btn_p'], type="primary"):
                 st.session_state['uso_m1_m2'] += 1; incrementar_uso_db('uso_m1_m2')
@@ -1119,8 +1142,8 @@ else:
             with col1: producto = st.text_input(tr['m2_prod_p'], placeholder="Mascarilla carbon activado")
             with col2: precio_actual = st.text_input(tr['m2_precio_p'], placeholder="$12.99")
             with col3: categoria = st.text_input(tr['m2_cat_p'])
-        if es_free and st.session_state['uso_m1_m2'] >= 1:
-            mostrar_paywall()
+        if es_free and st.session_state['uso_m1_m2'] >= 3:
+            mostrar_preview_paywall(st.session_state.get('ultimo_res_m2', ''))
         else:
             if st.button(tr['m2_btn_s'] if modo_simple else tr['m2_btn_p'], type="primary"):
                 st.session_state['uso_m1_m2'] += 1; incrementar_uso_db('uso_m1_m2')
