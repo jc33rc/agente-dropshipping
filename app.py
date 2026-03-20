@@ -1534,41 +1534,61 @@ else:
         else:
             if st.button(tr['m6_btn_s'] if modo_simple else tr['m6_btn_p'], type="primary"):
                 st.session_state['uso_m6'] += 1; incrementar_uso_db('uso_m6')
-                comision_usd = precio_venta*(comision/100); margen_neto = precio_venta-costo_producto-costo_envio-comision_usd
+                comision_usd = precio_venta*(comision/100)
+                margen_neto = precio_venta-costo_producto-costo_envio-comision_usd
+                margen_pct = (margen_neto/precio_venta)*100 if precio_venta > 0 else 0
+                st.session_state['ultimo_res_m6'] = {
+                    'precio_venta': precio_venta, 'costo_producto': costo_producto,
+                    'costo_envio': costo_envio, 'comision_usd': comision_usd,
+                    'margen_neto': margen_neto, 'margen_pct': margen_pct,
+                    'incluir_ads': incluir_ads,
+                    'plataforma_ads': plataforma_ads if incluir_ads else '',
+                    'presupuesto_ads': presupuesto_ads if incluir_ads else 0
+                }
+                st.session_state['precio_activo'] = str(precio_venta)
+                st.session_state['margen_activo'] = margen_pct
+
+            if st.session_state.get('ultimo_res_m6'):
+                r = st.session_state['ultimo_res_m6']
                 col1, col2, col3 = st.columns(3)
-                col1.metric("Precio Venta", f"${precio_venta:.2f}"); col2.metric("Ganancia Neta", f"${margen_neto:.2f}")
-                col3.metric("Margen %", f"{(margen_neto/precio_venta)*100:.1f}%" if precio_venta > 0 else "0%")
-                fig_pie = px.pie(values=[costo_producto,costo_envio,comision_usd,max(0,margen_neto)],
-                    names=["Producto","Envío","Comisión","Margen"], template="plotly_dark", title="Distribución de Costos")
+                col1.metric("Precio Venta", f"${r['precio_venta']:.2f}")
+                col2.metric("Ganancia Neta", f"${r['margen_neto']:.2f}")
+                col3.metric("Margen %", f"{r['margen_pct']:.1f}%")
+                fig_pie = px.pie(
+                    values=[r['costo_producto'], r['costo_envio'], r['comision_usd'], max(0, r['margen_neto'])],
+                    names=["Producto","Envío","Comisión","Margen"],
+                    template="plotly_dark", title="Distribución de Costos")
                 st.plotly_chart(fig_pie, use_container_width=True)
                 unidades = list(range(1, 51))
                 fig_line = go.Figure()
-                fig_line.add_trace(go.Scatter(x=unidades, y=[u*precio_venta for u in unidades], name="Ingresos Brutos", line=dict(color="#00FF9C", width=3)))
-                fig_line.add_trace(go.Scatter(x=unidades, y=[u*(costo_producto+costo_envio+comision_usd) for u in unidades], name="Costos Totales", line=dict(color="#FF4B4B", width=2, dash='dot')))
+                fig_line.add_trace(go.Scatter(x=unidades, y=[u*r['precio_venta'] for u in unidades], name="Ingresos Brutos", line=dict(color="#00FF9C", width=3)))
+                fig_line.add_trace(go.Scatter(x=unidades, y=[u*(r['costo_producto']+r['costo_envio']+r['comision_usd']) for u in unidades], name="Costos Totales", line=dict(color="#FF4B4B", width=2, dash='dot')))
                 fig_line.update_layout(xaxis_title="Unidades", yaxis_title="USD ($)", template="plotly_dark", plot_bgcolor="#1a1a2e", paper_bgcolor="#0e1117")
                 st.plotly_chart(fig_line, use_container_width=True)
-                if incluir_ads:
+                if r.get('incluir_ads') and r.get('plataforma_ads'):
                     st.markdown("---")
                     cpm_map = {"TikTok Ads": 2.5, "Meta Ads (Facebook/Instagram)": 4.0, "Google Ads": 6.0}
-                    cpm = cpm_map.get(plataforma_ads, 3.0)
-                    ventas_dia = (presupuesto_ads / cpm) * 1000 * 0.015 * 0.02
-                    ingresos_dia = ventas_dia * margen_neto
-                    roas = ingresos_dia / presupuesto_ads if presupuesto_ads > 0 else 0
-                    rentable = ingresos_dia > presupuesto_ads
+                    cpm = cpm_map.get(r['plataforma_ads'], 3.0)
+                    ventas_dia = (r['presupuesto_ads'] / cpm) * 1000 * 0.015 * 0.02
+                    ingresos_dia = ventas_dia * r['margen_neto']
+                    roas = ingresos_dia / r['presupuesto_ads'] if r['presupuesto_ads'] > 0 else 0
+                    rentable = ingresos_dia > r['presupuesto_ads']
                     col1, col2, col3 = st.columns(3)
                     col1.metric("💰 Ganancia/día con ads", f"${ingresos_dia:.2f}")
                     col2.metric("📦 Ventas/día estimadas", f"{ventas_dia:.1f}")
                     col3.metric("📈 ROAS", f"{roas:.1f}x", delta="✅ Rentable" if rentable else "⚠️ No rentable")
-                    color_res = "#00FF9C" if rentable else "#FF4B4B"
                     dias_p = list(range(1, 31))
                     fig_ads = go.Figure()
                     fig_ads.add_trace(go.Scatter(x=dias_p, y=[d*ingresos_dia for d in dias_p], name="Ganancias acumuladas", line=dict(color="#00FF9C", width=3)))
-                    fig_ads.add_trace(go.Scatter(x=dias_p, y=[d*presupuesto_ads for d in dias_p], name="Costo ads acumulado", line=dict(color="#FF4B4B", width=2, dash='dot')))
-                    fig_ads.update_layout(title=f"Proyección 30 días — {plataforma_ads}", xaxis_title="Día", yaxis_title="USD ($)", template="plotly_dark", plot_bgcolor="#1a1a2e", paper_bgcolor="#0e1117")
+                    fig_ads.add_trace(go.Scatter(x=dias_p, y=[d*r['presupuesto_ads'] for d in dias_p], name="Costo ads acumulado", line=dict(color="#FF4B4B", width=2, dash='dot')))
+                    fig_ads.update_layout(title=f"Proyección 30 días — {r['plataforma_ads']}", xaxis_title="Día", yaxis_title="USD ($)", template="plotly_dark", plot_bgcolor="#1a1a2e", paper_bgcolor="#0e1117")
                     st.plotly_chart(fig_ads, use_container_width=True)
                     with st.spinner("..."):
                         st.markdown(consultar_agente(sistema_mentor("Expert in digital advertising for dropshipping."),
-                            f"Ad budget: ${presupuesto_ads}/day on {plataforma_ads}. Sale price: ${precio_venta}. Net margin: {margen_neto:.2f} USD. ROAS: {roas:.1f}x. Give 3 specific tips to optimize ROAS for Latin American dropshipping market."))
+                            f"Ad budget: ${r['presupuesto_ads']}/day on {r['plataforma_ads']}. Sale price: ${r['precio_venta']}. Net margin: {r['margen_neto']:.2f} USD. ROAS: {roas:.1f}x. Give 3 specific tips to optimize ROAS for Latin American dropshipping market."))
+                with st.spinner("..."):
+                    st.markdown(consultar_agente(sistema_mentor("Expert dropshipping profitability analyst."),
+                        f"Analyze this product profitability. Sale price: ${r['precio_venta']}, Net margin: ${r['margen_neto']:.2f} ({r['margen_pct']:.1f}%), Product cost: ${r['costo_producto']}, Shipping: ${r['costo_envio']}, Commission: ${r['comision_usd']:.2f}. Give: 1) Is this margin healthy for dropshipping? 2) Minimum units to cover costs, 3) 2 concrete tips to improve profitability."))
 
     # ── Módulo 7 — Generador de Nombre de Marca ──
     elif idx_modulo == 6:
@@ -1665,6 +1685,12 @@ else:
         plataforma = st.session_state.get('plataforma_activa','')
         res_m2 = st.session_state.get('ultimo_res_m2','') or ''
         res_m8_data = st.session_state.get('ultimo_res_m8', {}) or {}
+        res_m6_data = st.session_state.get('ultimo_res_m6', {}) or {}
+
+        score_default = float(res_m8_data.get('score', 0) or 0)
+        nivel_default = res_m8_data.get('nivel', '') or ''
+        margen_default = float(res_m8_data.get('margen', 0) or res_m6_data.get('margen_pct', 0) or 0)
+        precio_default = st.session_state.get('precio_activo','') or (str(res_m6_data.get('precio_venta','')) if res_m6_data else '')
 
         if not producto:
             st.warning(tr['m_informe_sin_datos'])
@@ -1679,11 +1705,11 @@ else:
                 nicho_ed = st.text_input("🎯 Nicho", value=nicho)
                 plataforma_ed = st.text_input("🏪 Plataforma", value=plataforma)
             with col2:
-                precio_ed = st.text_input(tr['m_informe_precio_l'], value=st.session_state.get('precio_activo','') or '')
-                margen_ed = st.number_input(tr['m_informe_margen_l'], value=float(res_m8_data.get('margen', 0) or 0), min_value=0.0, max_value=100.0, step=1.0)
-                score_ed = st.number_input(tr['m_informe_score_l'], value=float(res_m8_data.get('score', 0) or 0), min_value=0.0, max_value=100.0, step=1.0)
+                precio_ed = st.text_input(tr['m_informe_precio_l'], value=precio_default)
+                margen_ed = st.number_input(tr['m_informe_margen_l'], value=margen_default, min_value=0.0, max_value=100.0, step=1.0)
+                score_ed = st.number_input(tr['m_informe_score_l'], value=score_default, min_value=0.0, max_value=100.0, step=1.0)
 
-            nivel = res_m8_data.get('nivel','') or (tr['score_ganador'] if score_ed >= 70 else tr['score_medio'] if score_ed >= 40 else tr['score_riesgo'])
+            nivel = nivel_default or (tr['score_ganador'] if score_ed >= 70 else tr['score_medio'] if score_ed >= 40 else tr['score_riesgo'])
 
             if es_free and st.session_state.get('uso_m_informe', 0) >= 1: mostrar_paywall()
             else:
