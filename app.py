@@ -410,6 +410,10 @@ traducciones = {
         "m_informe_guardar": "💾 Guardar informe en Mis Productos",
         "m_informe_guardado": "✅ Informe guardado en Mis Productos",
         "m_informe_email_ok": "✅ Informe enviado al correo",
+        "m_informe_campos": "✏️ Completa o ajusta los datos antes de generar",
+        "m_informe_precio_l": "Precio de venta (USD)",
+        "m_informe_margen_l": "Margen de ganancia (%)",
+        "m_informe_score_l": "Score de validación (0-100)",
         "campana_ver_dia": "📅 Ver estrategia del día",
         "campana_dia_label": "Selecciona el día a ver",
         "campana_copiar": "📋 Copiar contenido",
@@ -588,6 +592,10 @@ traducciones = {
         "m_informe_guardar": "💾 Save report to My Products",
         "m_informe_guardado": "✅ Report saved to My Products",
         "m_informe_email_ok": "✅ Report sent to email",
+        "m_informe_campos": "✏️ Complete or adjust data before generating",
+        "m_informe_precio_l": "Sale price (USD)",
+        "m_informe_margen_l": "Profit margin (%)",
+        "m_informe_score_l": "Validation score (0-100)",
         "campana_ver_dia": "📅 View strategy for day",
         "campana_dia_label": "Select day to view",
         "campana_copiar": "📋 Copy content",
@@ -766,6 +774,10 @@ traducciones = {
         "m_informe_guardar": "💾 Salvar relatório em Meus Produtos",
         "m_informe_guardado": "✅ Relatório salvo em Meus Produtos",
         "m_informe_email_ok": "✅ Relatório enviado por email",
+        "m_informe_campos": "✏️ Complete ou ajuste os dados antes de gerar",
+        "m_informe_precio_l": "Preço de venda (USD)",
+        "m_informe_margen_l": "Margem de lucro (%)",
+        "m_informe_score_l": "Score de validação (0-100)",
         "campana_ver_dia": "📅 Ver estratégia do dia",
         "campana_dia_label": "Selecione o dia para ver",
         "campana_copiar": "📋 Copiar conteúdo",
@@ -1651,48 +1663,56 @@ else:
         producto = st.session_state.get('producto_activo','')
         nicho = st.session_state.get('nicho_activo','')
         plataforma = st.session_state.get('plataforma_activa','')
-        precio = st.session_state.get('precio_activo','')
         res_m2 = st.session_state.get('ultimo_res_m2','') or ''
         res_m8_data = st.session_state.get('ultimo_res_m8', {}) or {}
-        score = res_m8_data.get('score', 0)
-        nivel = res_m8_data.get('nivel', '')
-        margen = res_m8_data.get('margen', 0)
 
         if not producto:
             st.warning(tr['m_informe_sin_datos'])
         else:
             st.markdown(f"""<div style='background:#1a1a2e;padding:15px;border-radius:10px;border:1px solid #00FF9C44;margin-bottom:15px;'>
-                <p style='color:#00FF9C;font-weight:bold;margin:0 0 8px 0;'>📋 Datos acumulados de tu investigación:</p>
-                <p style='color:#ccc;margin:0;'>🛍️ <b>Producto:</b> {producto} | 🎯 <b>Nicho:</b> {nicho} | 🏪 <b>Plataforma:</b> {plataforma}</p>
-                {'<p style="color:#ccc;margin:4px 0;">🎯 <b>Score:</b> '+str(score)+'/100 — '+nivel+'</p>' if score else ''}
+                <p style='color:#00FF9C;font-weight:bold;margin:0 0 8px 0;'>📋 {tr['m_informe_campos']}</p>
             </div>""", unsafe_allow_html=True)
+
+            col1, col2 = st.columns(2)
+            with col1:
+                producto_ed = st.text_input("🛍️ Producto", value=producto)
+                nicho_ed = st.text_input("🎯 Nicho", value=nicho)
+                plataforma_ed = st.text_input("🏪 Plataforma", value=plataforma)
+            with col2:
+                precio_ed = st.text_input(tr['m_informe_precio_l'], value=st.session_state.get('precio_activo','') or '')
+                margen_ed = st.number_input(tr['m_informe_margen_l'], value=float(res_m8_data.get('margen', 0) or 0), min_value=0.0, max_value=100.0, step=1.0)
+                score_ed = st.number_input(tr['m_informe_score_l'], value=float(res_m8_data.get('score', 0) or 0), min_value=0.0, max_value=100.0, step=1.0)
+
+            nivel = res_m8_data.get('nivel','') or (tr['score_ganador'] if score_ed >= 70 else tr['score_medio'] if score_ed >= 40 else tr['score_riesgo'])
 
             if es_free and st.session_state.get('uso_m_informe', 0) >= 1: mostrar_paywall()
             else:
                 if st.button(tr['m_informe_btn_s'] if modo_simple else tr['m_informe_btn_p'], type="primary"):
                     with st.spinner("..."):
                         texto_informe = consultar_agente(sistema_mentor("Expert dropshipping business analyst."),
-                            f"Generate a concise executive product report. PRODUCT: {producto}, NICHE: {nicho}, PLATFORM: {plataforma}, PRICE: {precio}, MARGIN: {margen}%, SCORE: {score}/100 ({nivel}). Include: 1) Executive Summary, 2) Market opportunity, 3) Profitability analysis, 4) Key risks, 5) Final recommendation: Go/No-Go with action steps.")
+                            f"Generate a concise executive product report. PRODUCT: {producto_ed}, NICHE: {nicho_ed}, PLATFORM: {plataforma_ed}, PRICE: {precio_ed} USD, MARGIN: {margen_ed}%, SCORE: {score_ed}/100 ({nivel}). Include: 1) Executive Summary, 2) Market opportunity, 3) Profitability analysis, 4) Key risks, 5) Final recommendation: Go/No-Go with action steps.")
                         st.session_state['ultimo_informe'] = texto_informe
+                        st.session_state['ultimo_informe_datos'] = {'producto': producto_ed, 'nicho': nicho_ed, 'plataforma': plataforma_ed, 'precio': precio_ed, 'margen': margen_ed, 'score': score_ed, 'nivel': nivel}
                     if es_free: st.session_state['uso_m_informe'] = 1
 
                 if st.session_state.get('ultimo_informe'):
                     st.markdown(st.session_state['ultimo_informe'])
-                    html_inf = generar_html_informe(producto, nicho, plataforma, precio, margen, score, nivel, res_m2[:300], st.session_state['ultimo_informe'])
+                    d = st.session_state.get('ultimo_informe_datos', {})
+                    html_inf = generar_html_informe(d.get('producto', producto_ed), d.get('nicho', nicho_ed), d.get('plataforma', plataforma_ed), d.get('precio', precio_ed), d.get('margen', margen_ed), d.get('score', score_ed), d.get('nivel', nivel), res_m2[:300], st.session_state['ultimo_informe'])
                     st.markdown("---")
                     col1, col2, col3 = st.columns(3)
                     with col1:
                         st.download_button(tr['m_informe_dl_btn'],
                             data=html_inf.encode('utf-8'),
-                            file_name=f"informe_{producto[:20].replace(' ','_')}.html",
+                            file_name=f"informe_{producto_ed[:20].replace(' ','_')}.html",
                             mime="text/html")
                     with col2:
                         if st.button(tr['m_informe_email_btn']):
                             enviado = enviar_email(st.session_state['user_email'],
-                                f"📊 Informe: {producto} — Dropshippingent", html_inf)
+                                f"📊 Informe: {producto_ed} — Dropshippingent", html_inf)
                             st.success(tr['m_informe_email_ok']) if enviado else st.warning("⚠️ Error al enviar")
                     with col3:
                         if st.session_state.get('user_id') and es_pro:
                             if st.button(tr['m_informe_guardar']):
-                                if guardar_producto_db(st.session_state['user_id'], producto, nicho, margen, score, plataforma, st.session_state['ultimo_informe'][:500], st.session_state['ultimo_informe']):
+                                if guardar_producto_db(st.session_state['user_id'], producto_ed, nicho_ed, margen_ed, score_ed, plataforma_ed, st.session_state['ultimo_informe'][:500], st.session_state['ultimo_informe']):
                                     st.success(tr['m_informe_guardado'])
