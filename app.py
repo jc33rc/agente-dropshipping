@@ -259,13 +259,13 @@ def eliminar_campana(campana_id):
         return True
     except: return False
 
-def guardar_producto_db(user_id, nombre, nicho, margen, score, plataforma, resumen):
+def guardar_producto_db(user_id, nombre, nicho, margen, score, plataforma, resumen, informe=""):
     try:
         res = supabase.table("productos_guardados").insert({
             "user_id": user_id, "nombre": nombre, "nicho": nicho or "",
             "margen_estimado": margen, "score": score,
             "plataforma": plataforma or "", "resumen": resumen or "",
-            "estado": "evaluando", "notas": ""
+            "estado": "evaluando", "notas": "", "informe": informe or ""
         }).execute()
         return True if res.data else False
     except: return False
@@ -293,6 +293,59 @@ def eliminar_producto_db(producto_id):
         supabase.table("productos_guardados").delete().eq("id", producto_id).execute()
         return True
     except: return False
+
+def actualizar_informe_producto(producto_id, informe):
+    try:
+        supabase.table("productos_guardados").update({"informe": informe}).eq("id", producto_id).execute()
+        return True
+    except: return False
+
+def avanzar_dia_campana(campana_id, dia_actual):
+    try:
+        supabase.table("campanas").update({"dia_actual": dia_actual + 1}).eq("id", campana_id).execute()
+        return True
+    except: return False
+
+def extraer_dia_estrategia(estrategia, dia):
+    """Extrae el contenido del día específico de la estrategia generada."""
+    import re
+    patrones = [f"Día {dia}:", f"Day {dia}:", f"Dia {dia}:"]
+    for patron in patrones:
+        idx = estrategia.find(patron)
+        if idx != -1:
+            siguiente = len(estrategia)
+            for p2 in [f"Día {dia+1}:", f"Day {dia+1}:", f"Dia {dia+1}:"]:
+                idx2 = estrategia.find(p2, idx+1)
+                if idx2 != -1:
+                    siguiente = min(siguiente, idx2)
+            return estrategia[idx:siguiente].strip()
+    return estrategia[:600]
+
+def generar_html_informe(producto, nicho, plataforma, precio, margen, score, nivel, resumen_rentabilidad, texto_informe):
+    return f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+body{{font-family:Arial,sans-serif;background:#0e1117;color:white;padding:30px;max-width:800px;margin:0 auto;}}
+h1{{color:#00FF9C;text-align:center;border-bottom:2px solid #00FF9C33;padding-bottom:15px;}}
+h2{{color:#2E75B6;margin-top:25px;}}
+.metric{{background:#1a1a2e;padding:15px;border-radius:8px;border:1px solid #00FF9C33;margin:10px 0;}}
+.badge{{display:inline-block;padding:5px 12px;border-radius:20px;font-weight:bold;}}
+.footer{{text-align:center;color:#666;margin-top:30px;font-size:0.85rem;border-top:1px solid #333;padding-top:15px;}}
+</style></head>
+<body>
+<h1>📊 Informe de Producto — Dropshippingent</h1>
+<div class="metric"><h2 style="margin:0;color:#00FF9C;">🛍️ {producto}</h2>
+<p style="color:#888;margin:5px 0;">Nicho: <b style="color:white;">{nicho}</b> | Plataforma: <b style="color:white;">{plataforma}</b> | Precio: <b style="color:white;">{precio}</b></p></div>
+<h2>💰 Análisis de Rentabilidad</h2>
+<div class="metric"><p style="color:#ccc;">{resumen_rentabilidad or 'Ver módulo de rentabilidad para detalles.'}</p></div>
+<h2>🎯 Score de Validación</h2>
+<div class="metric" style="text-align:center;">
+<h1 style="color:#00FF9C;font-size:3rem;margin:0;">{score}/100</h1>
+<p style="color:#ccc;">{nivel}</p></div>
+<h2>📋 Análisis Completo</h2>
+<div class="metric"><p style="color:#ccc;line-height:1.8;">{texto_informe.replace(chr(10),'<br>')}</p></div>
+<div class="footer">© 2026 Dropshippingent — dropshippingent.streamlit.app</div>
+</body></html>"""
 
 # ── Modo Mentor ──
 def sistema_mentor(base):
@@ -339,8 +392,35 @@ traducciones = {
         "pw_found_t": "Oferta Fundador", "pw_found_p": "$99 <span style='color:#888;'>Único</span>",
         "pw_found_d": "Acceso Vitalicio. <b style='color:#FF4B4B;'>🔥 Solo 12 cupos.</b>", "pw_found_b": "Ser Fundador",
         "pw_preview": "🔒 Vista previa — Hazte Pro para ver el análisis completo",
-        "modulos_simple": ["1. ¿Qué puedo vender? 🆓","2. ¿Gano dinero con esto? 🆓","3. Escríbelo por mí ⭐","4. Posts para mis redes ⭐","5. Hablar con el proveedor ⭐","6. ¿Es negocio esto? ⭐","7. Conoce a tu competencia ⭐","8. ¿Vale la pena venderlo? ⭐","9. ¿Está saturado? ⭐"],
-        "modulos_pro": ["1. Investigar Productos (Free)","2. Monitor de Precios (Free)","3. Descripción Amazon/Shopify/MeLi (Pro)","4. Contenido Redes (Pro)","5. Contactar Proveedor (Pro)","6. Rentabilidad + Publicidad (Pro)","7. Monitor + Análisis Competencia (Pro)","8. Score Validación (Pro)","9. Detector Saturación (Pro)"],
+        "modulos_simple": ["1. ¿Qué puedo vender? 🆓","2. ¿Gano dinero con esto? 🆓","3. Escríbelo por mí ⭐","4. Posts para mis redes ⭐","5. Hablar con el proveedor ⭐","6. ¿Es negocio esto? ⭐","7. ¿Cómo llamo mi tienda? ⭐","8. ¿Vale la pena venderlo? ⭐","9. Espiar a la competencia ⭐","10. Generar mi informe ⭐"],
+        "modulos_pro": ["1. Investigar Productos (Free)","2. Monitor de Precios (Free)","3. Descripción Amazon/Shopify/MeLi (Pro)","4. Contenido Redes (Pro)","5. Contactar Proveedor (Pro)","6. Rentabilidad + Publicidad (Pro)","7. Generador de Marca (Pro)","8. Score Validación (Pro)","9. Monitor Competencia (Pro)","10. Generar Informe (Pro)"],
+        "m_marca_h_s": "🏪 ¿Cómo llamo mi tienda?", "m_marca_h_p": "🏪 Generador de Nombre de Marca",
+        "m_marca_c_s": "La IA genera 10 nombres únicos para tu tienda con slogan y bio para redes.",
+        "m_marca_nicho_s": "¿A qué te dedicarás? ¿Qué vendes?", "m_marca_nicho_p": "Nicho o tipo de productos",
+        "m_marca_plat_s": "¿Dónde vas a vender?", "m_marca_plat_p": "Plataforma principal",
+        "m_marca_estilo_s": "Estilo de marca que buscas", "m_marca_estilo_p": "Estilo de marca",
+        "m_marca_estilo_ops": ["Moderno y minimalista", "Divertido y juvenil", "Profesional y confiable", "Lujoso y premium"],
+        "m_marca_btn_s": "¡Crear nombres para mi tienda! ✨", "m_marca_btn_p": "Generar nombres de marca",
+        "m_informe_h_s": "📄 Genera tu informe de producto", "m_informe_h_p": "📄 Generar Informe Ejecutivo",
+        "m_informe_c_s": "Recoge todo lo que investigaste y genera un informe completo listo para descargar.",
+        "m_informe_sin_datos": "⚠️ Primero investiga un producto en los módulos anteriores.",
+        "m_informe_btn_s": "¡Generar mi informe! 📊", "m_informe_btn_p": "Generar informe ejecutivo",
+        "m_informe_email_btn": "📧 Enviar al correo",
+        "m_informe_dl_btn": "📥 Descargar HTML",
+        "m_informe_guardar": "💾 Guardar informe en Mis Productos",
+        "m_informe_guardado": "✅ Informe guardado en Mis Productos",
+        "m_informe_email_ok": "✅ Informe enviado al correo",
+        "campana_ver_dia": "📅 Ver estrategia del día",
+        "campana_dia_label": "Selecciona el día a ver",
+        "campana_copiar": "📋 Copiar contenido",
+        "informe_ver": "📄 Ver informe",
+        "informe_no": "Sin informe guardado",
+        "landing_valor1_t": "🔍 Investiga sin límites",
+        "landing_valor1_d": "Descubre qué vender, cuándo es el mejor momento y en qué plataforma conviene más. Amazon, Shopify o Mercado Libre.",
+        "landing_valor2_t": "💰 Valida antes de invertir",
+        "landing_valor2_d": "Calcula tu margen real, incluye el costo de publicidad y obtén un score de viabilidad antes de gastar un peso.",
+        "landing_valor3_t": "📱 Ejecuta con todo listo",
+        "landing_valor3_d": "Descripción de producto, mensajes al proveedor, contenido para 15 días en redes y nombre de tu tienda. Todo en segundos.",
         "m1_plat_ops_s": ["Amazon (el más grande)", "Shopify (mi tienda propia)", "Mercado Libre (Latinoamérica)", "Todas las plataformas"],
         "m1_plat_ops_p": ["Amazon", "Shopify", "Mercado Libre", "Todas"],
         "m1_tab_productos": "🔍 Investigar Productos", "m1_tab_temporada": "📅 Por Temporada",
@@ -490,8 +570,35 @@ traducciones = {
         "pw_found_t": "Founder Offer", "pw_found_p": "$99 <span style='color:#888;'>One-time</span>",
         "pw_found_d": "Lifetime Access. <b style='color:#FF4B4B;'>🔥 Only 12 spots left.</b>", "pw_found_b": "Become a Founder",
         "pw_preview": "🔒 Preview — Go Pro to see the complete analysis",
-        "modulos_simple": ["1. What can I sell? 🆓","2. Will I make money? 🆓","3. Write it for me ⭐","4. Social media posts ⭐","5. Contact supplier ⭐","6. Is this a business? ⭐","7. Know your competition ⭐","8. Is it worth selling? ⭐","9. Is it saturated? ⭐"],
-        "modulos_pro": ["1. Research Products (Free)","2. Price Monitor (Free)","3. Amazon/Shopify/MeLi Description (Pro)","4. Social Media Content (Pro)","5. Contact Supplier (Pro)","6. Profitability + Ads (Pro)","7. Competition Monitor + Analysis (Pro)","8. Validation Score (Pro)","9. Saturation Detector (Pro)"],
+        "modulos_simple": ["1. What can I sell? 🆓","2. Will I make money? 🆓","3. Write it for me ⭐","4. Social media posts ⭐","5. Contact supplier ⭐","6. Is this a business? ⭐","7. What's my store name? ⭐","8. Is it worth selling? ⭐","9. Spy on competition ⭐","10. Generate my report ⭐"],
+        "modulos_pro": ["1. Research Products (Free)","2. Price Monitor (Free)","3. Amazon/Shopify/MeLi Description (Pro)","4. Social Media Content (Pro)","5. Contact Supplier (Pro)","6. Profitability + Ads (Pro)","7. Brand Name Generator (Pro)","8. Validation Score (Pro)","9. Competition Monitor (Pro)","10. Generate Report (Pro)"],
+        "m_marca_h_s": "🏪 What's my store name?", "m_marca_h_p": "🏪 Brand Name Generator",
+        "m_marca_c_s": "The AI generates 10 unique names for your store with slogan and bio for social media.",
+        "m_marca_nicho_s": "What will you sell?", "m_marca_nicho_p": "Niche or product type",
+        "m_marca_plat_s": "Where will you sell?", "m_marca_plat_p": "Main platform",
+        "m_marca_estilo_s": "Brand style you're looking for", "m_marca_estilo_p": "Brand style",
+        "m_marca_estilo_ops": ["Modern and minimalist", "Fun and youthful", "Professional and trustworthy", "Luxury and premium"],
+        "m_marca_btn_s": "Create names for my store! ✨", "m_marca_btn_p": "Generate brand names",
+        "m_informe_h_s": "📄 Generate your product report", "m_informe_h_p": "📄 Generate Executive Report",
+        "m_informe_c_s": "Collects everything you researched and generates a complete report ready to download.",
+        "m_informe_sin_datos": "⚠️ First research a product in the previous modules.",
+        "m_informe_btn_s": "Generate my report! 📊", "m_informe_btn_p": "Generate executive report",
+        "m_informe_email_btn": "📧 Send to email",
+        "m_informe_dl_btn": "📥 Download HTML",
+        "m_informe_guardar": "💾 Save report to My Products",
+        "m_informe_guardado": "✅ Report saved to My Products",
+        "m_informe_email_ok": "✅ Report sent to email",
+        "campana_ver_dia": "📅 View strategy for day",
+        "campana_dia_label": "Select day to view",
+        "campana_copiar": "📋 Copy content",
+        "informe_ver": "📄 View report",
+        "informe_no": "No report saved",
+        "landing_valor1_t": "🔍 Research without limits",
+        "landing_valor1_d": "Discover what to sell, when is the best time and which platform works best. Amazon, Shopify or Mercado Libre.",
+        "landing_valor2_t": "💰 Validate before investing",
+        "landing_valor2_d": "Calculate your real margin, include advertising costs and get a viability score before spending a dollar.",
+        "landing_valor3_t": "📱 Execute with everything ready",
+        "landing_valor3_d": "Product description, supplier messages, 15 days of social content and your store name. All in seconds.",
         "m1_plat_ops_s": ["Amazon (the biggest)", "Shopify (my own store)", "Mercado Libre (Latin America)", "All platforms"],
         "m1_plat_ops_p": ["Amazon", "Shopify", "Mercado Libre", "All"],
         "m1_tab_productos": "🔍 Research Products", "m1_tab_temporada": "📅 By Season",
@@ -641,8 +748,35 @@ traducciones = {
         "pw_found_t": "Oferta Fundador", "pw_found_p": "$99 <span style='color:#888;'>Único</span>",
         "pw_found_d": "Acesso Vitalício. <b style='color:#FF4B4B;'>🔥 Apenas 12 vagas.</b>", "pw_found_b": "Ser Fundador",
         "pw_preview": "🔒 Prévia — Seja Pro para ver a análise completa",
-        "modulos_simple": ["1. O que posso vender? 🆓","2. Vou ganhar dinheiro? 🆓","3. Escreva por mim ⭐","4. Posts para minhas redes ⭐","5. Falar com o fornecedor ⭐","6. É negócio isso? ⭐","7. Conheça sua concorrência ⭐","8. Vale a pena vender? ⭐","9. Está saturado? ⭐"],
-        "modulos_pro": ["1. Pesquisar Produtos (Free)","2. Monitor de Preços (Free)","3. Descrição Amazon/Shopify/MeLi (Pro)","4. Conteúdo Redes (Pro)","5. Contatar Fornecedor (Pro)","6. Rentabilidade + Publicidade (Pro)","7. Monitor + Análise Concorrência (Pro)","8. Score Validação (Pro)","9. Detector Saturação (Pro)"],
+        "modulos_simple": ["1. O que posso vender? 🆓","2. Vou ganhar dinheiro? 🆓","3. Escreva por mim ⭐","4. Posts para minhas redes ⭐","5. Falar com o fornecedor ⭐","6. É negócio isso? ⭐","7. Como chamo minha loja? ⭐","8. Vale a pena vender? ⭐","9. Espionar a concorrência ⭐","10. Gerar meu relatório ⭐"],
+        "modulos_pro": ["1. Pesquisar Produtos (Free)","2. Monitor de Preços (Free)","3. Descrição Amazon/Shopify/MeLi (Pro)","4. Conteúdo Redes (Pro)","5. Contatar Fornecedor (Pro)","6. Rentabilidade + Publicidade (Pro)","7. Gerador de Marca (Pro)","8. Score Validação (Pro)","9. Monitor Concorrência (Pro)","10. Gerar Relatório (Pro)"],
+        "m_marca_h_s": "🏪 Como chamo minha loja?", "m_marca_h_p": "🏪 Gerador de Nome de Marca",
+        "m_marca_c_s": "A IA gera 10 nomes únicos para sua loja com slogan e bio para redes sociais.",
+        "m_marca_nicho_s": "O que você vai vender?", "m_marca_nicho_p": "Nicho ou tipo de produto",
+        "m_marca_plat_s": "Onde vai vender?", "m_marca_plat_p": "Plataforma principal",
+        "m_marca_estilo_s": "Estilo de marca que procura", "m_marca_estilo_p": "Estilo de marca",
+        "m_marca_estilo_ops": ["Moderno e minimalista", "Divertido e jovem", "Profissional e confiável", "Luxuoso e premium"],
+        "m_marca_btn_s": "Criar nomes para minha loja! ✨", "m_marca_btn_p": "Gerar nomes de marca",
+        "m_informe_h_s": "📄 Gere seu relatório de produto", "m_informe_h_p": "📄 Gerar Relatório Executivo",
+        "m_informe_c_s": "Coleta tudo que você pesquisou e gera um relatório completo pronto para baixar.",
+        "m_informe_sin_datos": "⚠️ Primeiro pesquise um produto nos módulos anteriores.",
+        "m_informe_btn_s": "Gerar meu relatório! 📊", "m_informe_btn_p": "Gerar relatório executivo",
+        "m_informe_email_btn": "📧 Enviar por email",
+        "m_informe_dl_btn": "📥 Baixar HTML",
+        "m_informe_guardar": "💾 Salvar relatório em Meus Produtos",
+        "m_informe_guardado": "✅ Relatório salvo em Meus Produtos",
+        "m_informe_email_ok": "✅ Relatório enviado por email",
+        "campana_ver_dia": "📅 Ver estratégia do dia",
+        "campana_dia_label": "Selecione o dia para ver",
+        "campana_copiar": "📋 Copiar conteúdo",
+        "informe_ver": "📄 Ver relatório",
+        "informe_no": "Sem relatório salvo",
+        "landing_valor1_t": "🔍 Pesquise sem limites",
+        "landing_valor1_d": "Descubra o que vender, quando é o melhor momento e qual plataforma convém mais. Amazon, Shopify ou Mercado Livre.",
+        "landing_valor2_t": "💰 Valide antes de investir",
+        "landing_valor2_d": "Calcule sua margem real, inclua o custo de publicidade e obtenha um score de viabilidade antes de gastar um real.",
+        "landing_valor3_t": "📱 Execute com tudo pronto",
+        "landing_valor3_d": "Descrição do produto, mensagens ao fornecedor, conteúdo para 15 dias nas redes e nome da sua loja. Tudo em segundos.",
         "m1_plat_ops_s": ["Amazon (o maior)", "Shopify (minha loja)", "Mercado Livre (América Latina)", "Todas as plataformas"],
         "m1_plat_ops_p": ["Amazon", "Shopify", "Mercado Livre", "Todas"],
         "m1_tab_productos": "🔍 Pesquisar Produtos", "m1_tab_temporada": "📅 Por Temporada",
@@ -989,53 +1123,24 @@ if not st.session_state['logged_in']:
         st.write(tr['p3_d'])
 
     st.markdown("---")
-    st.header(tr['t2'])
-    col1, col2, col3 = st.columns(3)
-    with col1: st.subheader(tr['a1_t']); st.write(tr['a1_d'])
-    with col2: st.subheader(tr['a2_t']); st.write(tr['a2_d'])
-    with col3: st.subheader(tr['a3_t']); st.write(tr['a3_d'])
-
-    st.info("ESPACIO VISUAL: [Captura de pantalla de los gráficos y Score]")
-    st.markdown("---")
-
-    # NUEVAS FUNCIONES
-    st.markdown(f"<h2 style='color:#00FF9C;text-align:center;'>{tr['nuevas_funciones_titulo']}</h2>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown(f"""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #00FF9C44;height:180px;'>
-            <h4 style='color:#00FF9C;margin:0 0 8px 0;'>{tr['card1_t']}</h4>
-            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['card1_d']}</p>
+        st.markdown(f"""<div style='background:#1a1a2e;padding:22px;border-radius:12px;border:1px solid #00FF9C44;'>
+            <h4 style='color:#00FF9C;margin:0 0 8px 0;'>{tr['landing_valor1_t']}</h4>
+            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['landing_valor1_d']}</p>
         </div>""", unsafe_allow_html=True)
     with col2:
-        st.markdown(f"""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #FFD70044;height:180px;'>
-            <h4 style='color:#FFD700;margin:0 0 8px 0;'>{tr['card2_t']}</h4>
-            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['card2_d']}</p>
+        st.markdown(f"""<div style='background:#1a1a2e;padding:22px;border-radius:12px;border:1px solid #FFD70044;'>
+            <h4 style='color:#FFD700;margin:0 0 8px 0;'>{tr['landing_valor2_t']}</h4>
+            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['landing_valor2_d']}</p>
         </div>""", unsafe_allow_html=True)
     with col3:
-        st.markdown(f"""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #0066FF44;height:180px;'>
-            <h4 style='color:#0066FF;margin:0 0 8px 0;'>{tr['card3_t']}</h4>
-            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['card3_d']}</p>
-        </div>""", unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
-    col4, col5, col6 = st.columns(3)
-    with col4:
-        st.markdown(f"""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #FF6B9D44;height:180px;'>
-            <h4 style='color:#FF6B9D;margin:0 0 8px 0;'>{tr['card4_t']}</h4>
-            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['card4_d']}</p>
-        </div>""", unsafe_allow_html=True)
-    with col5:
-        st.markdown(f"""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #FF4B4B44;height:180px;'>
-            <h4 style='color:#FF4B4B;margin:0 0 8px 0;'>{tr['card5_t']}</h4>
-            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['card5_d']}</p>
-        </div>""", unsafe_allow_html=True)
-    with col6:
-        st.markdown(f"""<div style='background:#1a1a2e;padding:20px;border-radius:12px;border:1px solid #FFA50044;height:180px;'>
-            <h4 style='color:#FFA500;margin:0 0 8px 0;'>{tr['card6_t']}</h4>
-            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['card6_d']}</p>
+        st.markdown(f"""<div style='background:#1a1a2e;padding:22px;border-radius:12px;border:1px solid #0066FF44;'>
+            <h4 style='color:#0066FF;margin:0 0 8px 0;'>{tr['landing_valor3_t']}</h4>
+            <p style='color:#ccc;font-size:0.9rem;margin:0;'>{tr['landing_valor3_d']}</p>
         </div>""", unsafe_allow_html=True)
 
     st.markdown("---")
-    st.header(tr['faq_t'])
     with st.expander(tr['faq1_q']): st.write(tr['faq1_a'])
     with st.expander(tr['faq2_q']): st.write(tr['faq2_a'])
     with st.expander(tr['faq3_q']): st.write(tr['faq3_a'])
@@ -1058,12 +1163,13 @@ elif st.session_state.get('vista') == 'campanas':
         else:
             for c in campanas:
                 estado = "🟢 Activa" if c['activa'] else "⏸️ Pausada"
+                dias_total = 15 if st.session_state['user_role'] in ['pro','admin'] else 5
                 st.markdown(f"""<div class='campana-card' style='border-color:{"#00FF9C" if c["activa"] else "#888"};'>
                     <h3 style='color:#00FF9C;margin:0;'>{c['nombre']}</h3>
-                    <p style='color:#888;margin:5px 0;'>Producto: {c['producto']} | {estado}</p>
-                    <p style='color:#888;margin:5px 0;'>Canal: {c['canal']} | Horario: {c['horario']} | Día: {c['dia_actual']}/5</p>
+                    <p style='color:#888;margin:5px 0;'>📦 {c['producto']} | {estado} | 📅 {tr['campana_dia_label']}: {c['dia_actual']}/{dias_total}</p>
+                    <p style='color:#888;margin:5px 0;'>📣 {c['canal']} | ⏰ {c['horario']}</p>
                 </div>""", unsafe_allow_html=True)
-                col1, col2, col3 = st.columns(3)
+                col1, col2, col3, col4 = st.columns(4)
                 with col1:
                     lbl = "⏸️ Pausar" if c['activa'] else "▶️ Reactivar"
                     if st.button(lbl, key=f"toggle_{c['id']}"):
@@ -1073,11 +1179,28 @@ elif st.session_state.get('vista') == 'campanas':
                         eliminar_campana(c['id']); st.success("Eliminada"); st.rerun()
                 with col3:
                     if st.button("📧 Alerta ahora", key=f"alerta_{c['id']}"):
+                        contenido_dia = extraer_dia_estrategia(c.get('estrategia',''), c['dia_actual'])
                         enviado = email_alerta_publicacion(
                             st.session_state['user_email'], c['nombre'],
-                            c['producto'], c['dia_actual'], c['estrategia'][:400], ["Instagram", "TikTok"]
+                            c['producto'], c['dia_actual'], contenido_dia, ["Instagram", "TikTok"]
                         )
-                        st.success("✅ Alerta enviada") if enviado else st.warning("⚠️ Error al enviar")
+                        if enviado:
+                            avanzar_dia_campana(c['id'], c['dia_actual'])
+                            st.success("✅ Alerta enviada — día avanzado")
+                            st.rerun()
+                        else: st.warning("⚠️ Error al enviar")
+                with col4:
+                    if st.button(tr['campana_ver_dia'], key=f"ver_{c['id']}"):
+                        st.session_state[f'ver_estrategia_{c["id"]}'] = not st.session_state.get(f'ver_estrategia_{c["id"]}', False)
+                if st.session_state.get(f'ver_estrategia_{c["id"]}'):
+                    dia_sel = st.slider(tr['campana_dia_label'], 1, dias_total, c['dia_actual'], key=f"dia_sel_{c['id']}")
+                    contenido = extraer_dia_estrategia(c.get('estrategia',''), dia_sel)
+                    st.markdown(f"""<div style='background:#0e1117;padding:15px;border-radius:8px;border:1px solid #00FF9C44;margin:10px 0;'>
+                        <p style='color:#00FF9C;font-weight:bold;margin:0 0 8px 0;'>📅 Día {dia_sel}</p>
+                        <p style='color:#ccc;white-space:pre-wrap;font-size:0.9rem;'>{contenido}</p>
+                    </div>""", unsafe_allow_html=True)
+                    st.code(contenido, language=None)
+                st.markdown("---")
 
 # ==========================================
 # 5b. PANEL MIS PRODUCTOS
@@ -1099,9 +1222,10 @@ elif st.session_state.get('vista') == 'productos':
                 margen_txt = f"Margen: {p['margen_estimado']:.0f}% | " if p.get('margen_estimado') else ""
                 estado_key = f"estado_{p['estado']}"
                 estado_txt = tr.get(estado_key, p['estado'])
+                tiene_informe = bool(p.get('informe'))
                 st.markdown(f"""<div class='producto-card' style='border-color:{color};'>
                     <h3 style='color:#00FF9C;margin:0;'>🛍️ {p['nombre']}</h3>
-                    <p style='color:#888;margin:5px 0;'>{score_txt}{margen_txt}🏪 {p.get('plataforma','') or ''} | {estado_txt}</p>
+                    <p style='color:#888;margin:5px 0;'>{score_txt}{margen_txt}🏪 {p.get('plataforma','') or ''} | {estado_txt} {'| 📄 Informe guardado' if tiene_informe else ''}</p>
                     <p style='color:#ccc;font-size:0.85rem;margin:5px 0;'>{(p.get('resumen','') or '')[:150]}...</p>
                     {f"<p style='color:#FFD700;font-size:0.85rem;'>📝 {p['notas']}</p>" if p.get('notas') else ""}
                 </div>""", unsafe_allow_html=True)
@@ -1118,6 +1242,19 @@ elif st.session_state.get('vista') == 'productos':
                 with col4:
                     if st.button("🗑️", key=f"elim_{p['id']}"):
                         eliminar_producto_db(p['id']); st.rerun()
+                if tiene_informe:
+                    if st.button(tr['informe_ver'], key=f"ver_inf_{p['id']}"):
+                        st.session_state[f'ver_inf_{p["id"]}'] = not st.session_state.get(f'ver_inf_{p["id"]}', False)
+                    if st.session_state.get(f'ver_inf_{p["id"]}'):
+                        st.markdown(p['informe'])
+                        html_inf = generar_html_informe(
+                            p['nombre'], p.get('nicho',''), p.get('plataforma',''),
+                            '', p.get('margen_estimado',0) or 0,
+                            p.get('score',0) or 0, '', '', p['informe']
+                        )
+                        st.download_button(tr['m_informe_dl_btn'], data=html_inf.encode(),
+                            file_name=f"informe_{p['nombre'][:20].replace(' ','_')}.html",
+                            mime="text/html", key=f"dl_inf_{p['id']}")
                 notas_val = st.text_input(tr['notas_label'], value=p.get('notas','') or '', key=f"notas_{p['id']}")
                 if notas_val != (p.get('notas') or ''):
                     actualizar_notas_producto(p['id'], notas_val)
@@ -1418,48 +1555,52 @@ else:
                         st.markdown(consultar_agente(sistema_mentor("Expert in digital advertising for dropshipping."),
                             f"Ad budget: ${presupuesto_ads}/day on {plataforma_ads}. Sale price: ${precio_venta}. Net margin: {margen_neto:.2f} USD. ROAS: {roas:.1f}x. Give 3 specific tips to optimize ROAS for Latin American dropshipping market."))
 
-    # ── Módulo 7 — Competencia + Análisis Competidor ──
+    # ── Módulo 7 — Generador de Nombre de Marca ──
     elif idx_modulo == 6:
+        st.header(tr['m_marca_h_s'] if modo_simple else tr['m_marca_h_p'])
+        if modo_simple: st.caption(tr['m_marca_c_s'])
+        if st.session_state.get('nicho_activo'): st.caption(f"{tr['contexto_sugerido']}: {st.session_state['nicho_activo']}")
+        nicho_marca = st.text_input(tr['m_marca_nicho_s'] if modo_simple else tr['m_marca_nicho_p'],
+            value=st.session_state.get('nicho_activo',''), placeholder="mascarillas de carbón, ropa deportiva...")
+        plat_marca = st.selectbox(tr['m_marca_plat_s'] if modo_simple else tr['m_marca_plat_p'],
+            ["Amazon", "Shopify", "Mercado Libre", "TikTok Shop"])
+        estilo_marca = st.selectbox(tr['m_marca_estilo_s'] if modo_simple else tr['m_marca_estilo_p'], tr['m_marca_estilo_ops'])
+        if es_free and st.session_state.get('uso_m_marca', 0) >= 1: mostrar_paywall()
+        else:
+            if st.button(tr['m_marca_btn_s'] if modo_simple else tr['m_marca_btn_p'], type="primary"):
+                with st.spinner("..."):
+                    st.markdown(consultar_agente(sistema_mentor("Expert brand strategist for eCommerce and dropshipping."),
+                        f"Generate 10 unique brand names for a {estilo_marca} store selling: {nicho_marca} on {plat_marca}. For each name: 1) The name, 2) A catchy slogan (max 8 words), 3) Instagram bio (max 150 chars), 4) Why it works for this niche. Make them memorable, easy to pronounce in Spanish."))
+                if es_free: st.session_state['uso_m_marca'] = 1
+
+    # ── Módulo 8 — Espiar competencia (reseñas) ──
+    elif idx_modulo == 7:
         st.header(tr['m7_h_s'] if modo_simple else tr['m7_h_p'])
         if modo_simple: st.caption(tr['m7_c_s'])
-        tab_res, tab_comp = st.tabs([tr['m7_tab_resenas'], tr['m7_tab_competidor']])
+        if st.session_state.get('producto_activo'): st.caption(f"{tr['contexto_sugerido']}: {st.session_state['producto_activo']}")
+        producto = st.text_input(tr['m7_prod_s'] if modo_simple else tr['m7_prod_p'], value=st.session_state.get('producto_activo',''))
+        resenas = st.text_area(tr['m7_res_s'] if modo_simple else tr['m7_res_p'],
+            placeholder="Ej: El producto llegó sin instrucciones... La calidad es mala...")
+        if es_free and st.session_state['uso_m7'] >= 1: mostrar_paywall()
+        elif es_free and st.session_state['uso_m7'] == 0:
+            if st.button(tr['m7_btn_s'] if modo_simple else tr['m7_btn_p'], type="primary"):
+                with st.spinner("..."):
+                    resultado = consultar_agente(sistema_mentor("Expert dropshipping market strategist."),
+                        f"Analyze these negative reviews: {resenas}. For product: {producto}. Identify 3 specific market gaps and a concrete differentiation strategy to beat competitors.")
+                    st.session_state['uso_m7'] += 1; incrementar_uso_db('uso_m7'); mostrar_preview_paywall(resultado)
+        else:
+            if st.button(tr['m7_btn_s'] if modo_simple else tr['m7_btn_p'], type="primary"):
+                st.session_state['uso_m7'] += 1; incrementar_uso_db('uso_m7')
+                st.session_state['producto_activo'] = producto
+                with st.spinner("..."):
+                    res_m7 = consultar_agente(sistema_mentor("Expert dropshipping market strategist."),
+                        f"Analyze these negative reviews: {resenas}. For product: {producto}. Identify 3 specific market gaps and a concrete differentiation strategy to beat competitors.")
+                    st.session_state['ultimo_res_m7'] = res_m7
+            if st.session_state.get('ultimo_res_m7'):
+                st.markdown(st.session_state['ultimo_res_m7'])
 
-        with tab_res:
-            if st.session_state.get('producto_activo'): st.caption(f"{tr['contexto_sugerido']}: {st.session_state['producto_activo']}")
-            producto = st.text_input(tr['m7_prod_s'] if modo_simple else tr['m7_prod_p'], value=st.session_state.get('producto_activo',''), key="m7_prod")
-            resenas = st.text_area(tr['m7_res_s'] if modo_simple else tr['m7_res_p'],
-                placeholder="Ej: El producto llegó sin instrucciones... La calidad es mala...", key="m7_res")
-            if es_free and st.session_state['uso_m7'] >= 1: mostrar_paywall()
-            elif es_free and st.session_state['uso_m7'] == 0:
-                if st.button(tr['m7_btn_s'] if modo_simple else tr['m7_btn_p'], type="primary", key="btn_m7_res"):
-                    with st.spinner("..."):
-                        resultado = consultar_agente(sistema_mentor("Expert dropshipping market strategist."),
-                            f"Analyze these negative reviews: {resenas}. For product: {producto}. Identify 3 specific market gaps and a concrete differentiation strategy to beat competitors.")
-                        st.session_state['uso_m7'] += 1; incrementar_uso_db('uso_m7'); mostrar_preview_paywall(resultado)
-            else:
-                if st.button(tr['m7_btn_s'] if modo_simple else tr['m7_btn_p'], type="primary", key="btn_m7_res"):
-                    st.session_state['uso_m7'] += 1; incrementar_uso_db('uso_m7')
-                    st.session_state['producto_activo'] = producto
-                    with st.spinner("..."):
-                        res_m7 = consultar_agente(sistema_mentor("Expert dropshipping market strategist."),
-                            f"Analyze these negative reviews: {resenas}. For product: {producto}. Identify 3 specific market gaps and a concrete differentiation strategy to beat competitors.")
-                        st.session_state['ultimo_res_m7'] = res_m7
-                if st.session_state.get('ultimo_res_m7'):
-                    st.markdown(st.session_state['ultimo_res_m7'])
-
-        with tab_comp:
-            competidor = st.text_input(tr['m7_comp_nombre'], key="m7_comp_nombre")
-            plat_comp = st.selectbox(tr['m7_comp_plat'], ["Amazon", "Mercado Libre", "Shopify", "TikTok Shop"], key="m7_comp_plat")
-            if es_free and st.session_state['uso_m7'] >= 1: mostrar_paywall()
-            else:
-                if st.button(tr['m7_comp_btn_s'] if modo_simple else tr['m7_comp_btn_p'], type="primary", key="btn_m7_comp"):
-                    if es_free: st.session_state['uso_m7'] += 1; incrementar_uso_db('uso_m7')
-                    with st.spinner("..."):
-                        st.markdown(consultar_agente(sistema_mentor("Expert competitive intelligence analyst for eCommerce."),
-                            f"Analyze this competitor: {competidor} on platform: {plat_comp}. Give: 1) Estimated pricing strategy, 2) Identified weaknesses, 3) Their best selling products, 4) How to beat them specifically, 5) Top 3 opportunities they are missing."))
-
-    # ── Módulo 8 ──
-    elif idx_modulo == 7:
+    # ── Módulo 9 — Score de Validación ──
+    elif idx_modulo == 8:
         st.header(tr['m8_h_s'] if modo_simple else tr['m8_h_p'])
         if modo_simple: st.caption(tr['m8_c_s'])
         if st.session_state.get('producto_activo'): st.caption(f"{tr['contexto_sugerido']}: {st.session_state['producto_activo']}")
@@ -1493,34 +1634,62 @@ else:
                         res_m8 = consultar_agente(sistema_mentor("Dropshipping risk analyst."),
                             f"Product score: {producto}: {score}/100. Level: {nivel}. Margin {margen}%, Shipping speed {velocidad}/10, Competition {competencia}/10. Give a clear verdict: Invest or Discard, with specific reasons.")
                         st.markdown(res_m8)
-                        st.session_state['ultimo_res_m8'] = {'res': res_m8, 'producto': producto, 'score': score, 'margen': margen}
+                        st.session_state['ultimo_res_m8'] = {'res': res_m8, 'producto': producto, 'score': score, 'margen': margen, 'nivel': nivel}
             if st.session_state.get('ultimo_res_m8') and st.session_state.get('user_id') and es_pro:
                 if st.button(tr['guardar_producto'], key="guardar_m8"):
                     d = st.session_state['ultimo_res_m8']
-                    if guardar_producto_db(st.session_state['user_id'], d['producto'], "", d['margen'], d['score'], "", d['res'][:500]):
+                    if guardar_producto_db(st.session_state['user_id'], d['producto'], st.session_state.get('nicho_activo',''), d['margen'], d['score'], st.session_state.get('plataforma_activa',''), d['res'][:500]):
                         st.success(tr['producto_guardado_ok'])
 
-    # ── Módulo 9 — Detector de Saturación ──
-    elif idx_modulo == 8:
-        st.header(tr['m10_h_s'] if modo_simple else tr['m10_h_p'])
-        if modo_simple: st.caption(tr['m10_c_s'])
-        if st.session_state.get('producto_activo'): st.caption(f"{tr['contexto_sugerido']}: {st.session_state['producto_activo']}")
-        producto = st.text_input(tr['m10_prod_s'] if modo_simple else tr['m10_prod_p'], value=st.session_state.get('producto_activo',''))
-        nicho_sat = st.text_input(tr['m10_nicho_s'] if modo_simple else tr['m10_nicho_p'], placeholder="belleza, mascotas, hogar...", value=st.session_state.get('nicho_activo',''))
-        if es_free and st.session_state.get('uso_m10', 0) >= 1:
-            mostrar_paywall()
+    # ── Módulo 10 — Generar Informe ──
+    elif idx_modulo == 9:
+        st.header(tr['m_informe_h_s'] if modo_simple else tr['m_informe_h_p'])
+        if modo_simple: st.caption(tr['m_informe_c_s'])
+        producto = st.session_state.get('producto_activo','')
+        nicho = st.session_state.get('nicho_activo','')
+        plataforma = st.session_state.get('plataforma_activa','')
+        precio = st.session_state.get('precio_activo','')
+        res_m2 = st.session_state.get('ultimo_res_m2','') or ''
+        res_m8_data = st.session_state.get('ultimo_res_m8', {}) or {}
+        score = res_m8_data.get('score', 0)
+        nivel = res_m8_data.get('nivel', '')
+        margen = res_m8_data.get('margen', 0)
+
+        if not producto:
+            st.warning(tr['m_informe_sin_datos'])
         else:
-            if st.button(tr['m10_btn_s'] if modo_simple else tr['m10_btn_p'], type="primary"):
-                st.session_state['producto_activo'] = producto
-                st.session_state['nicho_activo'] = nicho_sat
-                with st.spinner("..."):
-                    resultado = consultar_agente(sistema_mentor("Expert in dropshipping market saturation analysis."),
-                        f"Analyze market saturation for product: {producto} in niche: {nicho_sat}. Give: 1) Saturation level: LOW/MEDIUM/HIGH/CRITICAL with explanation, 2) Estimated active sellers on Amazon and Mercado Libre, 3) Market entry difficulty (1-10), 4) Concrete differentiation strategies, 5) Final verdict: worth it or not?")
-                    saturacion = "ALTO" if any(x in resultado.upper() for x in ["HIGH","ALTO","CRÍTICO","CRITICO","CRITICAL"]) else "MEDIO" if any(x in resultado.upper() for x in ["MEDIUM","MEDIO"]) else "BAJO"
-                    color_sat = "#FF4B4B" if saturacion == "ALTO" else "#FFA500" if saturacion == "MEDIO" else "#00FF9C"
-                    emoji_sat = "🔴" if saturacion == "ALTO" else "🟡" if saturacion == "MEDIO" else "🟢"
-                    st.markdown(f"""<div style='text-align:center;padding:15px;background:#1a1a2e;border-radius:12px;border:2px solid {color_sat};margin-bottom:15px;'>
-                        <h2 style='color:{color_sat};margin:0;'>{emoji_sat} {saturacion}</h2>
-                    </div>""", unsafe_allow_html=True)
-                    st.markdown(resultado)
-                if es_free: st.session_state['uso_m10'] = 1
+            st.markdown(f"""<div style='background:#1a1a2e;padding:15px;border-radius:10px;border:1px solid #00FF9C44;margin-bottom:15px;'>
+                <p style='color:#00FF9C;font-weight:bold;margin:0 0 8px 0;'>📋 Datos acumulados de tu investigación:</p>
+                <p style='color:#ccc;margin:0;'>🛍️ <b>Producto:</b> {producto} | 🎯 <b>Nicho:</b> {nicho} | 🏪 <b>Plataforma:</b> {plataforma}</p>
+                {'<p style="color:#ccc;margin:4px 0;">🎯 <b>Score:</b> '+str(score)+'/100 — '+nivel+'</p>' if score else ''}
+            </div>""", unsafe_allow_html=True)
+
+            if es_free and st.session_state.get('uso_m_informe', 0) >= 1: mostrar_paywall()
+            else:
+                if st.button(tr['m_informe_btn_s'] if modo_simple else tr['m_informe_btn_p'], type="primary"):
+                    with st.spinner("..."):
+                        texto_informe = consultar_agente(sistema_mentor("Expert dropshipping business analyst."),
+                            f"Generate a concise executive product report. PRODUCT: {producto}, NICHE: {nicho}, PLATFORM: {plataforma}, PRICE: {precio}, MARGIN: {margen}%, SCORE: {score}/100 ({nivel}). Include: 1) Executive Summary, 2) Market opportunity, 3) Profitability analysis, 4) Key risks, 5) Final recommendation: Go/No-Go with action steps.")
+                        st.session_state['ultimo_informe'] = texto_informe
+                    if es_free: st.session_state['uso_m_informe'] = 1
+
+                if st.session_state.get('ultimo_informe'):
+                    st.markdown(st.session_state['ultimo_informe'])
+                    html_inf = generar_html_informe(producto, nicho, plataforma, precio, margen, score, nivel, res_m2[:300], st.session_state['ultimo_informe'])
+                    st.markdown("---")
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.download_button(tr['m_informe_dl_btn'],
+                            data=html_inf.encode('utf-8'),
+                            file_name=f"informe_{producto[:20].replace(' ','_')}.html",
+                            mime="text/html")
+                    with col2:
+                        if st.button(tr['m_informe_email_btn']):
+                            enviado = enviar_email(st.session_state['user_email'],
+                                f"📊 Informe: {producto} — Dropshippingent", html_inf)
+                            st.success(tr['m_informe_email_ok']) if enviado else st.warning("⚠️ Error al enviar")
+                    with col3:
+                        if st.session_state.get('user_id') and es_pro:
+                            if st.button(tr['m_informe_guardar']):
+                                if guardar_producto_db(st.session_state['user_id'], producto, nicho, margen, score, plataforma, st.session_state['ultimo_informe'][:500], st.session_state['ultimo_informe']):
+                                    st.success(tr['m_informe_guardado'])
