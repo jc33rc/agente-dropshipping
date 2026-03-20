@@ -1576,8 +1576,8 @@ else:
                         f"Generate 10 unique brand names for a {estilo_marca} store selling: {nicho_marca} on {plat_marca}. For each name: 1) The name, 2) A catchy slogan (max 8 words), 3) Instagram bio (max 150 chars), 4) Why it works for this niche. Make them memorable, easy to pronounce in Spanish."))
                 if es_free: st.session_state['uso_m_marca'] = 1
 
-    # ── Módulo 8 — Espiar competencia (reseñas) ──
-    elif idx_modulo == 7:
+    # ── Módulo 9 — Espiar competencia (reseñas) ──
+    elif idx_modulo == 8:
         st.header(tr['m7_h_s'] if modo_simple else tr['m7_h_p'])
         if modo_simple: st.caption(tr['m7_c_s'])
         if st.session_state.get('producto_activo'): st.caption(f"{tr['contexto_sugerido']}: {st.session_state['producto_activo']}")
@@ -1602,8 +1602,8 @@ else:
             if st.session_state.get('ultimo_res_m7'):
                 st.markdown(st.session_state['ultimo_res_m7'])
 
-    # ── Módulo 9 — Score de Validación ──
-    elif idx_modulo == 8:
+    # ── Módulo 8 — Score de Validación ──
+    elif idx_modulo == 7:
         st.header(tr['m8_h_s'] if modo_simple else tr['m8_h_p'])
         if modo_simple: st.caption(tr['m8_c_s'])
         if st.session_state.get('producto_activo'): st.caption(f"{tr['contexto_sugerido']}: {st.session_state['producto_activo']}")
