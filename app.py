@@ -1243,9 +1243,12 @@ elif st.session_state.get('vista') == 'productos':
                     if st.button("🗑️", key=f"elim_{p['id']}"):
                         eliminar_producto_db(p['id']); st.rerun()
                 if tiene_informe:
-                    if st.button(tr['informe_ver'], key=f"ver_inf_{p['id']}"):
-                        st.session_state[f'ver_inf_{p["id"]}'] = not st.session_state.get(f'ver_inf_{p["id"]}', False)
-                    if st.session_state.get(f'ver_inf_{p["id"]}'):
+                    ver_key = f"show_inf_{p['id']}"
+                    if ver_key not in st.session_state:
+                        st.session_state[ver_key] = False
+                    if st.button(tr['informe_ver'], key=f"btn_inf_{p['id']}"):
+                        st.session_state[ver_key] = not st.session_state[ver_key]
+                    if st.session_state[ver_key]:
                         st.markdown(p['informe'])
                         html_inf = generar_html_informe(
                             p['nombre'], p.get('nicho',''), p.get('plataforma',''),
