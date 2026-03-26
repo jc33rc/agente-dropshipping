@@ -142,9 +142,9 @@ def email_bienvenida(to_email):
             <a href="{APP_URL}" style="display:inline-block;padding:15px 40px;background:linear-gradient(135deg,#00FF9C,#0066FF);color:#000;font-weight:bold;font-size:1.1rem;border-radius:10px;text-decoration:none;">Entrar a Dropshippingent →</a>
         </div>
         <div style="background:#1a1a2e;padding:20px;border-radius:12px;border:2px solid #FFD700;margin:20px 0;text-align:center;">
-            <h3 style="color:#FFD700;">🔥 Oferta Fundador — Solo 12 cupos</h3>
+            <h3 style="color:#FFD700;">🔥 Oferta Fundador — Solo 50 cupos</h3>
             <p style="color:#ccc;">Acceso de por vida a todas las herramientas y futuras actualizaciones.</p>
-            <p style="color:white;font-size:2rem;font-weight:bold;"><span style="color:#FFD700;">$99</span> <span style="color:#888;font-size:1rem;">pago único</span></p>
+            <p style="color:white;font-size:2rem;font-weight:bold;"><span style="color:#FFD700;">$69</span> <span style="color:#888;font-size:1rem;">pago único</span></p>
             <a href="{APP_URL}" style="display:inline-block;padding:12px 30px;background:#FFD700;color:#000;font-weight:bold;border-radius:8px;text-decoration:none;">Quiero ser Fundador</a>
         </div>
         <div style="background:#1a1a2e;padding:15px;border-radius:8px;margin:20px 0;">
@@ -382,18 +382,18 @@ traducciones = {
         "faq1_q": "¿Necesito experiencia para usar esto?",
         "faq1_a": "No. Dropshippingent está diseñado para que cualquier persona pueda encontrar productos ganadores y empezar a vender.",
         "faq2_q": "¿Cuánto cuesta?",
-        "faq2_a": "Puedes empezar completamente gratis con 1 análisis por día. El plan Pro cuesta solo $19/mes.",
+        "faq2_a": "Puedes empezar completamente gratis con 1 análisis por día. El plan Pro cuesta solo $14.99/mes.",
         "faq3_q": "¿Para qué plataformas sirve?",
         "faq3_a": "Nuestra IA domina Amazon FBA/FBM, tiendas en Shopify (DSers) e integraciones locales.",
         "pw_limit": "🔒 Has usado tu análisis gratuito de hoy.",
         "pw_unlock": "### 🚀 Desbloquea el Ecosistema Analítico Completo",
-        "pw_plan_t": "Plan Emprendedor", "pw_plan_p": "$19 <span style='color:#888;'>/ mes</span>",
+        "pw_plan_t": "Plan Emprendedor", "pw_plan_p": "$14.99 <span style='color:#888;'>/ mes</span>",
         "pw_plan_d": "Acceso ilimitado a todos los módulos IA.", "pw_plan_b": "Suscribirse",
-        "pw_found_t": "Oferta Fundador", "pw_found_p": "$99 <span style='color:#888;'>Único</span>",
-        "pw_found_d": "Acceso Vitalicio. <b style='color:#FF4B4B;'>🔥 Solo 12 cupos.</b>", "pw_found_b": "Ser Fundador",
+        "pw_found_t": "Oferta Fundador", "pw_found_p": "$69 <span style='color:#888;'>Único</span>",
+        "pw_found_d": "Acceso Vitalicio. <b style='color:#FF4B4B;'>🔥 Solo 50 cupos.</b>", "pw_found_b": "Ser Fundador",
         "pw_preview": "🔒 Vista previa — Hazte Pro para ver el análisis completo",
-        "modulos_simple": ["1. ¿Qué puedo vender? 🆓","2. ¿Gano dinero con esto? 🆓","3. Escríbelo por mí ⭐","4. Posts para mis redes ⭐","5. Hablar con el proveedor ⭐","6. ¿Es negocio esto? ⭐","7. ¿Cómo llamo mi tienda? ⭐","8. ¿Vale la pena venderlo? ⭐","9. Espiar a la competencia ⭐","10. Generar mi informe ⭐"],
-        "modulos_pro": ["1. Investigar Productos (Free)","2. Monitor de Precios (Free)","3. Descripción Amazon/Shopify/MeLi (Pro)","4. Contenido Redes (Pro)","5. Contactar Proveedor (Pro)","6. Rentabilidad + Publicidad (Pro)","7. Generador de Marca (Pro)","8. Score Validación (Pro)","9. Monitor Competencia (Pro)","10. Generar Informe (Pro)"],
+        "modulos_simple": ["1. ¿Qué puedo vender? 🆓","2. ¿Gano dinero con esto? 🆓","3. Escríbelo por mí ⭐","4. Posts para mis redes ⭐","5. Hablar con el proveedor ⭐","6. ¿Es negocio esto? ⭐","7. ¿Cómo llamo mi tienda? ⭐","8. Espiar a la competencia ⭐","9. Generar mi informe ⭐"],
+        "modulos_pro": ["1. Investigar Productos (Free)","2. Monitor de Precios (Free)","3. Descripción Amazon/Shopify/MeLi (Pro)","4. Contenido Redes (Pro)","5. Contactar Proveedor (Pro)","6. Rentabilidad + Métricas (Pro)","7. Generador de Marca (Pro)","8. Monitor Competencia (Pro)","9. Generar Informe (Pro)"],
         "m_marca_h_s": "🏪 ¿Cómo llamo mi tienda?", "m_marca_h_p": "🏪 Generador de Nombre de Marca",
         "m_marca_c_s": "La IA genera 10 nombres únicos para tu tienda con slogan y bio para redes.",
         "m_marca_nicho_s": "¿A qué te dedicarás? ¿Qué vendes?", "m_marca_nicho_p": "Nicho o tipo de productos",
@@ -431,6 +431,14 @@ traducciones = {
         "m3_plat_s": "¿Para qué plataforma?", "m3_plat_p": "Plataforma destino",
         "m3_plat_ops": ["Amazon A+", "Shopify (SEO)", "Mercado Libre"],
         "m6_ads_toggle": "📢 ¿Incluir análisis de publicidad?",
+        "m6_tab_rent": "📊 Rentabilidad", "m6_tab_pub": "📢 Publicidad", "m6_tab_met": "📈 Mis Métricas",
+        "m6_met_gasto": "💸 Gasto total en ads (USD)", "m6_met_ingresos": "💰 Ingresos generados (USD)",
+        "m6_met_visitas": "👁️ Visitas a tu tienda", "m6_met_ventas": "📦 Ventas realizadas",
+        "m6_met_btn": "Calcular mis métricas 📊",
+        "m6_met_roas": "ROAS", "m6_met_margen": "Margen Bruto", "m6_met_cpa": "CPA",
+        "m6_met_cvr": "CVR", "m6_met_roi": "ROI",
+        "m6_met_ver": "📊 Ver gráfico",
+        "m6_met_diag": "🤖 Diagnóstico IA de mis métricas",
         "m6_ads_plat": "Plataforma de publicidad",
         "m6_ads_pres": "Presupuesto diario en ads (USD)",
         "m7_tab_resenas": "🕵️ Analizar Reseñas", "m7_tab_competidor": "🎯 Analizar Competidor Real",
@@ -564,18 +572,18 @@ traducciones = {
         "faq1_q": "Do I need experience?",
         "faq1_a": "No. Dropshippingent is designed so anyone can find winning products and start selling.",
         "faq2_q": "How much does it cost?",
-        "faq2_a": "Start completely free with 1 analysis per day. Pro plan costs just $19/month.",
+        "faq2_a": "Start completely free with 1 analysis per day. Pro plan costs just $14.99/month.",
         "faq3_q": "Which platforms does it support?",
         "faq3_a": "Our AI masters Amazon FBA/FBM, Shopify stores (DSers), and local integrations.",
         "pw_limit": "🔒 You've used your free analysis for today.",
         "pw_unlock": "### 🚀 Unlock the Complete Analytical Ecosystem",
-        "pw_plan_t": "Entrepreneur Plan", "pw_plan_p": "$19 <span style='color:#888;'>/ month</span>",
+        "pw_plan_t": "Entrepreneur Plan", "pw_plan_p": "$14.99 <span style='color:#888;'>/ month</span>",
         "pw_plan_d": "Unlimited access to all AI modules.", "pw_plan_b": "Subscribe Now",
-        "pw_found_t": "Founder Offer", "pw_found_p": "$99 <span style='color:#888;'>One-time</span>",
+        "pw_found_t": "Founder Offer", "pw_found_p": "$69 <span style='color:#888;'>One-time</span>",
         "pw_found_d": "Lifetime Access. <b style='color:#FF4B4B;'>🔥 Only 12 spots left.</b>", "pw_found_b": "Become a Founder",
         "pw_preview": "🔒 Preview — Go Pro to see the complete analysis",
-        "modulos_simple": ["1. What can I sell? 🆓","2. Will I make money? 🆓","3. Write it for me ⭐","4. Social media posts ⭐","5. Contact supplier ⭐","6. Is this a business? ⭐","7. What's my store name? ⭐","8. Is it worth selling? ⭐","9. Spy on competition ⭐","10. Generate my report ⭐"],
-        "modulos_pro": ["1. Research Products (Free)","2. Price Monitor (Free)","3. Amazon/Shopify/MeLi Description (Pro)","4. Social Media Content (Pro)","5. Contact Supplier (Pro)","6. Profitability + Ads (Pro)","7. Brand Name Generator (Pro)","8. Validation Score (Pro)","9. Competition Monitor (Pro)","10. Generate Report (Pro)"],
+        "modulos_simple": ["1. What can I sell? 🆓","2. Will I make money? 🆓","3. Write it for me ⭐","4. Social media posts ⭐","5. Contact supplier ⭐","6. Is this a business? ⭐","7. What's my store name? ⭐","8. Spy on competition ⭐","9. Generate my report ⭐"],
+        "modulos_pro": ["1. Research Products (Free)","2. Price Monitor (Free)","3. Amazon/Shopify/MeLi Description (Pro)","4. Social Media Content (Pro)","5. Contact Supplier (Pro)","6. Profitability + Metrics (Pro)","7. Brand Name Generator (Pro)","8. Competition Monitor (Pro)","9. Generate Report (Pro)"],
         "m_marca_h_s": "🏪 What's my store name?", "m_marca_h_p": "🏪 Brand Name Generator",
         "m_marca_c_s": "The AI generates 10 unique names for your store with slogan and bio for social media.",
         "m_marca_nicho_s": "What will you sell?", "m_marca_nicho_p": "Niche or product type",
@@ -613,6 +621,14 @@ traducciones = {
         "m3_plat_s": "For which platform?", "m3_plat_p": "Target platform",
         "m3_plat_ops": ["Amazon A+", "Shopify (SEO)", "Mercado Libre"],
         "m6_ads_toggle": "📢 Include advertising analysis?",
+        "m6_tab_rent": "📊 Profitability", "m6_tab_pub": "📢 Advertising", "m6_tab_met": "📈 My Metrics",
+        "m6_met_gasto": "💸 Total ad spend (USD)", "m6_met_ingresos": "💰 Revenue generated (USD)",
+        "m6_met_visitas": "👁️ Store visits", "m6_met_ventas": "📦 Sales made",
+        "m6_met_btn": "Calculate my metrics 📊",
+        "m6_met_roas": "ROAS", "m6_met_margen": "Gross Margin", "m6_met_cpa": "CPA",
+        "m6_met_cvr": "CVR", "m6_met_roi": "ROI",
+        "m6_met_ver": "📊 View chart",
+        "m6_met_diag": "🤖 AI Diagnosis of my metrics",
         "m6_ads_plat": "Advertising platform",
         "m6_ads_pres": "Daily ad budget (USD)",
         "m7_tab_resenas": "🕵️ Analyze Reviews", "m7_tab_competidor": "🎯 Analyze Real Competitor",
@@ -746,18 +762,18 @@ traducciones = {
         "faq1_q": "Preciso de experiência?",
         "faq1_a": "Não. O Dropshippingent foi projetado para que qualquer pessoa possa encontrar produtos vencedores e começar a vender.",
         "faq2_q": "Quanto custa?",
-        "faq2_a": "Comece completamente grátis com 1 análise por dia. O plano Pro custa apenas $19/mês.",
+        "faq2_a": "Comece completamente grátis com 1 análise por dia. O plano Pro custa apenas $14.99/mês.",
         "faq3_q": "Para quais plataformas serve?",
         "faq3_a": "Nossa IA domina Amazon FBA/FBM, lojas no Shopify (DSers) e integrações locais.",
         "pw_limit": "🔒 Você usou sua análise gratuita de hoje.",
         "pw_unlock": "### 🚀 Desbloqueie o Ecossistema Analítico Completo",
-        "pw_plan_t": "Plano Empreendedor", "pw_plan_p": "$19 <span style='color:#888;'>/ mês</span>",
+        "pw_plan_t": "Plano Empreendedor", "pw_plan_p": "$14.99 <span style='color:#888;'>/ mês</span>",
         "pw_plan_d": "Acesso ilimitado a todos os módulos de IA.", "pw_plan_b": "Assinar",
-        "pw_found_t": "Oferta Fundador", "pw_found_p": "$99 <span style='color:#888;'>Único</span>",
-        "pw_found_d": "Acesso Vitalício. <b style='color:#FF4B4B;'>🔥 Apenas 12 vagas.</b>", "pw_found_b": "Ser Fundador",
+        "pw_found_t": "Oferta Fundador", "pw_found_p": "$69 <span style='color:#888;'>Único</span>",
+        "pw_found_d": "Acesso Vitalício. <b style='color:#FF4B4B;'>🔥 Apenas 50 vagas.</b>", "pw_found_b": "Ser Fundador",
         "pw_preview": "🔒 Prévia — Seja Pro para ver a análise completa",
-        "modulos_simple": ["1. O que posso vender? 🆓","2. Vou ganhar dinheiro? 🆓","3. Escreva por mim ⭐","4. Posts para minhas redes ⭐","5. Falar com o fornecedor ⭐","6. É negócio isso? ⭐","7. Como chamo minha loja? ⭐","8. Vale a pena vender? ⭐","9. Espionar a concorrência ⭐","10. Gerar meu relatório ⭐"],
-        "modulos_pro": ["1. Pesquisar Produtos (Free)","2. Monitor de Preços (Free)","3. Descrição Amazon/Shopify/MeLi (Pro)","4. Conteúdo Redes (Pro)","5. Contatar Fornecedor (Pro)","6. Rentabilidade + Publicidade (Pro)","7. Gerador de Marca (Pro)","8. Score Validação (Pro)","9. Monitor Concorrência (Pro)","10. Gerar Relatório (Pro)"],
+        "modulos_simple": ["1. O que posso vender? 🆓","2. Vou ganhar dinheiro? 🆓","3. Escreva por mim ⭐","4. Posts para minhas redes ⭐","5. Falar com o fornecedor ⭐","6. É negócio isso? ⭐","7. Como chamo minha loja? ⭐","8. Espionar a concorrência ⭐","9. Gerar meu relatório ⭐"],
+        "modulos_pro": ["1. Pesquisar Produtos (Free)","2. Monitor de Preços (Free)","3. Descrição Amazon/Shopify/MeLi (Pro)","4. Conteúdo Redes (Pro)","5. Contatar Fornecedor (Pro)","6. Rentabilidade + Métricas (Pro)","7. Gerador de Marca (Pro)","8. Monitor Concorrência (Pro)","9. Gerar Relatório (Pro)"],
         "m_marca_h_s": "🏪 Como chamo minha loja?", "m_marca_h_p": "🏪 Gerador de Nome de Marca",
         "m_marca_c_s": "A IA gera 10 nomes únicos para sua loja com slogan e bio para redes sociais.",
         "m_marca_nicho_s": "O que você vai vender?", "m_marca_nicho_p": "Nicho ou tipo de produto",
@@ -795,6 +811,14 @@ traducciones = {
         "m3_plat_s": "Para qual plataforma?", "m3_plat_p": "Plataforma destino",
         "m3_plat_ops": ["Amazon A+", "Shopify (SEO)", "Mercado Livre"],
         "m6_ads_toggle": "📢 Incluir análise de publicidade?",
+        "m6_tab_rent": "📊 Rentabilidade", "m6_tab_pub": "📢 Publicidade", "m6_tab_met": "📈 Minhas Métricas",
+        "m6_met_gasto": "💸 Gasto total em ads (USD)", "m6_met_ingresos": "💰 Receita gerada (USD)",
+        "m6_met_visitas": "👁️ Visitas à sua loja", "m6_met_ventas": "📦 Vendas realizadas",
+        "m6_met_btn": "Calcular minhas métricas 📊",
+        "m6_met_roas": "ROAS", "m6_met_margen": "Margem Bruta", "m6_met_cpa": "CPA",
+        "m6_met_cvr": "CVR", "m6_met_roi": "ROI",
+        "m6_met_ver": "📊 Ver gráfico",
+        "m6_met_diag": "🤖 Diagnóstico IA das minhas métricas",
         "m6_ads_plat": "Plataforma de publicidade",
         "m6_ads_pres": "Orçamento diário em ads (USD)",
         "m7_tab_resenas": "🕵️ Analisar Avaliações", "m7_tab_competidor": "🎯 Analisar Concorrente Real",
@@ -1371,7 +1395,7 @@ else:
                 st.session_state['precio_activo'] = precio_actual
                 with st.spinner("..."):
                     res = consultar_agente(sistema_mentor("eCommerce pricing expert."),
-                        f"Analyze: PRODUCT: {producto}, PRICE: {precio_actual}, CATEGORY: {categoria}. Give price range analysis, profit margin, and what it takes to reach $500/month in sales.")
+                        f"Analyze this dropshipping product. PRODUCT: {producto}, MY PRICE: {precio_actual}, CATEGORY: {categoria}. Structure your response with clear sections using ## headers and bullet points. Include: ## Price Analysis (competitor price range), ## Profit Margin (estimated margin at my price), ## Market Position (how my price compares), ## To reach $500/month (units needed and strategy). Use numbers with consistent formatting like $XX.XX. Do NOT run sentences together.")
                     st.session_state['ultimo_res_m2'] = res
             if st.session_state.get('ultimo_res_m2'):
                 st.markdown(st.session_state['ultimo_res_m2'])
@@ -1504,91 +1528,203 @@ else:
                     st.markdown(consultar_agente(sistema_mentor("B2B negotiation expert for dropshipping."),
                         f"Write a professional English message to {proveedor} supplier. PRODUCT: {producto}. OBJECTIVE: {objetivo}. Include: the English message, Spanish translation, and 3 negotiation tips."))
 
-    # ── Módulo 6 — Rentabilidad + Publicidad ──
+    # ── Módulo 6 — Rentabilidad + Publicidad + Métricas ──
     elif idx_modulo == 5:
         st.header(tr['m6_h_s'] if modo_simple else tr['m6_h_p'])
         if st.session_state.get('producto_activo'): st.caption(f"{tr['contexto_sugerido']}: {st.session_state['producto_activo']}")
-        plat_sel = st.session_state.get('plataforma_activa', '')
-        col1, col2 = st.columns(2)
-        with col1:
-            precio_venta = st.number_input(tr['m6_pventa_s'] if modo_simple else tr['m6_pventa_p'], value=15.99)
-            costo_producto = st.number_input(tr['m6_pcosto_s'] if modo_simple else tr['m6_pcosto_p'], value=5.50)
-        with col2:
-            costo_envio = st.number_input(tr['m6_envio_s'] if modo_simple else tr['m6_envio_p'], value=2.00)
-            comision_default = 16.0 if "Mercado" in plat_sel else 15.0
-            comision = st.number_input(tr['m6_com_s'] if modo_simple else tr['m6_com_p'], value=comision_default,
-                help=tr['meli_comision'] if "Mercado" in plat_sel else "")
-        incluir_ads = st.checkbox(tr['m6_ads_toggle'])
-        if incluir_ads:
-            col3, col4 = st.columns(2)
-            with col3: plataforma_ads = st.selectbox(tr['m6_ads_plat'], ["TikTok Ads", "Meta Ads (Facebook/Instagram)", "Google Ads"])
-            with col4: presupuesto_ads = st.number_input(tr['m6_ads_pres'], value=10.0, min_value=1.0)
-        if es_free and st.session_state['uso_m6'] >= 1: mostrar_paywall()
-        elif es_free and st.session_state['uso_m6'] == 0:
-            if st.button(tr['m6_btn_s'] if modo_simple else tr['m6_btn_p'], type="primary"):
-                comision_usd = precio_venta*(comision/100); margen_neto = precio_venta-costo_producto-costo_envio-comision_usd
-                col1, col2, col3 = st.columns(3)
-                col1.metric("Precio Venta", f"${precio_venta:.2f}"); col2.metric("Ganancia Neta", f"${margen_neto:.2f}")
-                col3.metric("Margen %", f"{(margen_neto/precio_venta)*100:.1f}%" if precio_venta > 0 else "0%")
-                st.session_state['uso_m6'] += 1; incrementar_uso_db('uso_m6'); mostrar_paywall()
-        else:
-            if st.button(tr['m6_btn_s'] if modo_simple else tr['m6_btn_p'], type="primary"):
-                st.session_state['uso_m6'] += 1; incrementar_uso_db('uso_m6')
-                comision_usd = precio_venta*(comision/100)
-                margen_neto = precio_venta-costo_producto-costo_envio-comision_usd
-                margen_pct = (margen_neto/precio_venta)*100 if precio_venta > 0 else 0
-                st.session_state['ultimo_res_m6'] = {
-                    'precio_venta': precio_venta, 'costo_producto': costo_producto,
-                    'costo_envio': costo_envio, 'comision_usd': comision_usd,
-                    'margen_neto': margen_neto, 'margen_pct': margen_pct,
-                    'incluir_ads': incluir_ads,
-                    'plataforma_ads': plataforma_ads if incluir_ads else '',
-                    'presupuesto_ads': presupuesto_ads if incluir_ads else 0
-                }
-                st.session_state['precio_activo'] = str(precio_venta)
-                st.session_state['margen_activo'] = margen_pct
+        tab_r, tab_p, tab_m = st.tabs([tr['m6_tab_rent'], tr['m6_tab_pub'], tr['m6_tab_met']])
 
-            if st.session_state.get('ultimo_res_m6'):
-                r = st.session_state['ultimo_res_m6']
-                col1, col2, col3 = st.columns(3)
-                col1.metric("Precio Venta", f"${r['precio_venta']:.2f}")
-                col2.metric("Ganancia Neta", f"${r['margen_neto']:.2f}")
-                col3.metric("Margen %", f"{r['margen_pct']:.1f}%")
-                fig_pie = px.pie(
-                    values=[r['costo_producto'], r['costo_envio'], r['comision_usd'], max(0, r['margen_neto'])],
-                    names=["Producto","Envío","Comisión","Margen"],
-                    template="plotly_dark", title="Distribución de Costos")
-                st.plotly_chart(fig_pie, use_container_width=True)
-                unidades = list(range(1, 51))
-                fig_line = go.Figure()
-                fig_line.add_trace(go.Scatter(x=unidades, y=[u*r['precio_venta'] for u in unidades], name="Ingresos Brutos", line=dict(color="#00FF9C", width=3)))
-                fig_line.add_trace(go.Scatter(x=unidades, y=[u*(r['costo_producto']+r['costo_envio']+r['comision_usd']) for u in unidades], name="Costos Totales", line=dict(color="#FF4B4B", width=2, dash='dot')))
-                fig_line.update_layout(xaxis_title="Unidades", yaxis_title="USD ($)", template="plotly_dark", plot_bgcolor="#1a1a2e", paper_bgcolor="#0e1117")
-                st.plotly_chart(fig_line, use_container_width=True)
-                if r.get('incluir_ads') and r.get('plataforma_ads'):
-                    st.markdown("---")
-                    cpm_map = {"TikTok Ads": 2.5, "Meta Ads (Facebook/Instagram)": 4.0, "Google Ads": 6.0}
-                    cpm = cpm_map.get(r['plataforma_ads'], 3.0)
-                    ventas_dia = (r['presupuesto_ads'] / cpm) * 1000 * 0.015 * 0.02
-                    ingresos_dia = ventas_dia * r['margen_neto']
-                    roas = ingresos_dia / r['presupuesto_ads'] if r['presupuesto_ads'] > 0 else 0
-                    rentable = ingresos_dia > r['presupuesto_ads']
+        with tab_r:
+            plat_sel = st.session_state.get('plataforma_activa', '')
+            col1, col2 = st.columns(2)
+            with col1:
+                precio_venta = st.number_input(tr['m6_pventa_s'] if modo_simple else tr['m6_pventa_p'], value=15.99)
+                costo_producto = st.number_input(tr['m6_pcosto_s'] if modo_simple else tr['m6_pcosto_p'], value=5.50)
+            with col2:
+                costo_envio = st.number_input(tr['m6_envio_s'] if modo_simple else tr['m6_envio_p'], value=2.00)
+                comision_default = 16.0 if "Mercado" in plat_sel else 15.0
+                comision = st.number_input(tr['m6_com_s'] if modo_simple else tr['m6_com_p'], value=comision_default,
+                    help=tr['meli_comision'] if "Mercado" in plat_sel else "")
+            if es_free and st.session_state['uso_m6'] >= 1: mostrar_paywall()
+            elif es_free and st.session_state['uso_m6'] == 0:
+                if st.button(tr['m6_btn_s'] if modo_simple else tr['m6_btn_p'], type="primary", key="m6_btn_free"):
+                    comision_usd = precio_venta*(comision/100); margen_neto = precio_venta-costo_producto-costo_envio-comision_usd
                     col1, col2, col3 = st.columns(3)
-                    col1.metric("💰 Ganancia/día con ads", f"${ingresos_dia:.2f}")
-                    col2.metric("📦 Ventas/día estimadas", f"{ventas_dia:.1f}")
-                    col3.metric("📈 ROAS", f"{roas:.1f}x", delta="✅ Rentable" if rentable else "⚠️ No rentable")
+                    col1.metric("Precio Venta", f"${precio_venta:.2f}"); col2.metric("Ganancia Neta", f"${margen_neto:.2f}")
+                    col3.metric("Margen %", f"{(margen_neto/precio_venta)*100:.1f}%" if precio_venta > 0 else "0%")
+                    st.session_state['uso_m6'] += 1; incrementar_uso_db('uso_m6'); mostrar_paywall()
+            else:
+                if st.button(tr['m6_btn_s'] if modo_simple else tr['m6_btn_p'], type="primary", key="m6_btn_pro"):
+                    st.session_state['uso_m6'] += 1; incrementar_uso_db('uso_m6')
+                    comision_usd = precio_venta*(comision/100)
+                    margen_neto = precio_venta-costo_producto-costo_envio-comision_usd
+                    margen_pct = (margen_neto/precio_venta)*100 if precio_venta > 0 else 0
+                    st.session_state['ultimo_res_m6'] = {
+                        'precio_venta': precio_venta, 'costo_producto': costo_producto,
+                        'costo_envio': costo_envio, 'comision_usd': comision_usd,
+                        'margen_neto': margen_neto, 'margen_pct': margen_pct,
+                    }
+                    st.session_state['precio_activo'] = str(precio_venta)
+                    st.session_state['margen_activo'] = margen_pct
+
+                if st.session_state.get('ultimo_res_m6'):
+                    r = st.session_state['ultimo_res_m6']
+                    margen_color = "#00FF9C" if r['margen_pct'] >= 30 else "#FFA500" if r['margen_pct'] >= 15 else "#FF4B4B"
+                    col1, col2, col3 = st.columns(3)
+                    col1.metric("Precio Venta", f"${r['precio_venta']:.2f}")
+                    col2.metric("Ganancia Neta", f"${r['margen_neto']:.2f}")
+                    col3.metric("Margen %", f"{r['margen_pct']:.1f}%")
+                    # Gráfico premium distribución
+                    fig_pie = px.pie(
+                        values=[r['costo_producto'], r['costo_envio'], r['comision_usd'], max(0.01, r['margen_neto'])],
+                        names=["Producto","Envío","Comisión","Ganancia"],
+                        color_discrete_sequence=["#FF4B4B","#FFA500","#FFD700","#00FF9C"],
+                        hole=0.4)
+                    fig_pie.update_layout(
+                        template="plotly_dark", paper_bgcolor="#0e1117", plot_bgcolor="#1a1a2e",
+                        font=dict(family="Arial", size=13, color="white"),
+                        legend=dict(orientation="h", yanchor="bottom", y=-0.3),
+                        margin=dict(t=40, b=40, l=20, r=20))
+                    fig_pie.update_traces(textinfo="percent+label", textfont_size=13,
+                        marker=dict(line=dict(color="#0e1117", width=2)))
+                    st.plotly_chart(fig_pie, use_container_width=True)
+                    # Gráfico premium punto de equilibrio
+                    unidades = list(range(1, 51))
+                    fig_line = go.Figure()
+                    fig_line.add_trace(go.Scatter(
+                        x=unidades, y=[u*r['precio_venta'] for u in unidades],
+                        name="Ingresos", line=dict(color="#00FF9C", width=3),
+                        fill='tozeroy', fillcolor='rgba(0,255,156,0.08)'))
+                    fig_line.add_trace(go.Scatter(
+                        x=unidades, y=[u*(r['costo_producto']+r['costo_envio']+r['comision_usd']) for u in unidades],
+                        name="Costos", line=dict(color="#FF4B4B", width=2, dash='dash'),
+                        fill='tozeroy', fillcolor='rgba(255,75,75,0.05)'))
+                    eq_punto = int((r['costo_producto']+r['costo_envio']+r['comision_usd']) / r['margen_neto']) + 1 if r['margen_neto'] > 0 else 0
+                    if eq_punto > 0 and eq_punto <= 50:
+                        fig_line.add_vline(x=eq_punto, line_dash="dot", line_color="#FFD700",
+                            annotation_text=f"Break even: {eq_punto} uds", annotation_font_color="#FFD700")
+                    fig_line.update_layout(
+                        title=dict(text="📈 Punto de Equilibrio", font=dict(size=15, color="white")),
+                        xaxis_title="Unidades vendidas", yaxis_title="USD ($)",
+                        template="plotly_dark", paper_bgcolor="#0e1117", plot_bgcolor="#1a1a2e",
+                        font=dict(family="Arial", color="white"),
+                        legend=dict(orientation="h", yanchor="bottom", y=-0.3),
+                        hovermode="x unified", margin=dict(t=60, b=60, l=40, r=20))
+                    st.plotly_chart(fig_line, use_container_width=True)
+                    with st.spinner("..."):
+                        st.markdown(consultar_agente(sistema_mentor("Expert dropshipping profitability analyst."),
+                            f"Analyze this dropshipping product profitability. Sale price: ${r['precio_venta']}, Net margin per unit: ${r['margen_neto']:.2f} ({r['margen_pct']:.1f}%), Product cost: ${r['costo_producto']}, Shipping: ${r['costo_envio']}, Commission: ${r['comision_usd']:.2f}. IMPORTANT CONTEXT: In dropshipping, margins between 15-30% are considered viable, and above 30% is healthy. Do NOT say the margin is bad unless it's below 10%. Give: 1) Honest assessment of this margin for dropshipping specifically, 2) Break-even units needed per month, 3) 2 actionable tips to improve profitability."))
+
+        with tab_p:
+            if es_free and st.session_state['uso_m6'] >= 1:
+                mostrar_paywall()
+            else:
+                st.markdown(f"<p style='color:#888;font-size:0.9rem;'>Simula el impacto de publicidad pagada en tu producto</p>", unsafe_allow_html=True)
+                col1, col2 = st.columns(2)
+                with col1: plataforma_ads = st.selectbox(tr['m6_ads_plat'], ["TikTok Ads", "Meta Ads (Facebook/Instagram)", "Google Ads"])
+                with col2: presupuesto_ads = st.number_input(tr['m6_ads_pres'], value=10.0, min_value=1.0)
+                precio_ads = st.number_input(tr['m6_pventa_s'] if modo_simple else tr['m6_pventa_p'], value=float(st.session_state.get('precio_activo', 15.99) or 15.99), key="ads_precio")
+                margen_ads_pct = st.number_input("Margen neto %", value=float(st.session_state.get('margen_activo', 30) or 30), min_value=1.0, max_value=99.0, key="ads_margen")
+                if st.button("Calcular impacto de publicidad 📢", type="primary"):
+                    cpm_map = {"TikTok Ads": 2.5, "Meta Ads (Facebook/Instagram)": 4.0, "Google Ads": 6.0}
+                    cpm = cpm_map.get(plataforma_ads, 3.0)
+                    margen_neto_ads = precio_ads * (margen_ads_pct/100)
+                    ventas_dia = (presupuesto_ads / cpm) * 1000 * 0.015 * 0.02
+                    ingresos_dia = ventas_dia * margen_neto_ads
+                    roas = ingresos_dia / presupuesto_ads if presupuesto_ads > 0 else 0
+                    rentable = ingresos_dia > presupuesto_ads
+                    roas_color = "#00FF9C" if roas >= 2.5 else "#FFA500" if roas >= 1.5 else "#FF4B4B"
+                    col1, col2, col3 = st.columns(3)
+                    col1.metric("💰 Ganancia/día", f"${ingresos_dia:.2f}")
+                    col2.metric("📦 Ventas/día est.", f"{ventas_dia:.1f}")
+                    col3.metric("📈 ROAS", f"{roas:.1f}x", delta="✅ Rentable" if rentable else "⚠️ Revisar")
                     dias_p = list(range(1, 31))
                     fig_ads = go.Figure()
-                    fig_ads.add_trace(go.Scatter(x=dias_p, y=[d*ingresos_dia for d in dias_p], name="Ganancias acumuladas", line=dict(color="#00FF9C", width=3)))
-                    fig_ads.add_trace(go.Scatter(x=dias_p, y=[d*r['presupuesto_ads'] for d in dias_p], name="Costo ads acumulado", line=dict(color="#FF4B4B", width=2, dash='dot')))
-                    fig_ads.update_layout(title=f"Proyección 30 días — {r['plataforma_ads']}", xaxis_title="Día", yaxis_title="USD ($)", template="plotly_dark", plot_bgcolor="#1a1a2e", paper_bgcolor="#0e1117")
+                    fig_ads.add_trace(go.Scatter(
+                        x=dias_p, y=[d*ingresos_dia for d in dias_p],
+                        name="Ganancias acumuladas", line=dict(color="#00FF9C", width=3),
+                        fill='tozeroy', fillcolor='rgba(0,255,156,0.08)'))
+                    fig_ads.add_trace(go.Scatter(
+                        x=dias_p, y=[d*presupuesto_ads for d in dias_p],
+                        name="Costo ads", line=dict(color="#FF4B4B", width=2, dash='dash'),
+                        fill='tozeroy', fillcolor='rgba(255,75,75,0.05)'))
+                    fig_ads.update_layout(
+                        title=dict(text=f"📢 Proyección 30 días — {plataforma_ads}", font=dict(size=15, color="white")),
+                        xaxis_title="Día", yaxis_title="USD ($)",
+                        template="plotly_dark", paper_bgcolor="#0e1117", plot_bgcolor="#1a1a2e",
+                        font=dict(family="Arial", color="white"),
+                        legend=dict(orientation="h", yanchor="bottom", y=-0.3),
+                        hovermode="x unified", margin=dict(t=60, b=60, l=40, r=20))
                     st.plotly_chart(fig_ads, use_container_width=True)
                     with st.spinner("..."):
                         st.markdown(consultar_agente(sistema_mentor("Expert in digital advertising for dropshipping."),
-                            f"Ad budget: ${r['presupuesto_ads']}/day on {r['plataforma_ads']}. Sale price: ${r['precio_venta']}. Net margin: {r['margen_neto']:.2f} USD. ROAS: {roas:.1f}x. Give 3 specific tips to optimize ROAS for Latin American dropshipping market."))
-                with st.spinner("..."):
-                    st.markdown(consultar_agente(sistema_mentor("Expert dropshipping profitability analyst."),
-                        f"Analyze this product profitability. Sale price: ${r['precio_venta']}, Net margin: ${r['margen_neto']:.2f} ({r['margen_pct']:.1f}%), Product cost: ${r['costo_producto']}, Shipping: ${r['costo_envio']}, Commission: ${r['comision_usd']:.2f}. Give: 1) Is this margin healthy for dropshipping? 2) Minimum units to cover costs, 3) 2 concrete tips to improve profitability."))
+                            f"Ad budget: ${presupuesto_ads}/day on {plataforma_ads}. Sale price: ${precio_ads}. Net margin: {margen_ads_pct:.1f}%. Estimated ROAS: {roas:.1f}x. Give 3 specific actionable tips to optimize ROAS on {plataforma_ads} for Latin American dropshipping market."))
+
+        with tab_m:
+            if es_free and st.session_state['uso_m6'] >= 1:
+                mostrar_paywall()
+            else:
+                st.markdown(f"<p style='color:#888;font-size:0.9rem;'>Ingresa los datos reales de tu campaña activa</p>", unsafe_allow_html=True)
+                col1, col2 = st.columns(2)
+                with col1:
+                    gasto_ads = st.number_input(tr['m6_met_gasto'], value=50.0, min_value=0.01)
+                    ingresos_gen = st.number_input(tr['m6_met_ingresos'], value=150.0, min_value=0.0)
+                with col2:
+                    visitas = st.number_input(tr['m6_met_visitas'], value=500, min_value=1)
+                    ventas_reales = st.number_input(tr['m6_met_ventas'], value=10, min_value=0)
+                precio_prod = st.number_input("Precio de venta (USD)", value=float(st.session_state.get('precio_activo', 15.99) or 15.99), key="met_precio")
+                costo_prod = st.number_input("Costo del producto (USD)", value=5.50, key="met_costo")
+                if st.button(tr['m6_met_btn'], type="primary"):
+                    roas_r = ingresos_gen / gasto_ads if gasto_ads > 0 else 0
+                    margen_b = ((precio_prod - costo_prod) / precio_prod * 100) if precio_prod > 0 else 0
+                    cpa_r = gasto_ads / ventas_reales if ventas_reales > 0 else 0
+                    cvr_r = (ventas_reales / visitas * 100) if visitas > 0 else 0
+                    roi_r = ((ingresos_gen - gasto_ads) / gasto_ads * 100) if gasto_ads > 0 else 0
+                    st.session_state['ultimo_metricas'] = {
+                        'roas': roas_r, 'margen': margen_b, 'cpa': cpa_r,
+                        'cvr': cvr_r, 'roi': roi_r, 'gasto': gasto_ads,
+                        'ingresos': ingresos_gen, 'ventas': ventas_reales
+                    }
+
+                if st.session_state.get('ultimo_metricas'):
+                    m = st.session_state['ultimo_metricas']
+                    def semaforo(val, bueno, medio):
+                        return "#00FF9C" if val >= bueno else "#FFA500" if val >= medio else "#FF4B4B"
+                    metricas = [
+                        (tr['m6_met_roas'], f"{m['roas']:.1f}x", semaforo(m['roas'], 2.5, 1.5), "roas",
+                         [1,2,3,4,5], [m['roas']]*5),
+                        (tr['m6_met_margen'], f"{m['margen']:.1f}%", semaforo(m['margen'], 30, 15), "margen",
+                         ["<15%","15-30%",">30%"], [15, 30, m['margen']]),
+                        (tr['m6_met_cpa'], f"${m['cpa']:.2f}", "#00FF9C" if m['cpa'] < 15 else "#FFA500" if m['cpa'] < 30 else "#FF4B4B", "cpa",
+                         list(range(5,50,5)), [m['cpa']]*9),
+                        (tr['m6_met_cvr'], f"{m['cvr']:.1f}%", semaforo(m['cvr'], 3, 1), "cvr",
+                         ["0%","1%","2%","3%","4%"], [1, 2, m['cvr'], 3, 4]),
+                        (tr['m6_met_roi'], f"{m['roi']:.0f}%", semaforo(m['roi'], 100, 50), "roi",
+                         list(range(0,300,50)), [m['roi']]*6),
+                    ]
+                    for nombre, valor, color, key, x_data, y_data in metricas:
+                        col1, col2 = st.columns([1, 3])
+                        with col1:
+                            st.markdown(f"""<div style='background:#1a1a2e;padding:12px;border-radius:8px;border:2px solid {color};text-align:center;'>
+                                <p style='color:#888;margin:0;font-size:0.8rem;'>{nombre}</p>
+                                <h2 style='color:{color};margin:0;'>{valor}</h2>
+                            </div>""", unsafe_allow_html=True)
+                        with col2:
+                            if st.checkbox(tr['m6_met_ver'], key=f"ver_{key}"):
+                                fig_m = go.Figure()
+                                fig_m.add_trace(go.Bar(
+                                    x=[str(x) for x in x_data], y=y_data,
+                                    marker_color=color, opacity=0.8))
+                                fig_m.update_layout(
+                                    height=150, margin=dict(t=10,b=10,l=10,r=10),
+                                    template="plotly_dark", paper_bgcolor="#0e1117", plot_bgcolor="#1a1a2e",
+                                    showlegend=False, font=dict(size=10, color="white"))
+                                st.plotly_chart(fig_m, use_container_width=True)
+                        st.markdown("")
+                    with st.spinner("..."):
+                        st.markdown(f"**{tr['m6_met_diag']}**")
+                        st.markdown(consultar_agente(sistema_mentor("Expert dropshipping performance analyst."),
+                            f"Analyze these real campaign metrics: ROAS={m['roas']:.1f}x, Gross Margin={m['margen']:.1f}%, CPA=${m['cpa']:.2f}, CVR={m['cvr']:.1f}%, ROI={m['roi']:.0f}%. Ad spend: ${m['gasto']}, Revenue: ${m['ingresos']}, Sales: {m['ventas']}. Identify the 2 weakest metrics and give specific actionable steps to improve each one for a dropshipping store in Latin America."))
 
     # ── Módulo 7 — Generador de Nombre de Marca ──
     elif idx_modulo == 6:
@@ -1608,8 +1744,8 @@ else:
                         f"Generate 10 unique brand names for a {estilo_marca} store selling: {nicho_marca} on {plat_marca}. For each name: 1) The name, 2) A catchy slogan (max 8 words), 3) Instagram bio (max 150 chars), 4) Why it works for this niche. Make them memorable, easy to pronounce in Spanish."))
                 if es_free: st.session_state['uso_m_marca'] = 1
 
-    # ── Módulo 9 — Espiar competencia (reseñas) ──
-    elif idx_modulo == 8:
+    # ── Módulo 8 — Espiar competencia ──
+    elif idx_modulo == 7:
         st.header(tr['m7_h_s'] if modo_simple else tr['m7_h_p'])
         if modo_simple: st.caption(tr['m7_c_s'])
         if st.session_state.get('producto_activo'): st.caption(f"{tr['contexto_sugerido']}: {st.session_state['producto_activo']}")
@@ -1634,50 +1770,8 @@ else:
             if st.session_state.get('ultimo_res_m7'):
                 st.markdown(st.session_state['ultimo_res_m7'])
 
-    # ── Módulo 8 — Score de Validación ──
-    elif idx_modulo == 7:
-        st.header(tr['m8_h_s'] if modo_simple else tr['m8_h_p'])
-        if modo_simple: st.caption(tr['m8_c_s'])
-        if st.session_state.get('producto_activo'): st.caption(f"{tr['contexto_sugerido']}: {st.session_state['producto_activo']}")
-        col1, col2 = st.columns(2)
-        with col1:
-            producto = st.text_input(tr['m8_prod_s'] if modo_simple else tr['m8_prod_p'], value=st.session_state.get('producto_activo',''))
-            margen = st.slider(tr['m8_margen_s'] if modo_simple else tr['m8_margen_p'], 0, 100, 50)
-        with col2:
-            velocidad = st.slider(tr['m8_vel_s'] if modo_simple else tr['m8_vel_p'], 1, 10, 5)
-            competencia = st.slider(tr['m8_comp_s'] if modo_simple else tr['m8_comp_p'], 1, 10, 5)
-        if es_free and st.session_state['uso_m8'] >= 1: mostrar_paywall()
-        else:
-            if st.button(tr['m8_btn_s'] if modo_simple else tr['m8_btn_p'], type="primary"):
-                score = min((margen*0.4)+(velocidad*2)+(competencia*2), 100)
-                color = "#00FF9C" if score >= 70 else "#FFA500" if score >= 40 else "#FF4B4B"
-                nivel = tr['score_ganador'] if score >= 70 else tr['score_medio'] if score >= 40 else tr['score_riesgo']
-                st.markdown(f"""<div style='text-align:center;padding:20px;'>
-                    <h1 style='color:{color};font-size:4rem;text-shadow:0 0 20px {color};'>{score:.1f}/100</h1>
-                    <h2 style='color:{color};'>{nivel}</h2></div>""", unsafe_allow_html=True)
-                st.progress(int(score))
-                col1, col2, col3 = st.columns(3)
-                col1.metric("Margen (40%)", f"{margen*0.4:.1f}/40")
-                col2.metric("Velocidad (20%)", f"{velocidad*2:.1f}/20")
-                col3.metric("Competencia (20%)", f"{competencia*2:.1f}/20")
-                if es_free:
-                    st.session_state['uso_m8'] += 1; incrementar_uso_db('uso_m8'); mostrar_paywall()
-                else:
-                    st.session_state['uso_m8'] += 1; incrementar_uso_db('uso_m8')
-                    st.session_state['producto_activo'] = producto
-                    with st.spinner("..."):
-                        res_m8 = consultar_agente(sistema_mentor("Dropshipping risk analyst."),
-                            f"Product score: {producto}: {score}/100. Level: {nivel}. Margin {margen}%, Shipping speed {velocidad}/10, Competition {competencia}/10. Give a clear verdict: Invest or Discard, with specific reasons.")
-                        st.markdown(res_m8)
-                        st.session_state['ultimo_res_m8'] = {'res': res_m8, 'producto': producto, 'score': score, 'margen': margen, 'nivel': nivel}
-            if st.session_state.get('ultimo_res_m8') and st.session_state.get('user_id') and es_pro:
-                if st.button(tr['guardar_producto'], key="guardar_m8"):
-                    d = st.session_state['ultimo_res_m8']
-                    if guardar_producto_db(st.session_state['user_id'], d['producto'], st.session_state.get('nicho_activo',''), d['margen'], d['score'], st.session_state.get('plataforma_activa',''), d['res'][:500]):
-                        st.success(tr['producto_guardado_ok'])
-
-    # ── Módulo 10 — Generar Informe ──
-    elif idx_modulo == 9:
+    # ── Módulo 9 — Generar Informe ──
+    elif idx_modulo == 8:
         st.header(tr['m_informe_h_s'] if modo_simple else tr['m_informe_h_p'])
         if modo_simple: st.caption(tr['m_informe_c_s'])
         producto = st.session_state.get('producto_activo','')
