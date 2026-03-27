@@ -473,45 +473,44 @@ def ejecutar_agente(user_id, nicho, lang="Español"):
     amazon_str = str(amazon_data) if amazon_data else "NO_REAL_DATA"
     aliexpress_str = str(aliexpress_data) if aliexpress_data else "NO_REAL_DATA"
 
-    prompt = f"""You are a strict dropshipping product filter agent. Your only job is to find products that ACTUALLY pass all 3 filters below. You do NOT generate content — you FILTER and REPORT.
+    prompt = f"""You are a dropshipping market intelligence agent. Your goal is ALWAYS to deliver actionable value to the user — never return an empty report.
 
-NICHE TO ANALYZE: {nicho}
+NICHE: {nicho}
 
-RAW DATA FROM APIS:
-- TikTok data: {tiktok_str}
-- Amazon data: {amazon_str}
-- AliExpress data: {aliexpress_str}
+RAW API DATA:
+- TikTok: {tiktok_str}
+- Amazon: {amazon_str}  
+- AliExpress: {aliexpress_str}
 
-STRICT FILTERING RULES:
-1. A product must appear in TikTok data (trending signal) AND Amazon data (selling confirmation) AND AliExpress data (sourceable at good price). 
-2. If data says NO_REAL_DATA for any source, you may use general market knowledge BUT you must clearly label it as "estimated" not "confirmed".
-3. NEVER invent specific prices. Use only prices from the data received. If not in data, write "price not confirmed — research needed".
-4. NEVER say a product is trending if TikTok data does not support it specifically.
-5. If no product passes all 3 filters with the data received, say exactly: "⚠️ No se encontraron productos que pasen los 3 filtros con los datos actuales. Intenta con otro nicho o ejecuta el agente mañana."
+ANALYSIS APPROACH:
+Use the API data as market signals. If data is limited, complement with your knowledge of the {nicho} niche. Always be transparent: label each data point as [CONFIRMADO] if from API data or [ESTIMADO] if from your knowledge.
 
-FOR EACH PRODUCT THAT PASSES (maximum 3), use EXACTLY this format:
+Generate a report for TOP 3 products in this niche. For each product:
 
 ---
-🔥 [SPECIFIC PRODUCT NAME]
+🔥 [PRODUCT NAME]
 
-📱 TENDENCIA (TikTok):
-[CONFIRMED: cite specific data] OR [ESTIMATED: based on general trends]
+📱 TENDENCIA:
+[Signal from TikTok data or market knowledge] — [CONFIRMADO/ESTIMADO]
 
-🏪 SE VENDE (Amazon):
-Precio encontrado: $[exact from data] OR [Precio no confirmado — verificar]
-Estado: CONFIRMADO / ESTIMADO
+🏪 SE VENDE EN AMAZON:
+Precio: $[from data or estimate] — [CONFIRMADO/ESTIMADO]
+Demanda: [brief assessment]
 
-🛒 SE PUEDE CONSEGUIR (AliExpress):
-Precio encontrado: $[exact from data] OR [Precio no confirmado — verificar]
-Término de búsqueda en inglés: "[keyword]"
-Margen estimado: [only calculate if BOTH prices are real, otherwise write "calcular al verificar precios"]
+🛒 FUENTE EN ALIEXPRESS:
+Precio: $[from data or estimate] — [CONFIRMADO/ESTIMADO]
+Buscar en inglés: "[exact english keyword]"
 
-⚡ VEREDICTO: OPORTUNIDAD REAL / EVALUAR / INSUFICIENTE DATA
-Acción concreta hoy: [one specific step]
+💰 MARGEN ESTIMADO: [calculate if possible, else write "verificar precios"]
+
+⚡ VEREDICTO: [ALTA OPORTUNIDAD / EVALUAR / RIESGO]
+Acción hoy: [one concrete step]
 ---
 
 End with:
-🚫 EVITAR: [specific product or pattern to avoid this week, with data-based reason]"""
+🚫 EVITAR: [one product/trend to avoid this week with brief reason]
+
+TONE: Be direct and useful. The user has limited daily queries — make every report count."""
 
     reporte = consultar_agente(sistema_mentor("Strict dropshipping product filter agent."), prompt)
 
