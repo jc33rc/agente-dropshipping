@@ -307,7 +307,6 @@ def avanzar_dia_campana(campana_id, dia_actual):
     except: return False
 
 def extraer_dia_estrategia(estrategia, dia):
-    """Extrae el contenido del día específico de la estrategia generada."""
     import re
     patrones = [f"Día {dia}:", f"Day {dia}:", f"Dia {dia}:"]
     for patron in patrones:
@@ -320,6 +319,143 @@ def extraer_dia_estrategia(estrategia, dia):
                     siguiente = min(siguiente, idx2)
             return estrategia[idx:siguiente].strip()
     return estrategia[:600]
+
+# ── Agente Espía — DB Functions ──
+def guardar_config_agente(user_id, nicho, plataformas, activo=True):
+    try:
+        existente = supabase.table("agente_config").select("id").eq("user_id", user_id).execute()
+        if existente.data:
+            supabase.table("agente_config").update({
+                "nicho": nicho, "plataformas": plataformas, "activo": activo
+            }).eq("user_id", user_id).execute()
+        else:
+            supabase.table("agente_config").insert({
+                "user_id": user_id, "nicho": nicho,
+                "plataformas": plataformas, "activo": activo
+            }).execute()
+        return True
+    except: return False
+
+def obtener_config_agente(user_id):
+    try:
+        res = supabase.table("agente_config").select("*").eq("user_id", user_id).execute()
+        return res.data[0] if res.data else None
+    except: return None
+
+def guardar_reporte_agente(user_id, resultado_json):
+    try:
+        from datetime import datetime
+        supabase.table("agente_config").update({
+            "ultimo_resultado": resultado_json,
+            "ultimo_reporte": datetime.now().isoformat()
+        }).eq("user_id", user_id).execute()
+        return True
+    except: return False
+
+# ── RapidAPI Functions ──
+def agente_buscar_tiktok(nicho):
+    """Busca tendencias en TikTok via RapidAPI"""
+    try:
+        RAPIDAPI_KEY = st.secrets.get("RAPIDAPI_KEY", "")
+        if not RAPIDAPI_KEY:
+            return None
+        url = "https://tiktok-api23.p.rapidapi.com/api/search/general"
+        headers = {
+            "X-RapidAPI-Key": RAPIDAPI_KEY,
+            "X-RapidAPI-Host": "tiktok-api23.p.rapidapi.com"
+        }
+        params = {"keyword": nicho, "count": "5", "cursor": "0"}
+        r = requests.get(url, headers=headers, params=params, timeout=10)
+        if r.status_code == 200:
+            data = r.json()
+            items = data.get("data", {}).get("item_list", [])[:5]
+            return [{"desc": i.get("desc","")[:80], "plays": i.get("stats",{}).get("playCount",0)} for i in items]
+        return None
+    except: return None
+
+def agente_buscar_aliexpress(producto):
+    """Busca precios en AliExpress via RapidAPI"""
+    try:
+        RAPIDAPI_KEY = st.secrets.get("RAPIDAPI_KEY", "")
+        if not RAPIDAPI_KEY:
+            return None
+        url = "https://aliexpress-datahub.p.rapidapi.com/item_search"
+        headers = {
+            "X-RapidAPI-Key": RAPIDAPI_KEY,
+            "X-RapidAPI-Host": "aliexpress-datahub.p.rapidapi.com"
+        }
+        params = {"q": producto, "page": "1"}
+        r = requests.get(url, headers=headers, params=params, timeout=10)
+        if r.status_code == 200:
+            data = r.json()
+            items = data.get("result", {}).get("resultList", [])[:3]
+            return [{"title": i.get("item",{}).get("title","")[:60],
+                     "price": i.get("item",{}).get("sku",{}).get("def",{}).get("promotionPrice", 0)} for i in items]
+        return None
+    except: return None
+
+def agente_buscar_amazon(producto):
+    """Busca precios en Amazon via RapidAPI"""
+    try:
+        RAPIDAPI_KEY = st.secrets.get("RAPIDAPI_KEY", "")
+        if not RAPIDAPI_KEY:
+            return None
+        url = "https://real-time-amazon-data.p.rapidapi.com/search"
+        headers = {
+            "X-RapidAPI-Key": RAPIDAPI_KEY,
+            "X-RapidAPI-Host": "real-time-amazon-data.p.rapidapi.com"
+        }
+        params = {"query": producto, "page": "1", "country": "US", "sort_by": "RELEVANCE"}
+        r = requests.get(url, headers=headers, params=params, timeout=10)
+        if r.status_code == 200:
+            data = r.json()
+            items = data.get("data", {}).get("products", [])[:3]
+            return [{"title": i.get("product_title","")[:60],
+                     "price": i.get("product_price","$0").replace("$","").replace(",","")} for i in items]
+        return None
+    except: return None
+
+def ejecutar_agente(user_id, nicho, plataformas, lang="Español"):
+    """Ejecuta el agente completo y genera el reporte"""
+    tiene_rapidapi = bool(st.secrets.get("RAPIDAPI_KEY", ""))
+    
+    tiktok_data = agente_buscar_tiktok(nicho) if tiene_rapidapi else None
+    aliexpress_data = agente_buscar_aliexpress(nicho) if tiene_rapidapi else None
+    amazon_data = agente_buscar_amazon(nicho) if tiene_rapidapi else None
+    
+    contexto_real = ""
+    if tiktok_data:
+        contexto_real += f"\nTikTok trending content for {nicho}: {tiktok_data[:3]}"
+    if aliexpress_data:
+        contexto_real += f"\nAliExpress prices for {nicho}: {aliexpress_data}"
+    if amazon_data:
+        contexto_real += f"\nAmazon prices for {nicho}: {amazon_data}"
+    
+    prompt = f"""You are an autonomous dropshipping spy agent. Analyze the niche: {nicho} for platforms: {plataformas}.
+{contexto_real if contexto_real else f"Use your training knowledge about {nicho} market trends."}
+
+Generate a daily spy report with:
+1) TOP 3 trending products RIGHT NOW with specific names
+2) For each product: estimated AliExpress cost, Amazon selling price, profit margin %
+3) Market opportunity score (1-10)
+4) ONE specific action the seller should take today
+5) Warning: any product to AVOID this week
+
+Be specific, data-driven and actionable. Format with clear sections."""
+
+    reporte = consultar_agente(sistema_mentor("Autonomous dropshipping spy agent."), prompt)
+    
+    resultado = {
+        "nicho": nicho,
+        "plataformas": plataformas,
+        "reporte": reporte,
+        "tiene_datos_reales": bool(tiktok_data or aliexpress_data or amazon_data),
+        "tiktok": tiktok_data,
+        "aliexpress": aliexpress_data,
+        "amazon": amazon_data
+    }
+    guardar_reporte_agente(user_id, resultado)
+    return resultado
 
 def generar_html_informe(producto, nicho, plataforma, precio, margen, score, nivel, resumen_rentabilidad, texto_informe):
     return f"""<!DOCTYPE html>
@@ -472,6 +608,21 @@ traducciones = {
         "card5_t": "🚦 Detector de Saturación", "card5_d": "Semáforo visual que te dice si un mercado está BAJO, MEDIO, ALTO o CRÍTICO antes de invertir.",
         "card6_t": "📢 Calculadora de Publicidad", "card6_d": "Calcula si TikTok Ads, Meta Ads o Google Ads es rentable con tu producto. Proyección real a 30 días.",
         "mis_productos": "📦 Mis Productos",
+        "mi_agente": "🤖 Mi Agente Espía",
+        "agente_nicho": "¿Qué nicho quieres espiar?",
+        "agente_plat": "Plataformas a monitorear",
+        "agente_btn_config": "⚙️ Configurar agente",
+        "agente_btn_run": "🤖 Ejecutar agente ahora",
+        "agente_btn_pause": "⏸️ Pausar agente", "agente_btn_activate": "▶️ Activar agente",
+        "agente_estado": "Estado del agente",
+        "agente_activo": "🟢 ACTIVO", "agente_pausado": "⏸️ PAUSADO",
+        "agente_ultimo": "Último reporte:", "agente_sin_config": "Configura tu agente para comenzar.",
+        "agente_datos_reales": "✅ Con datos reales de TikTok + AliExpress + Amazon",
+        "agente_datos_ia": "🧠 Análisis IA (configura RAPIDAPI_KEY para datos reales)",
+        "agente_reporte": "📋 Reporte del agente",
+        "agente_email_btn": "📧 Enviar reporte al correo",
+        "agente_plan_req": "⭐ El Agente Espía requiere Plan Pro + Agente o Ultra",
+        "agente_guardado": "✅ Configuración guardada",
         "guardar_producto": "💾 Guardar este producto",
         "producto_guardado_ok": "✅ Guardado en Mis Productos",
         "estado_evaluando": "🔄 Evaluando", "estado_activo": "✅ Activo", "estado_descartado": "❌ Descartado",
@@ -662,6 +813,21 @@ traducciones = {
         "card5_t": "🚦 Saturation Detector", "card5_d": "Visual traffic light that tells you if a market is LOW, MEDIUM, HIGH or CRITICAL before you invest.",
         "card6_t": "📢 Advertising Calculator", "card6_d": "Calculate if TikTok Ads, Meta Ads or Google Ads is profitable for your product. Real 30-day projection.",
         "mis_productos": "📦 My Products",
+        "mi_agente": "🤖 My Spy Agent",
+        "agente_nicho": "Which niche do you want to spy on?",
+        "agente_plat": "Platforms to monitor",
+        "agente_btn_config": "⚙️ Configure agent",
+        "agente_btn_run": "🤖 Run agent now",
+        "agente_btn_pause": "⏸️ Pause agent", "agente_btn_activate": "▶️ Activate agent",
+        "agente_estado": "Agent status",
+        "agente_activo": "🟢 ACTIVE", "agente_pausado": "⏸️ PAUSED",
+        "agente_ultimo": "Last report:", "agente_sin_config": "Configure your agent to get started.",
+        "agente_datos_reales": "✅ With real data from TikTok + AliExpress + Amazon",
+        "agente_datos_ia": "🧠 AI Analysis (configure RAPIDAPI_KEY for real data)",
+        "agente_reporte": "📋 Agent report",
+        "agente_email_btn": "📧 Send report by email",
+        "agente_plan_req": "⭐ Spy Agent requires Pro + Agent or Ultra Plan",
+        "agente_guardado": "✅ Configuration saved",
         "guardar_producto": "💾 Save this product",
         "producto_guardado_ok": "✅ Saved to My Products",
         "estado_evaluando": "🔄 Evaluating", "estado_activo": "✅ Active", "estado_descartado": "❌ Discarded",
@@ -852,6 +1018,21 @@ traducciones = {
         "card5_t": "🚦 Detector de Saturação", "card5_d": "Semáforo visual que diz se um mercado está BAIXO, MÉDIO, ALTO ou CRÍTICO antes de investir.",
         "card6_t": "📢 Calculadora de Publicidade", "card6_d": "Calcule se TikTok Ads, Meta Ads ou Google Ads é rentável para seu produto. Projeção real de 30 dias.",
         "mis_productos": "📦 Meus Produtos",
+        "mi_agente": "🤖 Meu Agente Espião",
+        "agente_nicho": "Qual nicho você quer espionar?",
+        "agente_plat": "Plataformas para monitorar",
+        "agente_btn_config": "⚙️ Configurar agente",
+        "agente_btn_run": "🤖 Executar agente agora",
+        "agente_btn_pause": "⏸️ Pausar agente", "agente_btn_activate": "▶️ Ativar agente",
+        "agente_estado": "Status do agente",
+        "agente_activo": "🟢 ATIVO", "agente_pausado": "⏸️ PAUSADO",
+        "agente_ultimo": "Último relatório:", "agente_sin_config": "Configure seu agente para começar.",
+        "agente_datos_reales": "✅ Com dados reais do TikTok + AliExpress + Amazon",
+        "agente_datos_ia": "🧠 Análise IA (configure RAPIDAPI_KEY para dados reais)",
+        "agente_reporte": "📋 Relatório do agente",
+        "agente_email_btn": "📧 Enviar relatório por email",
+        "agente_plan_req": "⭐ Agente Espião requer Plano Pro + Agente ou Ultra",
+        "agente_guardado": "✅ Configuração salva",
         "guardar_producto": "💾 Salvar este produto",
         "producto_guardado_ok": "✅ Salvo em Meus Produtos",
         "estado_evaluando": "🔄 Avaliando", "estado_activo": "✅ Ativo", "estado_descartado": "❌ Descartado",
@@ -957,6 +1138,22 @@ def mostrar_paywall():
             <a href='#'><button style='width:100%;padding:10px;background:#00FF9C;color:#000;font-weight:bold;border-radius:5px;border:none;'>{tr['pw_plan_b']}</button></a>
         </div>""", unsafe_allow_html=True)
     with col2:
+        st.markdown(f"""<div class='paywall-box' style='border-color:#0066FF;'>
+            <h3 style='color:white;'>🤖 Pro + Agente</h3>
+            <h1 style='color:#0066FF;'>$24.99 <span style='color:#888;font-size:1rem;'>/ mes</span></h1>
+            <p style='color:#ccc;'>Todo lo anterior + Agente Espía activo 24/7. 1 consulta diaria automática.</p>
+            <a href='#'><button style='width:100%;padding:10px;background:#0066FF;color:#fff;font-weight:bold;border-radius:5px;border:none;'>Activar Agente</button></a>
+        </div>""", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    col3, col4 = st.columns(2)
+    with col3:
+        st.markdown(f"""<div class='paywall-box' style='border-color:#FF6B9D;'>
+            <h3 style='color:white;'>⚡ Ultra</h3>
+            <h1 style='color:#FF6B9D;'>$49.99 <span style='color:#888;font-size:1rem;'>/ mes</span></h1>
+            <p style='color:#ccc;'>Agente Espía en 5 nichos + 3 consultas/día + reportes en tiempo real.</p>
+            <a href='#'><button style='width:100%;padding:10px;background:#FF6B9D;color:#fff;font-weight:bold;border-radius:5px;border:none;'>Plan Ultra</button></a>
+        </div>""", unsafe_allow_html=True)
+    with col4:
         st.markdown(f"""<div class='paywall-box' style='border-color:#FFD700;'>
             <h3 style='color:white;'>{tr['pw_found_t']}</h3><h1 style='color:#FFD700;'>{tr['pw_found_p']}</h1>
             <p style='color:#ccc;'>{tr['pw_found_d']}</p>
@@ -1078,6 +1275,9 @@ with st.sidebar:
             st.rerun()
         if st.button(tr['mis_productos'], use_container_width=True):
             st.session_state['vista'] = 'productos'
+            st.rerun()
+        if st.button(tr['mi_agente'], use_container_width=True):
+            st.session_state['vista'] = 'agente'
             st.rerun()
         st.markdown("---")
         mentor_val = st.checkbox(tr['mentor_toggle'], value=st.session_state['mentor_mode'])
@@ -1298,6 +1498,99 @@ elif st.session_state.get('vista') == 'productos':
                 if notas_val != (p.get('notas') or ''):
                     actualizar_notas_producto(p['id'], notas_val)
                 st.markdown("---")
+
+# ==========================================
+# 5c. PANEL MI AGENTE ESPÍA
+# ==========================================
+elif st.session_state.get('vista') == 'agente':
+    tr = t()
+    st.header(tr['mi_agente'])
+    user_id = st.session_state.get('user_id')
+    user_role = st.session_state.get('user_role', 'free')
+    es_agente = user_role in ['pro', 'ultra', 'admin']
+
+    if not es_agente:
+        st.markdown(f"""<div style='background:#1a1a2e;padding:25px;border-radius:12px;border:1px solid #FFD70044;text-align:center;'>
+            <h2 style='color:#FFD700;'>🤖 {tr['mi_agente']}</h2>
+            <p style='color:#ccc;font-size:1.1rem;'>{tr['agente_plan_req']}</p>
+            <p style='color:#888;'>"Mientras tú duermes, tu agente investiga."</p>
+        </div>""", unsafe_allow_html=True)
+        mostrar_paywall()
+    else:
+        config = obtener_config_agente(user_id) if user_id else None
+        tiene_rapidapi = bool(st.secrets.get("RAPIDAPI_KEY", ""))
+
+        if tiene_rapidapi:
+            st.success(tr['agente_datos_reales'])
+        else:
+            st.info(tr['agente_datos_ia'])
+
+        st.markdown("---")
+        col1, col2 = st.columns(2)
+        with col1:
+            nicho_agente = st.text_input(tr['agente_nicho'],
+                value=config['nicho'] if config else st.session_state.get('nicho_activo',''),
+                placeholder="mascotas, belleza, hogar...")
+        with col2:
+            plat_agente = st.multiselect(tr['agente_plat'],
+                ["Amazon", "AliExpress", "Mercado Libre", "TikTok Shop"],
+                default=["Amazon", "AliExpress"])
+
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button(tr['agente_btn_config'], use_container_width=True):
+                if nicho_agente and plat_agente and user_id:
+                    if guardar_config_agente(user_id, nicho_agente, ", ".join(plat_agente)):
+                        st.success(tr['agente_guardado'])
+                        st.rerun()
+
+        if config:
+            estado_color = "#00FF9C" if config.get('activo') else "#888"
+            estado_txt = tr['agente_activo'] if config.get('activo') else tr['agente_pausado']
+            ultimo = config.get('ultimo_reporte','')
+            st.markdown(f"""<div style='background:#1a1a2e;padding:15px;border-radius:10px;border:1px solid {estado_color}44;margin:15px 0;'>
+                <p style='color:#888;margin:0;'>{tr['agente_estado']}: <b style='color:{estado_color};'>{estado_txt}</b></p>
+                <p style='color:#888;margin:4px 0;'>Nicho: <b style='color:white;'>{config.get('nicho','')}</b> | Plataformas: <b style='color:white;'>{config.get('plataformas','')}</b></p>
+                {f"<p style='color:#888;margin:0;'>{tr['agente_ultimo']} {ultimo[:16]}</p>" if ultimo else ""}
+            </div>""", unsafe_allow_html=True)
+
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(tr['agente_btn_run'], type="primary", use_container_width=True):
+                    with st.spinner("🤖 Agente trabajando..."):
+                        resultado = ejecutar_agente(
+                            user_id, config['nicho'], config['plataformas'],
+                            st.session_state.get('idioma','Español')
+                        )
+                        st.session_state['ultimo_reporte_agente'] = resultado
+                        st.session_state['nicho_activo'] = config['nicho']
+            with col2:
+                lbl_toggle = tr['agente_btn_pause'] if config.get('activo') else tr['agente_btn_activate']
+                if st.button(lbl_toggle, use_container_width=True):
+                    guardar_config_agente(user_id, config['nicho'], config['plataformas'], not config.get('activo'))
+                    st.rerun()
+
+            # Mostrar último reporte
+            reporte_data = st.session_state.get('ultimo_reporte_agente') or (
+                {'reporte': config['ultimo_resultado'].get('reporte',''), 
+                 'tiene_datos_reales': config['ultimo_resultado'].get('tiene_datos_reales', False)}
+                if config.get('ultimo_resultado') else None
+            )
+            if reporte_data and reporte_data.get('reporte'):
+                st.markdown("---")
+                st.markdown(f"**{tr['agente_reporte']}**")
+                if reporte_data.get('tiene_datos_reales'):
+                    st.success(tr['agente_datos_reales'])
+                st.markdown(reporte_data['reporte'])
+                if st.button(tr['agente_email_btn']):
+                    enviado = enviar_email(
+                        st.session_state['user_email'],
+                        f"🤖 Reporte Agente Espía — {config['nicho']} — Dropshippingent",
+                        f"<h2>Reporte Agente Espía</h2><pre>{reporte_data['reporte']}</pre>"
+                    )
+                    st.success("✅ Enviado") if enviado else st.warning("⚠️ Error al enviar")
+        else:
+            st.info(tr['agente_sin_config'])
 
 # ==========================================
 # 6. MÓDULOS
@@ -1690,35 +1983,47 @@ else:
                     m = st.session_state['ultimo_metricas']
                     def semaforo(val, bueno, medio):
                         return "#00FF9C" if val >= bueno else "#FFA500" if val >= medio else "#FF4B4B"
-                    metricas = [
-                        (tr['m6_met_roas'], f"{m['roas']:.1f}x", semaforo(m['roas'], 2.5, 1.5), "roas",
-                         [1,2,3,4,5], [m['roas']]*5),
-                        (tr['m6_met_margen'], f"{m['margen']:.1f}%", semaforo(m['margen'], 30, 15), "margen",
-                         ["<15%","15-30%",">30%"], [15, 30, m['margen']]),
-                        (tr['m6_met_cpa'], f"${m['cpa']:.2f}", "#00FF9C" if m['cpa'] < 15 else "#FFA500" if m['cpa'] < 30 else "#FF4B4B", "cpa",
-                         list(range(5,50,5)), [m['cpa']]*9),
-                        (tr['m6_met_cvr'], f"{m['cvr']:.1f}%", semaforo(m['cvr'], 3, 1), "cvr",
-                         ["0%","1%","2%","3%","4%"], [1, 2, m['cvr'], 3, 4]),
-                        (tr['m6_met_roi'], f"{m['roi']:.0f}%", semaforo(m['roi'], 100, 50), "roi",
-                         list(range(0,300,50)), [m['roi']]*6),
-                    ]
-                    for nombre, valor, color, key, x_data, y_data in metricas:
+
+                    benchmarks = {
+                        'roas':   {'tu': m['roas'],   'min': 1.5,  'bueno': 2.5,  'excelente': 4.0,  'fmt': lambda v: f"{v:.1f}x", 'max': 5.0},
+                        'margen': {'tu': m['margen'], 'min': 15.0, 'bueno': 30.0, 'excelente': 50.0, 'fmt': lambda v: f"{v:.0f}%", 'max': 70.0},
+                        'cpa':    {'tu': m['cpa'],    'min': 30.0, 'bueno': 15.0, 'excelente': 8.0,  'fmt': lambda v: f"${v:.2f}", 'max': 40.0, 'invertido': True},
+                        'cvr':    {'tu': m['cvr'],    'min': 1.0,  'bueno': 2.5,  'excelente': 4.0,  'fmt': lambda v: f"{v:.1f}%", 'max': 6.0},
+                        'roi':    {'tu': m['roi'],    'min': 50.0, 'bueno': 100.0,'excelente': 200.0,'fmt': lambda v: f"{v:.0f}%", 'max': 300.0},
+                    }
+                    nombres = {
+                        'roas': tr['m6_met_roas'], 'margen': tr['m6_met_margen'],
+                        'cpa': tr['m6_met_cpa'], 'cvr': tr['m6_met_cvr'], 'roi': tr['m6_met_roi']
+                    }
+                    for key, b in benchmarks.items():
+                        invertido = b.get('invertido', False)
+                        if invertido:
+                            color = "#00FF9C" if b['tu'] <= b['bueno'] else "#FFA500" if b['tu'] <= b['min'] else "#FF4B4B"
+                        else:
+                            color = semaforo(b['tu'], b['excelente'], b['bueno'])
                         col1, col2 = st.columns([1, 3])
                         with col1:
                             st.markdown(f"""<div style='background:#1a1a2e;padding:12px;border-radius:8px;border:2px solid {color};text-align:center;'>
-                                <p style='color:#888;margin:0;font-size:0.8rem;'>{nombre}</p>
-                                <h2 style='color:{color};margin:0;'>{valor}</h2>
+                                <p style='color:#888;margin:0;font-size:0.8rem;'>{nombres[key]}</p>
+                                <h2 style='color:{color};margin:0;'>{b['fmt'](b['tu'])}</h2>
                             </div>""", unsafe_allow_html=True)
                         with col2:
                             if st.checkbox(tr['m6_met_ver'], key=f"ver_{key}"):
                                 fig_m = go.Figure()
+                                categorias = ["Mínimo", "Bueno", "Excelente", "🎯 Tu resultado"]
+                                valores = [b['min'], b['bueno'], b['excelente'], b['tu']]
+                                colores = ["#FF4B4B", "#FFA500", "#00FF9C", color]
                                 fig_m.add_trace(go.Bar(
-                                    x=[str(x) for x in x_data], y=y_data,
-                                    marker_color=color, opacity=0.8))
+                                    x=categorias, y=valores,
+                                    marker_color=colores,
+                                    text=[b['fmt'](v) for v in valores],
+                                    textposition='outside',
+                                    textfont=dict(size=12, color="white")))
                                 fig_m.update_layout(
-                                    height=150, margin=dict(t=10,b=10,l=10,r=10),
+                                    height=180, margin=dict(t=20, b=20, l=10, r=10),
                                     template="plotly_dark", paper_bgcolor="#0e1117", plot_bgcolor="#1a1a2e",
-                                    showlegend=False, font=dict(size=10, color="white"))
+                                    showlegend=False, font=dict(size=11, color="white"),
+                                    yaxis=dict(range=[0, b['max']*1.2]))
                                 st.plotly_chart(fig_m, use_container_width=True)
                         st.markdown("")
                     with st.spinner("..."):
