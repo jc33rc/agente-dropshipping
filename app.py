@@ -354,22 +354,23 @@ def guardar_reporte_agente(user_id, resultado_json):
 
 # ── RapidAPI Functions ──
 def agente_buscar_tiktok(nicho):
-    """Busca tendencias en TikTok via RapidAPI"""
+    """Busca tendencias en TikTok via RapidAPI - TikTok Scraper7"""
     try:
         RAPIDAPI_KEY = st.secrets.get("RAPIDAPI_KEY", "")
         if not RAPIDAPI_KEY:
             return None
-        url = "https://tiktok-api23.p.rapidapi.com/api/search/general"
+        url = "https://tiktok-scraper7.p.rapidapi.com/feed/search"
         headers = {
             "X-RapidAPI-Key": RAPIDAPI_KEY,
-            "X-RapidAPI-Host": "tiktok-api23.p.rapidapi.com"
+            "X-RapidAPI-Host": "tiktok-scraper7.p.rapidapi.com"
         }
-        params = {"keyword": nicho, "count": "5", "cursor": "0"}
+        params = {"keywords": nicho, "region": "us", "count": "5", "cursor": "0", "publish_time": "0", "sort_type": "0"}
         r = requests.get(url, headers=headers, params=params, timeout=10)
         if r.status_code == 200:
             data = r.json()
-            items = data.get("data", {}).get("item_list", [])[:5]
-            return [{"desc": i.get("desc","")[:80], "plays": i.get("stats",{}).get("playCount",0)} for i in items]
+            items = data.get("data", {}).get("videos", [])[:5]
+            return [{"desc": i.get("title", i.get("desc",""))[:80],
+                     "plays": i.get("play_count", i.get("plays", 0))} for i in items] or None
         return None
     except: return None
 
@@ -379,18 +380,21 @@ def agente_buscar_aliexpress(producto):
         RAPIDAPI_KEY = st.secrets.get("RAPIDAPI_KEY", "")
         if not RAPIDAPI_KEY:
             return None
-        url = "https://aliexpress-datahub.p.rapidapi.com/item_search"
+        url = "https://aliexpress-datahub.p.rapidapi.com/item_search_2"
         headers = {
             "X-RapidAPI-Key": RAPIDAPI_KEY,
             "X-RapidAPI-Host": "aliexpress-datahub.p.rapidapi.com"
         }
-        params = {"q": producto, "page": "1"}
+        params = {"q": producto, "page": "1", "sort": "default"}
         r = requests.get(url, headers=headers, params=params, timeout=10)
         if r.status_code == 200:
             data = r.json()
             items = data.get("result", {}).get("resultList", [])[:3]
-            return [{"title": i.get("item",{}).get("title","")[:60],
-                     "price": i.get("item",{}).get("sku",{}).get("def",{}).get("promotionPrice", 0)} for i in items]
+            if not items:
+                items = data.get("data", {}).get("items", [])[:3]
+            return [{"title": str(i.get("item",{}).get("title", i.get("title","")))[:60],
+                     "price": i.get("item",{}).get("sku",{}).get("def",{}).get("promotionPrice",
+                              i.get("price", i.get("salePrice", 0)))} for i in items] or None
         return None
     except: return None
 
@@ -405,13 +409,14 @@ def agente_buscar_amazon(producto):
             "X-RapidAPI-Key": RAPIDAPI_KEY,
             "X-RapidAPI-Host": "real-time-amazon-data.p.rapidapi.com"
         }
-        params = {"query": producto, "page": "1", "country": "US", "sort_by": "RELEVANCE"}
+        params = {"query": producto, "page": "1", "country": "US",
+                  "sort_by": "RELEVANCE", "product_condition": "ALL"}
         r = requests.get(url, headers=headers, params=params, timeout=10)
         if r.status_code == 200:
             data = r.json()
             items = data.get("data", {}).get("products", [])[:3]
             return [{"title": i.get("product_title","")[:60],
-                     "price": i.get("product_price","$0").replace("$","").replace(",","")} for i in items]
+                     "price": i.get("product_price","$0").replace("$","").replace(",","")} for i in items] or None
         return None
     except: return None
 
@@ -419,10 +424,23 @@ def ejecutar_agente(user_id, nicho, plataformas, lang="Español"):
     """Ejecuta el agente completo y genera el reporte"""
     tiene_rapidapi = bool(st.secrets.get("RAPIDAPI_KEY", ""))
     
-    tiktok_data = agente_buscar_tiktok(nicho) if tiene_rapidapi else None
-    aliexpress_data = agente_buscar_aliexpress(nicho) if tiene_rapidapi else None
-    amazon_data = agente_buscar_amazon(nicho) if tiene_rapidapi else None
-    
+    status = {}
+    tiktok_data = None
+    aliexpress_data = None
+    amazon_data = None
+
+    if tiene_rapidapi:
+        tiktok_data = agente_buscar_tiktok(nicho)
+        status['tiktok'] = "✅ Datos reales" if tiktok_data else "⚠️ Sin datos (API)"
+        aliexpress_data = agente_buscar_aliexpress(nicho)
+        status['aliexpress'] = "✅ Datos reales" if aliexpress_data else "⚠️ Sin datos (API)"
+        amazon_data = agente_buscar_amazon(nicho)
+        status['amazon'] = "✅ Datos reales" if amazon_data else "⚠️ Sin datos (API)"
+    else:
+        status['tiktok'] = "🧠 IA"
+        status['aliexpress'] = "🧠 IA"
+        status['amazon'] = "🧠 IA"
+
     contexto_real = ""
     if tiktok_data:
         contexto_real += f"\nTikTok trending content for {nicho}: {tiktok_data[:3]}"
@@ -430,7 +448,7 @@ def ejecutar_agente(user_id, nicho, plataformas, lang="Español"):
         contexto_real += f"\nAliExpress prices for {nicho}: {aliexpress_data}"
     if amazon_data:
         contexto_real += f"\nAmazon prices for {nicho}: {amazon_data}"
-    
+
     prompt = f"""You are an autonomous dropshipping spy agent. Analyze the niche: {nicho} for platforms: {plataformas}.
 {contexto_real if contexto_real else f"Use your training knowledge about {nicho} market trends."}
 
@@ -444,7 +462,7 @@ Generate a daily spy report with:
 Be specific, data-driven and actionable. Format with clear sections."""
 
     reporte = consultar_agente(sistema_mentor("Autonomous dropshipping spy agent."), prompt)
-    
+
     resultado = {
         "nicho": nicho,
         "plataformas": plataformas,
@@ -452,7 +470,8 @@ Be specific, data-driven and actionable. Format with clear sections."""
         "tiene_datos_reales": bool(tiktok_data or aliexpress_data or amazon_data),
         "tiktok": tiktok_data,
         "aliexpress": aliexpress_data,
-        "amazon": amazon_data
+        "amazon": amazon_data,
+        "status": status
     }
     guardar_reporte_agente(user_id, resultado)
     return resultado
@@ -1520,10 +1539,22 @@ elif st.session_state.get('vista') == 'agente':
         config = obtener_config_agente(user_id) if user_id else None
         tiene_rapidapi = bool(st.secrets.get("RAPIDAPI_KEY", ""))
 
-        if tiene_rapidapi:
-            st.success(tr['agente_datos_reales'])
-        else:
-            st.info(tr['agente_datos_ia'])
+        # Descripción del agente
+        st.markdown(f"""<div style='background:#1a1a2e;padding:15px;border-radius:10px;border:1px solid #0066FF44;margin-bottom:15px;'>
+            <p style='color:#ccc;margin:0;font-size:0.95rem;'>
+            🔍 <b style='color:#0066FF;'>¿Qué hace el agente?</b> Consulta <b>TikTok</b> para detectar productos en tendencia,
+            <b>AliExpress</b> para obtener el precio real de compra, y <b>Amazon</b> para ver el precio de venta —
+            todo en tu nicho. Calcula el margen real y genera un reporte listo para actuar.
+            </p>
+        </div>""", unsafe_allow_html=True)
+
+        # Estado de fuentes
+        col1, col2, col3 = st.columns(3)
+        src_color = "#00FF9C" if tiene_rapidapi else "#FFA500"
+        src_txt = "Datos reales" if tiene_rapidapi else "Análisis IA"
+        col1.markdown(f"<div style='text-align:center;padding:8px;background:#1a1a2e;border-radius:8px;border:1px solid {src_color}44;'><p style='color:#888;margin:0;font-size:0.75rem;'>TikTok</p><p style='color:{src_color};margin:0;font-weight:bold;font-size:0.85rem;'>{src_txt}</p></div>", unsafe_allow_html=True)
+        col2.markdown(f"<div style='text-align:center;padding:8px;background:#1a1a2e;border-radius:8px;border:1px solid {src_color}44;'><p style='color:#888;margin:0;font-size:0.75rem;'>AliExpress</p><p style='color:{src_color};margin:0;font-weight:bold;font-size:0.85rem;'>{src_txt}</p></div>", unsafe_allow_html=True)
+        col3.markdown(f"<div style='text-align:center;padding:8px;background:#1a1a2e;border-radius:8px;border:1px solid {src_color}44;'><p style='color:#888;margin:0;font-size:0.75rem;'>Amazon</p><p style='color:{src_color};margin:0;font-weight:bold;font-size:0.85rem;'>{src_txt}</p></div>", unsafe_allow_html=True)
 
         st.markdown("---")
         col1, col2 = st.columns(2)
@@ -1538,11 +1569,20 @@ elif st.session_state.get('vista') == 'agente':
 
         col1, col2 = st.columns(2)
         with col1:
-            if st.button(tr['agente_btn_config'], use_container_width=True):
-                if nicho_agente and plat_agente and user_id:
-                    if guardar_config_agente(user_id, nicho_agente, ", ".join(plat_agente)):
+            if st.button(tr['agente_btn_config'], use_container_width=True, type="primary"):
+                if not nicho_agente:
+                    st.warning("⚠️ Escribe un nicho primero.")
+                elif not plat_agente:
+                    st.warning("⚠️ Selecciona al menos una plataforma.")
+                elif not user_id:
+                    st.warning("⚠️ Debes estar registrado.")
+                else:
+                    ok = guardar_config_agente(user_id, nicho_agente, ", ".join(plat_agente))
+                    if ok:
                         st.success(tr['agente_guardado'])
-                        st.rerun()
+                        st.session_state['agente_config_cache'] = None
+                    else:
+                        st.error("⚠️ Error al guardar. Verifica Supabase.")
 
         if config:
             estado_color = "#00FF9C" if config.get('activo') else "#888"
@@ -1557,13 +1597,20 @@ elif st.session_state.get('vista') == 'agente':
             col1, col2 = st.columns(2)
             with col1:
                 if st.button(tr['agente_btn_run'], type="primary", use_container_width=True):
-                    with st.spinner("🤖 Agente trabajando..."):
+                    with st.spinner("🤖 Agente consultando TikTok, AliExpress y Amazon..."):
                         resultado = ejecutar_agente(
                             user_id, config['nicho'], config['plataformas'],
                             st.session_state.get('idioma','Español')
                         )
                         st.session_state['ultimo_reporte_agente'] = resultado
                         st.session_state['nicho_activo'] = config['nicho']
+                    # Mostrar estado de cada fuente
+                    status = resultado.get('status', {})
+                    c1, c2, c3 = st.columns(3)
+                    c1.markdown(f"<div style='text-align:center;padding:6px;background:#1a1a2e;border-radius:6px;'><small style='color:#888;'>TikTok</small><br><small style='color:white;'>{status.get('tiktok','🧠 IA')}</small></div>", unsafe_allow_html=True)
+                    c2.markdown(f"<div style='text-align:center;padding:6px;background:#1a1a2e;border-radius:6px;'><small style='color:#888;'>AliExpress</small><br><small style='color:white;'>{status.get('aliexpress','🧠 IA')}</small></div>", unsafe_allow_html=True)
+                    c3.markdown(f"<div style='text-align:center;padding:6px;background:#1a1a2e;border-radius:6px;'><small style='color:#888;'>Amazon</small><br><small style='color:white;'>{status.get('amazon','🧠 IA')}</small></div>", unsafe_allow_html=True)
+
             with col2:
                 lbl_toggle = tr['agente_btn_pause'] if config.get('activo') else tr['agente_btn_activate']
                 if st.button(lbl_toggle, use_container_width=True):
@@ -1572,8 +1619,9 @@ elif st.session_state.get('vista') == 'agente':
 
             # Mostrar último reporte
             reporte_data = st.session_state.get('ultimo_reporte_agente') or (
-                {'reporte': config['ultimo_resultado'].get('reporte',''), 
-                 'tiene_datos_reales': config['ultimo_resultado'].get('tiene_datos_reales', False)}
+                {'reporte': config['ultimo_resultado'].get('reporte',''),
+                 'tiene_datos_reales': config['ultimo_resultado'].get('tiene_datos_reales', False),
+                 'status': config['ultimo_resultado'].get('status', {})}
                 if config.get('ultimo_resultado') else None
             )
             if reporte_data and reporte_data.get('reporte'):
@@ -1581,6 +1629,8 @@ elif st.session_state.get('vista') == 'agente':
                 st.markdown(f"**{tr['agente_reporte']}**")
                 if reporte_data.get('tiene_datos_reales'):
                     st.success(tr['agente_datos_reales'])
+                else:
+                    st.info(tr['agente_datos_ia'])
                 st.markdown(reporte_data['reporte'])
                 if st.button(tr['agente_email_btn']):
                     enviado = enviar_email(
