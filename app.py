@@ -1672,7 +1672,7 @@ elif st.session_state.get('vista') == 'agente':
                     if st.button(tr['agente_btn_run'], type="primary", use_container_width=True):
                         with st.spinner("🤖 Consultando TikTok, AliExpress y Amazon..."):
                             resultado = ejecutar_agente(
-                                agente_uid, nicho_run, plat_run,
+                                user_id if not es_admin else None, nicho_run, plat_run,
                                 st.session_state.get('idioma','Español')
                             )
                             st.session_state['ultimo_reporte_agente'] = resultado
