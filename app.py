@@ -450,7 +450,7 @@ def agente_buscar_amazon(producto):
 def ejecutar_agente(user_id, nicho, plataformas, lang="Español"):
     """Ejecuta el agente completo y genera el reporte"""
     tiene_rapidapi = bool(st.secrets.get("RAPIDAPI_KEY", ""))
-    
+
     status = {}
     tiktok_data = None
     aliexpress_data = None
@@ -468,27 +468,54 @@ def ejecutar_agente(user_id, nicho, plataformas, lang="Español"):
         status['aliexpress'] = "🧠 IA"
         status['amazon'] = "🧠 IA"
 
-    contexto_real = ""
-    if tiktok_data:
-        contexto_real += f"\nTikTok trending content for {nicho}: {tiktok_data[:3]}"
-    if aliexpress_data:
-        contexto_real += f"\nAliExpress prices for {nicho}: {aliexpress_data}"
-    if amazon_data:
-        contexto_real += f"\nAmazon prices for {nicho}: {amazon_data}"
+    # Build context with raw data
+    # Build prompt with direct data injection
 
-    prompt = f"""You are an autonomous dropshipping spy agent. Analyze the niche: {nicho} for platforms: {plataformas}.
-{contexto_real if contexto_real else f"Use your training knowledge about {nicho} market trends."}
+    prompt = f"""You are an autonomous dropshipping intelligence agent. Your job is to find REAL opportunities.
 
-Generate a daily spy report with:
-1) TOP 3 trending products RIGHT NOW with specific names
-2) For each product: estimated AliExpress cost, Amazon selling price, profit margin %
-3) Market opportunity score (1-10)
-4) ONE specific action the seller should take today
-5) Warning: any product to AVOID this week
+PRIORITY LOGIC — Follow this exact order:
+1. TikTok data shows what is TRENDING (social demand signal)
+2. Amazon data CONFIRMS if that type of product is actually selling (real market validation)
+3. AliExpress shows if you can SOURCE it cheaply enough (margin check)
 
-Be specific, data-driven and actionable. Format with clear sections."""
+If a product trends on TikTok but is NOT selling on Amazon → NOT viable.
+If it sells on Amazon but costs too much on AliExpress → NOT viable.
+Only report products that pass ALL 3 filters.
 
-    reporte = consultar_agente(sistema_mentor("Autonomous dropshipping spy agent."), prompt)
+DATA RECEIVED:
+TikTok trending for '{nicho}': {tiktok_data if tiktok_data else f"No real data — use your knowledge of current '{nicho}' trends on TikTok."}
+Amazon products for '{nicho}': {amazon_data if amazon_data else f"No real data — estimate typical selling prices for '{nicho}' products on Amazon."}
+AliExpress for '{nicho}': {aliexpress_data if aliexpress_data else f"No real data — estimate typical sourcing prices for '{nicho}' products on AliExpress."}
+
+Generate a report for TOP 3 validated products using EXACTLY this structure:
+
+---
+🔥 [PRODUCT NAME] — Opportunity Score: X/10
+
+📱 TENDENCIA CONFIRMADA:
+[What TikTok signals show. Views, growth, why it's trending now.]
+✅ También se vende activamente en Amazon
+
+🏪 VALIDACIÓN DE VENTA (Amazon):
+Precio de venta: $X - $X
+[Brief note on competition level and demand strength]
+
+🛒 ¿PUEDO CONSEGUIRLO BARATO? (AliExpress):
+Disponible desde: $X - $X
+Margen potencial: X%
+Término de búsqueda: "[exact keyword to search in AliExpress]"
+
+⚡ VEREDICTO:
+[OPORTUNIDAD REAL / EVALUAR MÁS / DESCARTAR]
+[One specific action the seller should take TODAY]
+---
+
+End report with:
+🚫 EVITAR ESTA SEMANA: [product to avoid and specific reason why]
+
+IMPORTANT: Be honest. If data is limited, say so. Never invent specific prices — use ranges."""
+
+    reporte = consultar_agente(sistema_mentor("Autonomous dropshipping market intelligence agent."), prompt)
 
     resultado = {
         "nicho": nicho,
@@ -502,6 +529,32 @@ Be specific, data-driven and actionable. Format with clear sections."""
     }
     guardar_reporte_agente(user_id, resultado)
     return resultado
+
+def generar_html_reporte_agente(nicho, plataformas, reporte, tiene_datos_reales):
+    from datetime import datetime
+    fecha = datetime.now().strftime("%d/%m/%Y %H:%M")
+    fuente = "✅ Datos reales TikTok + AliExpress + Amazon" if tiene_datos_reales else "🧠 Análisis IA"
+    return f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+body{{font-family:Arial,sans-serif;background:#0e1117;color:white;padding:30px;max-width:800px;margin:0 auto;}}
+h1{{color:#00FF9C;text-align:center;border-bottom:2px solid #00FF9C33;padding-bottom:15px;}}
+h2{{color:#0066FF;margin-top:20px;}}
+.meta{{background:#1a1a2e;padding:12px;border-radius:8px;border:1px solid #00FF9C33;margin-bottom:20px;}}
+.reporte{{background:#1a1a2e;padding:20px;border-radius:8px;border:1px solid #00FF9C22;white-space:pre-wrap;line-height:1.7;}}
+.footer{{text-align:center;color:#666;margin-top:30px;font-size:0.85rem;border-top:1px solid #333;padding-top:15px;}}
+</style></head>
+<body>
+<h1>🤖 Reporte Agente Espía — Dropshippingent</h1>
+<div class="meta">
+<p style="color:#ccc;margin:0;">📅 <b>Fecha:</b> {fecha}</p>
+<p style="color:#ccc;margin:4px 0;">🎯 <b>Nicho:</b> {nicho} | 🏪 <b>Plataformas:</b> {plataformas}</p>
+<p style="color:#00FF9C;margin:4px 0;">🔍 <b>Fuente:</b> {fuente}</p>
+</div>
+<div class="reporte">{reporte.replace('<','&lt;').replace('>','&gt;')}</div>
+<div class="footer">© 2026 Dropshippingent — dropshippingent.streamlit.app<br>
+"Mientras tú duermes, tu agente investiga."</div>
+</body></html>"""
 
 def generar_html_informe(producto, nicho, plataforma, precio, margen, score, nivel, resumen_rentabilidad, texto_informe):
     return f"""<!DOCTYPE html>
@@ -1712,16 +1765,29 @@ elif st.session_state.get('vista') == 'agente':
                 else:
                     st.info(tr['agente_datos_ia'])
                 st.markdown(reporte_data['reporte'])
-                col1, col2 = st.columns(2)
+                st.markdown("---")
+                html_reporte = generar_html_reporte_agente(
+                    nicho_run, plat_run,
+                    reporte_data['reporte'],
+                    reporte_data.get('tiene_datos_reales', False)
+                )
+                col1, col2, col3 = st.columns(3)
                 with col1:
+                    st.download_button(
+                        "📥 Descargar HTML",
+                        data=html_reporte.encode('utf-8'),
+                        file_name=f"agente_{nicho_run[:15].replace(' ','_')}.html",
+                        mime="text/html"
+                    )
+                with col2:
                     if st.button(tr['agente_email_btn']):
                         enviado = enviar_email(
                             st.session_state['user_email'],
                             f"🤖 Reporte Agente Espía — {nicho_run} — Dropshippingent",
-                            f"<h2>Reporte Agente Espía — {nicho_run}</h2><pre>{reporte_data['reporte']}</pre>"
+                            html_reporte
                         )
                         st.success("✅ Enviado") if enviado else st.warning("⚠️ Configura dominio en Resend para enviar emails")
-                with col2:
+                with col3:
                     if st.session_state.get('user_id') and st.session_state['user_role'] in ['pro','ultra','admin']:
                         if st.button(tr['guardar_producto'], key="guardar_agente"):
                             if guardar_producto_db(user_id,
