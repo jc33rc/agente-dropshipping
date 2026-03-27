@@ -447,7 +447,7 @@ def agente_buscar_amazon(producto):
         return None
     except: return None
 
-def ejecutar_agente(user_id, nicho, plataformas, lang="Español"):
+def ejecutar_agente(user_id, nicho, lang="Español"):
     """Ejecuta el agente completo y genera el reporte"""
     tiene_rapidapi = bool(st.secrets.get("RAPIDAPI_KEY", ""))
 
@@ -468,58 +468,56 @@ def ejecutar_agente(user_id, nicho, plataformas, lang="Español"):
         status['aliexpress'] = "🧠 IA"
         status['amazon'] = "🧠 IA"
 
-    # Build context with raw data
-    # Build prompt with direct data injection
+    # Format real data clearly for the prompt
+    tiktok_str = str(tiktok_data) if tiktok_data else "NO_REAL_DATA"
+    amazon_str = str(amazon_data) if amazon_data else "NO_REAL_DATA"
+    aliexpress_str = str(aliexpress_data) if aliexpress_data else "NO_REAL_DATA"
 
-    prompt = f"""You are an autonomous dropshipping intelligence agent. Your job is to find REAL opportunities.
+    prompt = f"""You are a strict dropshipping product filter agent. Your only job is to find products that ACTUALLY pass all 3 filters below. You do NOT generate content — you FILTER and REPORT.
 
-PRIORITY LOGIC — Follow this exact order:
-1. TikTok data shows what is TRENDING (social demand signal)
-2. Amazon data CONFIRMS if that type of product is actually selling (real market validation)
-3. AliExpress shows if you can SOURCE it cheaply enough (margin check)
+NICHE TO ANALYZE: {nicho}
 
-If a product trends on TikTok but is NOT selling on Amazon → NOT viable.
-If it sells on Amazon but costs too much on AliExpress → NOT viable.
-Only report products that pass ALL 3 filters.
+RAW DATA FROM APIS:
+- TikTok data: {tiktok_str}
+- Amazon data: {amazon_str}
+- AliExpress data: {aliexpress_str}
 
-DATA RECEIVED:
-TikTok trending for '{nicho}': {tiktok_data if tiktok_data else f"No real data — use your knowledge of current '{nicho}' trends on TikTok."}
-Amazon products for '{nicho}': {amazon_data if amazon_data else f"No real data — estimate typical selling prices for '{nicho}' products on Amazon."}
-AliExpress for '{nicho}': {aliexpress_data if aliexpress_data else f"No real data — estimate typical sourcing prices for '{nicho}' products on AliExpress."}
+STRICT FILTERING RULES:
+1. A product must appear in TikTok data (trending signal) AND Amazon data (selling confirmation) AND AliExpress data (sourceable at good price). 
+2. If data says NO_REAL_DATA for any source, you may use general market knowledge BUT you must clearly label it as "estimated" not "confirmed".
+3. NEVER invent specific prices. Use only prices from the data received. If not in data, write "price not confirmed — research needed".
+4. NEVER say a product is trending if TikTok data does not support it specifically.
+5. If no product passes all 3 filters with the data received, say exactly: "⚠️ No se encontraron productos que pasen los 3 filtros con los datos actuales. Intenta con otro nicho o ejecuta el agente mañana."
 
-Generate a report for TOP 3 validated products using EXACTLY this structure:
+FOR EACH PRODUCT THAT PASSES (maximum 3), use EXACTLY this format:
 
 ---
-🔥 [PRODUCT NAME] — Opportunity Score: X/10
+🔥 [SPECIFIC PRODUCT NAME]
 
-📱 TENDENCIA CONFIRMADA:
-[What TikTok signals show. Views, growth, why it's trending now.]
-✅ También se vende activamente en Amazon
+📱 TENDENCIA (TikTok):
+[CONFIRMED: cite specific data] OR [ESTIMATED: based on general trends]
 
-🏪 VALIDACIÓN DE VENTA (Amazon):
-Precio de venta: $X - $X
-[Brief note on competition level and demand strength]
+🏪 SE VENDE (Amazon):
+Precio encontrado: $[exact from data] OR [Precio no confirmado — verificar]
+Estado: CONFIRMADO / ESTIMADO
 
-🛒 ¿PUEDO CONSEGUIRLO BARATO? (AliExpress):
-Disponible desde: $X - $X
-Margen potencial: X%
-Término de búsqueda: "[exact keyword to search in AliExpress]"
+🛒 SE PUEDE CONSEGUIR (AliExpress):
+Precio encontrado: $[exact from data] OR [Precio no confirmado — verificar]
+Término de búsqueda en inglés: "[keyword]"
+Margen estimado: [only calculate if BOTH prices are real, otherwise write "calcular al verificar precios"]
 
-⚡ VEREDICTO:
-[OPORTUNIDAD REAL / EVALUAR MÁS / DESCARTAR]
-[One specific action the seller should take TODAY]
+⚡ VEREDICTO: OPORTUNIDAD REAL / EVALUAR / INSUFICIENTE DATA
+Acción concreta hoy: [one specific step]
 ---
 
-End report with:
-🚫 EVITAR ESTA SEMANA: [product to avoid and specific reason why]
+End with:
+🚫 EVITAR: [specific product or pattern to avoid this week, with data-based reason]"""
 
-IMPORTANT: Be honest. If data is limited, say so. Never invent specific prices — use ranges."""
-
-    reporte = consultar_agente(sistema_mentor("Autonomous dropshipping market intelligence agent."), prompt)
+    reporte = consultar_agente(sistema_mentor("Strict dropshipping product filter agent."), prompt)
 
     resultado = {
         "nicho": nicho,
-        "plataformas": plataformas,
+        "plataformas": "TikTok + Amazon + AliExpress",
         "reporte": reporte,
         "tiene_datos_reales": bool(tiktok_data or aliexpress_data or amazon_data),
         "tiktok": tiktok_data,
@@ -1674,10 +1672,7 @@ elif st.session_state.get('vista') == 'agente':
             nicho_agente = st.text_input(tr['agente_nicho'],
                 value=config['nicho'] if config else st.session_state.get('nicho_activo',''),
                 placeholder="mascotas, belleza, hogar...")
-        with col2:
-            plat_agente = st.multiselect(tr['agente_plat'],
-                ["Amazon", "AliExpress", "Mercado Libre", "TikTok Shop"],
-                default=config['plataformas'].split(", ") if config and config.get('plataformas') else ["Amazon", "AliExpress"])
+        # Plataformas fijas: TikTok + Amazon + AliExpress (no editable)
 
         col1, col2 = st.columns(2)
         with col1:
@@ -1688,19 +1683,17 @@ elif st.session_state.get('vista') == 'agente':
             if st.button(tr['agente_btn_config'], use_container_width=True, type="primary"):
                 if not nicho_agente:
                     st.warning("⚠️ Escribe un nicho primero.")
-                elif not plat_agente:
-                    st.warning("⚠️ Selecciona al menos una plataforma.")
                 else:
                     if es_admin:
                         st.session_state['admin_agente_config'] = {
-                            'nicho': nicho_agente, 'plataformas': ", ".join(plat_agente),
+                            'nicho': nicho_agente, 'plataformas': "TikTok, Amazon, AliExpress",
                             'activo': True, 'hora_reporte': hora_sel,
                             'ultimo_reporte': '', 'ultimo_resultado': None,
                             'consultas_hoy': 0, 'fecha_consulta': None
                         }
                         st.success(tr['agente_guardado'])
                     else:
-                        ok = guardar_config_agente(user_id, nicho_agente, ", ".join(plat_agente), True, hora_sel)
+                        ok = guardar_config_agente(user_id, nicho_agente, "TikTok, Amazon, AliExpress", True, hora_sel)
                         if ok:
                             st.success(tr['agente_guardado'])
                         else:
@@ -1708,7 +1701,7 @@ elif st.session_state.get('vista') == 'agente':
 
         if config or nicho_agente:
             nicho_run = config['nicho'] if config else nicho_agente
-            plat_run = config['plataformas'] if config else ", ".join(plat_agente)
+            plat_run = config['plataformas'] if config else "TikTok, Amazon, AliExpress"
 
             estado_color = "#00FF9C" if (config and config.get('activo')) else "#888"
             estado_txt = tr['agente_activo'] if (config and config.get('activo')) else tr['agente_pausado']
@@ -1725,7 +1718,7 @@ elif st.session_state.get('vista') == 'agente':
                     if st.button(tr['agente_btn_run'], type="primary", use_container_width=True):
                         with st.spinner("🤖 Consultando TikTok, AliExpress y Amazon..."):
                             resultado = ejecutar_agente(
-                                user_id if not es_admin else None, nicho_run, plat_run,
+                                user_id if not es_admin else None, nicho_run,
                                 st.session_state.get('idioma','Español')
                             )
                             st.session_state['ultimo_reporte_agente'] = resultado
