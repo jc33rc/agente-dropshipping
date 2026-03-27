@@ -348,6 +348,8 @@ def obtener_config_agente(user_id):
 def guardar_reporte_agente(user_id, resultado_json):
     try:
         from datetime import datetime
+        if not user_id:
+            return True  # Admin — no Supabase
         hoy = str(date.today())
         config_actual = obtener_config_agente(user_id)
         consultas = 0
@@ -1580,10 +1582,16 @@ elif st.session_state.get('vista') == 'agente':
         </div>""", unsafe_allow_html=True)
         mostrar_paywall()
     else:
-        # Admin usa ID ficticio para Supabase
-        agente_uid = user_id if user_id else "admin-local"
-        config = obtener_config_agente(agente_uid) if not es_admin else obtener_config_agente(agente_uid)
         tiene_rapidapi = bool(st.secrets.get("RAPIDAPI_KEY", ""))
+
+        # Admin usa session_state, usuarios normales usan Supabase
+        if es_admin:
+            if 'admin_agente_config' not in st.session_state:
+                st.session_state['admin_agente_config'] = None
+            config = st.session_state.get('admin_agente_config')
+        else:
+            config = obtener_config_agente(user_id) if user_id else None
+
         consultas_usadas, max_consultas = consultas_agente_hoy(config, user_role)
         tiene_cuota = consultas_usadas < max_consultas
 
@@ -1630,12 +1638,20 @@ elif st.session_state.get('vista') == 'agente':
                 elif not plat_agente:
                     st.warning("⚠️ Selecciona al menos una plataforma.")
                 else:
-                    uid = agente_uid if not es_admin else "admin-local"
-                    ok = guardar_config_agente(uid, nicho_agente, ", ".join(plat_agente), True, hora_sel)
-                    if ok:
+                    if es_admin:
+                        st.session_state['admin_agente_config'] = {
+                            'nicho': nicho_agente, 'plataformas': ", ".join(plat_agente),
+                            'activo': True, 'hora_reporte': hora_sel,
+                            'ultimo_reporte': '', 'ultimo_resultado': None,
+                            'consultas_hoy': 0, 'fecha_consulta': None
+                        }
                         st.success(tr['agente_guardado'])
                     else:
-                        st.info("✅ Configuración lista (admin modo local)")
+                        ok = guardar_config_agente(user_id, nicho_agente, ", ".join(plat_agente), True, hora_sel)
+                        if ok:
+                            st.success(tr['agente_guardado'])
+                        else:
+                            st.error("⚠️ Error al guardar. Verifica Supabase.")
 
         if config or nicho_agente:
             nicho_run = config['nicho'] if config else nicho_agente
@@ -1675,7 +1691,10 @@ elif st.session_state.get('vista') == 'agente':
                 if config:
                     lbl_toggle = tr['agente_btn_pause'] if config.get('activo') else tr['agente_btn_activate']
                     if st.button(lbl_toggle, use_container_width=True):
-                        guardar_config_agente(agente_uid, nicho_run, plat_run, not config.get('activo'), hora_sel)
+                        if es_admin:
+                            st.session_state['admin_agente_config']['activo'] = not config.get('activo')
+                        else:
+                            guardar_config_agente(user_id, nicho_run, plat_run, not config.get('activo'), hora_sel)
                         st.rerun()
 
             # Mostrar reporte
@@ -1705,7 +1724,7 @@ elif st.session_state.get('vista') == 'agente':
                 with col2:
                     if st.session_state.get('user_id') and st.session_state['user_role'] in ['pro','ultra','admin']:
                         if st.button(tr['guardar_producto'], key="guardar_agente"):
-                            if guardar_producto_db(st.session_state.get('user_id', agente_uid),
+                            if guardar_producto_db(user_id,
                                 f"Agente: {nicho_run}", nicho_run, None, None, plat_run,
                                 reporte_data['reporte'][:500], reporte_data['reporte']):
                                 st.success(tr['producto_guardado_ok'])
