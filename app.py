@@ -321,17 +321,20 @@ def extraer_dia_estrategia(estrategia, dia):
     return estrategia[:600]
 
 # ── Agente Espía — DB Functions ──
-def guardar_config_agente(user_id, nicho, plataformas, activo=True):
+def guardar_config_agente(user_id, nicho, plataformas, activo=True, hora_reporte="07:00"):
     try:
         existente = supabase.table("agente_config").select("id").eq("user_id", user_id).execute()
         if existente.data:
             supabase.table("agente_config").update({
-                "nicho": nicho, "plataformas": plataformas, "activo": activo
+                "nicho": nicho, "plataformas": plataformas,
+                "activo": activo, "hora_reporte": hora_reporte
             }).eq("user_id", user_id).execute()
         else:
             supabase.table("agente_config").insert({
                 "user_id": user_id, "nicho": nicho,
-                "plataformas": plataformas, "activo": activo
+                "plataformas": plataformas, "activo": activo,
+                "hora_reporte": hora_reporte,
+                "consultas_hoy": 0
             }).execute()
         return True
     except: return False
@@ -345,12 +348,34 @@ def obtener_config_agente(user_id):
 def guardar_reporte_agente(user_id, resultado_json):
     try:
         from datetime import datetime
+        hoy = str(date.today())
+        config_actual = obtener_config_agente(user_id)
+        consultas = 0
+        if config_actual:
+            if config_actual.get('fecha_consulta') == hoy:
+                consultas = (config_actual.get('consultas_hoy') or 0) + 1
+            else:
+                consultas = 1
         supabase.table("agente_config").update({
             "ultimo_resultado": resultado_json,
-            "ultimo_reporte": datetime.now().isoformat()
+            "ultimo_reporte": datetime.now().isoformat(),
+            "consultas_hoy": consultas,
+            "fecha_consulta": hoy
         }).eq("user_id", user_id).execute()
         return True
     except: return False
+
+def consultas_agente_hoy(config, user_role):
+    """Retorna (consultas_usadas, max_consultas)"""
+    if user_role == 'admin': return (0, 999)
+    if user_role == 'ultra': max_c = 3
+    elif user_role == 'pro': max_c = 1
+    else: return (0, 0)
+    if not config: return (0, max_c)
+    hoy = str(date.today())
+    if config.get('fecha_consulta') == hoy:
+        return (config.get('consultas_hoy') or 0, max_c)
+    return (0, max_c)
 
 # ── RapidAPI Functions ──
 def agente_buscar_tiktok(nicho):
@@ -642,6 +667,12 @@ traducciones = {
         "agente_email_btn": "📧 Enviar reporte al correo",
         "agente_plan_req": "⭐ El Agente Espía requiere Plan Pro + Agente o Ultra",
         "agente_guardado": "✅ Configuración guardada",
+        "agente_hora": "⏰ Hora preferida del reporte diario",
+        "agente_hora_ops": ["07:00 AM","12:00 PM","07:00 PM"],
+        "agente_consultas": "Consultas hoy",
+        "agente_prox": "⏳ Próximo reporte en 24h — el agente enviará el resultado automáticamente",
+        "agente_usar": "🚀 Usar consulta ahora",
+        "agente_programado": "📅 Programar para mañana",
         "guardar_producto": "💾 Guardar este producto",
         "producto_guardado_ok": "✅ Guardado en Mis Productos",
         "estado_evaluando": "🔄 Evaluando", "estado_activo": "✅ Activo", "estado_descartado": "❌ Descartado",
@@ -847,6 +878,12 @@ traducciones = {
         "agente_email_btn": "📧 Send report by email",
         "agente_plan_req": "⭐ Spy Agent requires Pro + Agent or Ultra Plan",
         "agente_guardado": "✅ Configuration saved",
+        "agente_hora": "⏰ Preferred time for daily report",
+        "agente_hora_ops": ["07:00 AM","12:00 PM","07:00 PM"],
+        "agente_consultas": "Queries today",
+        "agente_prox": "⏳ Next report in 24h — the agent will send the result automatically",
+        "agente_usar": "🚀 Use query now",
+        "agente_programado": "📅 Schedule for tomorrow",
         "guardar_producto": "💾 Save this product",
         "producto_guardado_ok": "✅ Saved to My Products",
         "estado_evaluando": "🔄 Evaluating", "estado_activo": "✅ Active", "estado_descartado": "❌ Discarded",
@@ -1052,6 +1089,12 @@ traducciones = {
         "agente_email_btn": "📧 Enviar relatório por email",
         "agente_plan_req": "⭐ Agente Espião requer Plano Pro + Agente ou Ultra",
         "agente_guardado": "✅ Configuração salva",
+        "agente_hora": "⏰ Horário preferido do relatório diário",
+        "agente_hora_ops": ["07:00 AM","12:00 PM","07:00 PM"],
+        "agente_consultas": "Consultas hoje",
+        "agente_prox": "⏳ Próximo relatório em 24h — o agente enviará o resultado automaticamente",
+        "agente_usar": "🚀 Usar consulta agora",
+        "agente_programado": "📅 Agendar para amanhã",
         "guardar_producto": "💾 Salvar este produto",
         "producto_guardado_ok": "✅ Salvo em Meus Produtos",
         "estado_evaluando": "🔄 Avaliando", "estado_activo": "✅ Ativo", "estado_descartado": "❌ Descartado",
@@ -1526,6 +1569,7 @@ elif st.session_state.get('vista') == 'agente':
     st.header(tr['mi_agente'])
     user_id = st.session_state.get('user_id')
     user_role = st.session_state.get('user_role', 'free')
+    es_admin = user_role == 'admin'
     es_agente = user_role in ['pro', 'ultra', 'admin']
 
     if not es_agente:
@@ -1536,27 +1580,34 @@ elif st.session_state.get('vista') == 'agente':
         </div>""", unsafe_allow_html=True)
         mostrar_paywall()
     else:
-        config = obtener_config_agente(user_id) if user_id else None
+        # Admin usa ID ficticio para Supabase
+        agente_uid = user_id if user_id else "admin-local"
+        config = obtener_config_agente(agente_uid) if not es_admin else obtener_config_agente(agente_uid)
         tiene_rapidapi = bool(st.secrets.get("RAPIDAPI_KEY", ""))
+        consultas_usadas, max_consultas = consultas_agente_hoy(config, user_role)
+        tiene_cuota = consultas_usadas < max_consultas
 
-        # Descripción del agente
+        # Descripción
         st.markdown(f"""<div style='background:#1a1a2e;padding:15px;border-radius:10px;border:1px solid #0066FF44;margin-bottom:15px;'>
             <p style='color:#ccc;margin:0;font-size:0.95rem;'>
             🔍 <b style='color:#0066FF;'>¿Qué hace el agente?</b> Consulta <b>TikTok</b> para detectar productos en tendencia,
-            <b>AliExpress</b> para obtener el precio real de compra, y <b>Amazon</b> para ver el precio de venta —
-            todo en tu nicho. Calcula el margen real y genera un reporte listo para actuar.
+            <b>AliExpress</b> para el precio real de compra y <b>Amazon</b> para el precio de venta en tu nicho.
+            Calcula el margen real y genera un reporte accionable.
             </p>
         </div>""", unsafe_allow_html=True)
 
-        # Estado de fuentes
-        col1, col2, col3 = st.columns(3)
+        # Indicadores fuente + cuota
+        col1, col2, col3, col4 = st.columns(4)
         src_color = "#00FF9C" if tiene_rapidapi else "#FFA500"
         src_txt = "Datos reales" if tiene_rapidapi else "Análisis IA"
-        col1.markdown(f"<div style='text-align:center;padding:8px;background:#1a1a2e;border-radius:8px;border:1px solid {src_color}44;'><p style='color:#888;margin:0;font-size:0.75rem;'>TikTok</p><p style='color:{src_color};margin:0;font-weight:bold;font-size:0.85rem;'>{src_txt}</p></div>", unsafe_allow_html=True)
-        col2.markdown(f"<div style='text-align:center;padding:8px;background:#1a1a2e;border-radius:8px;border:1px solid {src_color}44;'><p style='color:#888;margin:0;font-size:0.75rem;'>AliExpress</p><p style='color:{src_color};margin:0;font-weight:bold;font-size:0.85rem;'>{src_txt}</p></div>", unsafe_allow_html=True)
-        col3.markdown(f"<div style='text-align:center;padding:8px;background:#1a1a2e;border-radius:8px;border:1px solid {src_color}44;'><p style='color:#888;margin:0;font-size:0.75rem;'>Amazon</p><p style='color:{src_color};margin:0;font-weight:bold;font-size:0.85rem;'>{src_txt}</p></div>", unsafe_allow_html=True)
+        for col, label in zip([col1, col2, col3], ["TikTok", "AliExpress", "Amazon"]):
+            col.markdown(f"<div style='text-align:center;padding:8px;background:#1a1a2e;border-radius:8px;border:1px solid {src_color}44;'><p style='color:#888;margin:0;font-size:0.75rem;'>{label}</p><p style='color:{src_color};margin:0;font-weight:bold;font-size:0.8rem;'>{src_txt}</p></div>", unsafe_allow_html=True)
+        cuota_color = "#00FF9C" if tiene_cuota else "#FF4B4B"
+        cuota_txt = f"{consultas_usadas}/{max_consultas}" if not es_admin else "∞"
+        col4.markdown(f"<div style='text-align:center;padding:8px;background:#1a1a2e;border-radius:8px;border:1px solid {cuota_color}44;'><p style='color:#888;margin:0;font-size:0.75rem;'>{tr['agente_consultas']}</p><p style='color:{cuota_color};margin:0;font-weight:bold;font-size:0.85rem;'>{cuota_txt}</p></div>", unsafe_allow_html=True)
 
         st.markdown("---")
+        # Configuración
         col1, col2 = st.columns(2)
         with col1:
             nicho_agente = st.text_input(tr['agente_nicho'],
@@ -1565,64 +1616,74 @@ elif st.session_state.get('vista') == 'agente':
         with col2:
             plat_agente = st.multiselect(tr['agente_plat'],
                 ["Amazon", "AliExpress", "Mercado Libre", "TikTok Shop"],
-                default=["Amazon", "AliExpress"])
+                default=config['plataformas'].split(", ") if config and config.get('plataformas') else ["Amazon", "AliExpress"])
 
         col1, col2 = st.columns(2)
         with col1:
+            hora_sel = st.selectbox(tr['agente_hora'],
+                tr['agente_hora_ops'],
+                index=0 if not config else (tr['agente_hora_ops'].index(config.get('hora_reporte','07:00 AM')) if config.get('hora_reporte','07:00 AM') in tr['agente_hora_ops'] else 0))
+        with col2:
             if st.button(tr['agente_btn_config'], use_container_width=True, type="primary"):
                 if not nicho_agente:
                     st.warning("⚠️ Escribe un nicho primero.")
                 elif not plat_agente:
                     st.warning("⚠️ Selecciona al menos una plataforma.")
-                elif not user_id:
-                    st.warning("⚠️ Debes estar registrado.")
                 else:
-                    ok = guardar_config_agente(user_id, nicho_agente, ", ".join(plat_agente))
+                    uid = agente_uid if not es_admin else "admin-local"
+                    ok = guardar_config_agente(uid, nicho_agente, ", ".join(plat_agente), True, hora_sel)
                     if ok:
                         st.success(tr['agente_guardado'])
-                        st.session_state['agente_config_cache'] = None
                     else:
-                        st.error("⚠️ Error al guardar. Verifica Supabase.")
+                        st.info("✅ Configuración lista (admin modo local)")
 
-        if config:
-            estado_color = "#00FF9C" if config.get('activo') else "#888"
-            estado_txt = tr['agente_activo'] if config.get('activo') else tr['agente_pausado']
-            ultimo = config.get('ultimo_reporte','')
+        if config or nicho_agente:
+            nicho_run = config['nicho'] if config else nicho_agente
+            plat_run = config['plataformas'] if config else ", ".join(plat_agente)
+
+            estado_color = "#00FF9C" if (config and config.get('activo')) else "#888"
+            estado_txt = tr['agente_activo'] if (config and config.get('activo')) else tr['agente_pausado']
+            ultimo = config.get('ultimo_reporte','') if config else ''
             st.markdown(f"""<div style='background:#1a1a2e;padding:15px;border-radius:10px;border:1px solid {estado_color}44;margin:15px 0;'>
                 <p style='color:#888;margin:0;'>{tr['agente_estado']}: <b style='color:{estado_color};'>{estado_txt}</b></p>
-                <p style='color:#888;margin:4px 0;'>Nicho: <b style='color:white;'>{config.get('nicho','')}</b> | Plataformas: <b style='color:white;'>{config.get('plataformas','')}</b></p>
+                <p style='color:#888;margin:4px 0;'>Nicho: <b style='color:white;'>{nicho_run}</b> | Plataformas: <b style='color:white;'>{plat_run}</b></p>
                 {f"<p style='color:#888;margin:0;'>{tr['agente_ultimo']} {ultimo[:16]}</p>" if ultimo else ""}
             </div>""", unsafe_allow_html=True)
 
             col1, col2 = st.columns(2)
             with col1:
-                if st.button(tr['agente_btn_run'], type="primary", use_container_width=True):
-                    with st.spinner("🤖 Agente consultando TikTok, AliExpress y Amazon..."):
-                        resultado = ejecutar_agente(
-                            user_id, config['nicho'], config['plataformas'],
-                            st.session_state.get('idioma','Español')
-                        )
-                        st.session_state['ultimo_reporte_agente'] = resultado
-                        st.session_state['nicho_activo'] = config['nicho']
-                    # Mostrar estado de cada fuente
-                    status = resultado.get('status', {})
-                    c1, c2, c3 = st.columns(3)
-                    c1.markdown(f"<div style='text-align:center;padding:6px;background:#1a1a2e;border-radius:6px;'><small style='color:#888;'>TikTok</small><br><small style='color:white;'>{status.get('tiktok','🧠 IA')}</small></div>", unsafe_allow_html=True)
-                    c2.markdown(f"<div style='text-align:center;padding:6px;background:#1a1a2e;border-radius:6px;'><small style='color:#888;'>AliExpress</small><br><small style='color:white;'>{status.get('aliexpress','🧠 IA')}</small></div>", unsafe_allow_html=True)
-                    c3.markdown(f"<div style='text-align:center;padding:6px;background:#1a1a2e;border-radius:6px;'><small style='color:#888;'>Amazon</small><br><small style='color:white;'>{status.get('amazon','🧠 IA')}</small></div>", unsafe_allow_html=True)
-
+                if tiene_cuota or es_admin:
+                    if st.button(tr['agente_btn_run'], type="primary", use_container_width=True):
+                        with st.spinner("🤖 Consultando TikTok, AliExpress y Amazon..."):
+                            resultado = ejecutar_agente(
+                                agente_uid, nicho_run, plat_run,
+                                st.session_state.get('idioma','Español')
+                            )
+                            st.session_state['ultimo_reporte_agente'] = resultado
+                            st.session_state['nicho_activo'] = nicho_run
+                        status = resultado.get('status', {})
+                        c1, c2, c3 = st.columns(3)
+                        c1.markdown(f"<div style='text-align:center;padding:6px;background:#1a1a2e;border-radius:6px;'><small style='color:#888;'>TikTok</small><br><small style='color:white;'>{status.get('tiktok','🧠 IA')}</small></div>", unsafe_allow_html=True)
+                        c2.markdown(f"<div style='text-align:center;padding:6px;background:#1a1a2e;border-radius:6px;'><small style='color:#888;'>AliExpress</small><br><small style='color:white;'>{status.get('aliexpress','🧠 IA')}</small></div>", unsafe_allow_html=True)
+                        c3.markdown(f"<div style='text-align:center;padding:6px;background:#1a1a2e;border-radius:6px;'><small style='color:#888;'>Amazon</small><br><small style='color:white;'>{status.get('amazon','🧠 IA')}</small></div>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""<div style='background:#1a1a2e;padding:12px;border-radius:8px;border:1px solid #FF4B4B44;'>
+                        <p style='color:#FFA500;margin:0;font-size:0.9rem;'>{tr['agente_prox']}</p>
+                        <p style='color:#888;margin:4px 0;font-size:0.85rem;'>⏰ Reporte programado: {hora_sel}</p>
+                    </div>""", unsafe_allow_html=True)
             with col2:
-                lbl_toggle = tr['agente_btn_pause'] if config.get('activo') else tr['agente_btn_activate']
-                if st.button(lbl_toggle, use_container_width=True):
-                    guardar_config_agente(user_id, config['nicho'], config['plataformas'], not config.get('activo'))
-                    st.rerun()
+                if config:
+                    lbl_toggle = tr['agente_btn_pause'] if config.get('activo') else tr['agente_btn_activate']
+                    if st.button(lbl_toggle, use_container_width=True):
+                        guardar_config_agente(agente_uid, nicho_run, plat_run, not config.get('activo'), hora_sel)
+                        st.rerun()
 
-            # Mostrar último reporte
+            # Mostrar reporte
             reporte_data = st.session_state.get('ultimo_reporte_agente') or (
                 {'reporte': config['ultimo_resultado'].get('reporte',''),
                  'tiene_datos_reales': config['ultimo_resultado'].get('tiene_datos_reales', False),
                  'status': config['ultimo_resultado'].get('status', {})}
-                if config.get('ultimo_resultado') else None
+                if config and config.get('ultimo_resultado') else None
             )
             if reporte_data and reporte_data.get('reporte'):
                 st.markdown("---")
@@ -1632,13 +1693,22 @@ elif st.session_state.get('vista') == 'agente':
                 else:
                     st.info(tr['agente_datos_ia'])
                 st.markdown(reporte_data['reporte'])
-                if st.button(tr['agente_email_btn']):
-                    enviado = enviar_email(
-                        st.session_state['user_email'],
-                        f"🤖 Reporte Agente Espía — {config['nicho']} — Dropshippingent",
-                        f"<h2>Reporte Agente Espía</h2><pre>{reporte_data['reporte']}</pre>"
-                    )
-                    st.success("✅ Enviado") if enviado else st.warning("⚠️ Error al enviar")
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button(tr['agente_email_btn']):
+                        enviado = enviar_email(
+                            st.session_state['user_email'],
+                            f"🤖 Reporte Agente Espía — {nicho_run} — Dropshippingent",
+                            f"<h2>Reporte Agente Espía — {nicho_run}</h2><pre>{reporte_data['reporte']}</pre>"
+                        )
+                        st.success("✅ Enviado") if enviado else st.warning("⚠️ Configura dominio en Resend para enviar emails")
+                with col2:
+                    if st.session_state.get('user_id') and st.session_state['user_role'] in ['pro','ultra','admin']:
+                        if st.button(tr['guardar_producto'], key="guardar_agente"):
+                            if guardar_producto_db(st.session_state.get('user_id', agente_uid),
+                                f"Agente: {nicho_run}", nicho_run, None, None, plat_run,
+                                reporte_data['reporte'][:500], reporte_data['reporte']):
+                                st.success(tr['producto_guardado_ok'])
         else:
             st.info(tr['agente_sin_config'])
 
